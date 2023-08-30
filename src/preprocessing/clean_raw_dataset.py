@@ -1,7 +1,5 @@
-import numpy as np
 import pandas as pd
 import os
-import ast
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -26,6 +24,7 @@ def create_clean_dataframe():
         clean_dataframe = convert_column_to_integer(clean_dataframe, column)
 
     clean_dataframe = convert_column_to_float(clean_dataframe, "convergenceDistance")
+    clean_dataframe = convert_column_to_datetime(clean_dataframe, "timeStampDatetime")
     return clean_dataframe
 
 
@@ -54,4 +53,9 @@ def convert_column_to_integer(dataframe, column_name):
 
 def convert_column_to_float(dataframe, column_name):
     dataframe[column_name] = dataframe[column_name].str.replace(",", ".").astype(float)
+    return dataframe
+
+
+def convert_column_to_datetime(dataframe, column_name):
+    dataframe[column_name] = pd.to_datetime(dataframe[column_name])
     return dataframe
