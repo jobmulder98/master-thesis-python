@@ -117,19 +117,24 @@ def butter_lowpass_filter(data):
     return y
 
 
+def plot_fixations(dataframe: pd.DataFrame) -> None:
+    plt.plot(clean_dataframe["angleVelocity"])
+    plt.axhline(10, color="red")
+    plt.show()
+    return
+
+
 if __name__ == "__main__":
     clean_dataframe = create_clean_dataframe()
     add_gaze_position_to_dataframe(clean_dataframe)
-    # filter_average(
-    #     clean_dataframe,
-    #     "gazePosition",
-    #     "gazePositionAverage",
-    #     3
-    # )
+    filter_average(
+        clean_dataframe,
+        "gazePosition",
+        "gazePositionAverage",
+        3
+    )
     add_degrees_per_second_to_dataframe(clean_dataframe, "gazePositionAverage")
     # print(clean_dataframe["gazePosition"])
     # print(clean_dataframe["gazePositionAverage"])
     # print(clean_dataframe["angleVelocity"].head(20))
-    plt.plot(clean_dataframe["angleVelocity"])
-    plt.axhline(10, color="red")
-    plt.show()
+
