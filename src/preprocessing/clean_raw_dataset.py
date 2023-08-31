@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import os
 from dotenv import load_dotenv
@@ -13,7 +14,7 @@ def create_clean_dataframe():
                                "LeftControllerPosition", "LeftControllerRotation", "RightControllerPosition",
                                "RightControllerRotation"]
     for column in coordinate_column_names:
-        clean_dataframe = convert_column_to_list(clean_dataframe, column)
+        clean_dataframe = convert_column_to_array(clean_dataframe, column)
 
     boolean_column_names = ["isLeftEyeBlinking", "isRightEyeBlinking", "isGrabbing"]
     for column in boolean_column_names:
@@ -35,9 +36,9 @@ def create_dataframe():
     return dataframe
 
 
-def convert_column_to_list(dataframe, column_name):
+def convert_column_to_array(dataframe, column_name):
     dataframe[column_name] = dataframe[column_name].apply(
-        lambda x: [float(coordinate) for coordinate in x.strip('()').split(',')])
+        lambda x: np.array([float(coordinate) for coordinate in x.strip('()').split(',')]))
     return dataframe
 
 
@@ -59,3 +60,6 @@ def convert_column_to_float(dataframe, column_name):
 def convert_column_to_datetime(dataframe, column_name):
     dataframe[column_name] = pd.to_datetime(dataframe[column_name])
     return dataframe
+
+
+dataset = create_clean_dataframe()
