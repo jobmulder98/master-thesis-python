@@ -3,14 +3,14 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 
-from helper_functions import *
+from ..helper_functions import *
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 
 
 def create_clean_dataframe():
-    clean_dataframe = create_dataframe()
+    clean_dataframe = create_dataframe(f"{DATA_DIRECTORY}\P0\datafile_C1.csv")
 
     # The first lines are startup lines, and have very large time steps and differences
     # clean_dataframe = clean_dataframe.iloc[40:].reset_index(drop=True)
@@ -41,8 +41,7 @@ def create_clean_dataframe():
     return clean_dataframe
 
 
-def create_dataframe() -> pd.DataFrame:
-    raw_data_file = f"{DATA_DIRECTORY}\P0\datafile_C1.csv"
+def create_dataframe(raw_data_file) -> pd.DataFrame:
     dataframe = pd.read_csv(raw_data_file, delimiter=";", header=0, keep_default_na=True, index_col="frame")
     dataframe = dataframe.dropna(axis=1, how="all")
     return dataframe
