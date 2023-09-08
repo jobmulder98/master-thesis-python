@@ -23,8 +23,20 @@ DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 
 
+def replace_string_in_textfile(participant_number, search_text, replace_text):
+    raw_data_file = text_file_name(participant_number)
+    with open(raw_data_file, "r") as file:
+        data = file.read()
+        data = data.replace(search_text, replace_text)
+    with open(raw_data_file, "w") as file:
+        file.write(data)
+    return
+
+
 def text_to_dataframe(participant_number, delimiter=',', skip_rows=11):
     raw_data_file = text_file_name(participant_number)
+    replace_string_in_textfile(participant_no, "(0,04-0,16 Hz)", "(0.04-0.16 Hz)")
+    replace_string_in_textfile(participant_no, "(0,16-0,4 Hz)", "(0.16-0.4 Hz)")
     try:
         dataframe = pd.read_csv(raw_data_file,
                                 delimiter=delimiter,
@@ -41,9 +53,9 @@ def text_to_dataframe(participant_number, delimiter=',', skip_rows=11):
 def create_clean_dataframe(dataframe):
     float_columns = ["[B] Heart Rate",
                      "[B] HRV Amp.",
-                     "[B] HRV-LF Power (0,04-0,16 Hz)",
-                     "[B] HRV-HF Power (0,16-0,4 Hz)",
-                     "[B] HRV-LF / HRV-HF"]
+                     "[B] HRV-LF Power (0.04-0.16 Hz)",
+                     "[B] HRV-HF Power (0.16-0.4 Hz)",
+                     "[B] HRV-LF / HRV-HF "]
     for column in float_columns:
         convert_column_to_float(dataframe, column)
     return
@@ -84,23 +96,12 @@ def mean_hrv_amplitude(dataframe, start_index, end_index):
 
 
 participant_no = 103
+df = text_to_dataframe(participant_no)
+create_clean_dataframe(df)
+
 for condition in np.arange(1, 8):
-    df = text_to_dataframe(participant_no)
-    print(type(df["[B] Heart Rate"].iloc[1]))
-    # create_clean_dataframe(df)
-
-    # start_time_condition, end_time_condition = obtain_start_end_times_hmd(participant_no, condition)
-    # start_time_ecg = obtain_start_time_ecg(participant_no)
-    # index_start, index_end = synchronize_times(start_time_condition, end_time_condition, start_time_ecg)
-    # print(index_start)
-    # print(index_end)
-    # print(type(df["[B] Heart Rate"].iloc[index_start]))
-    # print(f"The mean heart rate for condition {condition} is {mean_hr(df, index_start, index_end)}")
-
-
-# print(df.head(5))
-# print(df["[B] Heart Rate"].iloc[index_start:index_end].mean())
-
-
-# st, et, tt = obtain_start_end_times_hmd(103, 1)
-# print(st, et, tt)
+    start_time_condition, end_time_condition = obtain_start_end_times_hmd(participant_no, condition)
+    start_time_ecg = obtain_start_time_ecg(participant_no)
+    index_start, index_end = synchronize_times(start_time_condition, end_time_condition, start_time_ecg)
+    # print(f"The mean HR for condition {condition} is {mean_hr(df, index_start, index_end)}")
+    # print(f"The mean HRV for condition {condition} is {mean_hrv_amplitude(df, index_start, index_end)}")

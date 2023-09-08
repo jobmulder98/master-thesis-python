@@ -25,6 +25,11 @@ def convert_column_to_integer(dataframe: pd.DataFrame, column_name: str) -> None
 
 
 def convert_column_to_float(dataframe: pd.DataFrame, column_name: str) -> None:
+    dataframe[column_name] = dataframe[column_name].astype(float)
+    return
+
+
+def convert_column_to_float_and_replace_commas(dataframe: pd.DataFrame, column_name: str) -> None:
     dataframe[column_name] = dataframe[column_name].str.replace(",", ".").astype(float)
     return
 

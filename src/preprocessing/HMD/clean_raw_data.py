@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from src.preprocessing.helper_functions.dataframe_helpers import (
     convert_column_to_array,
     convert_column_to_datetime,
-    convert_column_to_float,
+    convert_column_to_float_and_replace_commas,
     convert_column_to_boolean,
     convert_column_to_integer,
     interpolate_zeros,
@@ -36,7 +36,7 @@ def create_clean_dataframe():
     for column in integer_column_names:
         convert_column_to_integer(clean_dataframe, column)
 
-    convert_column_to_float(clean_dataframe, "convergenceDistance")
+    convert_column_to_float_and_replace_commas(clean_dataframe, "convergenceDistance")
     convert_column_to_datetime(clean_dataframe, "timeStampDatetime")
 
     add_delta_time_to_dataframe(clean_dataframe)
