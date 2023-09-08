@@ -1,6 +1,6 @@
 import pandas as pd
 
-from preprocessing.HMD.clean_raw_dataset import create_clean_dataframe
+from preprocessing.HMD.clean_raw_data import create_clean_dataframe
 from preprocessing.helper_functions import *
 
 # pandas warning setting

@@ -3,17 +3,24 @@ import pandas as pd
 import os
 from dotenv import load_dotenv
 
-from ..helper_functions import *
+from src.preprocessing.helper_functions.dataframe_helpers import (
+    convert_column_to_array,
+    convert_column_to_datetime,
+    convert_column_to_float,
+    convert_column_to_boolean,
+    convert_column_to_integer,
+    interpolate_zeros,
+    interpolate_zero_arrays,
+)
+from src.preprocessing.helper_functions.general_helpers import delta_time_seconds
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
+data_file = f"{DATA_DIRECTORY}\P0\datafile_C1.csv"
 
 
 def create_clean_dataframe():
-    clean_dataframe = create_dataframe(f"{DATA_DIRECTORY}\P0\datafile_C1.csv")
-
-    # The first lines are startup lines, and have very large time steps and differences
-    # clean_dataframe = clean_dataframe.iloc[40:].reset_index(drop=True)
+    clean_dataframe = create_dataframe(data_file)
 
     coordinate_column_names = ["rayOrigin", "rayDirection", "eyesDirection", "HMDposition", "HMDrotation",
                                "LeftControllerPosition", "LeftControllerRotation", "RightControllerPosition",
@@ -41,36 +48,10 @@ def create_clean_dataframe():
     return clean_dataframe
 
 
-def create_dataframe(raw_data_file) -> pd.DataFrame:
+def create_dataframe(raw_data_file: str) -> pd.DataFrame:
     dataframe = pd.read_csv(raw_data_file, delimiter=";", header=0, keep_default_na=True, index_col="frame")
     dataframe = dataframe.dropna(axis=1, how="all")
     return dataframe
-
-
-def convert_column_to_array(dataframe: pd.DataFrame, column_name: str) -> None:
-    dataframe[column_name] = dataframe[column_name].apply(
-        lambda x: np.array([float(coordinate) for coordinate in x.strip('()').split(',')]))
-    return
-
-
-def convert_column_to_boolean(dataframe: pd.DataFrame, column_name: str) -> None:
-    dataframe[column_name] = dataframe[column_name].astype(bool)
-    return
-
-
-def convert_column_to_integer(dataframe: pd.DataFrame, column_name: str) -> None:
-    dataframe[column_name] = dataframe[column_name].astype(int)
-    return
-
-
-def convert_column_to_float(dataframe: pd.DataFrame, column_name: str) -> None:
-    dataframe[column_name] = dataframe[column_name].str.replace(",", ".").astype(float)
-    return
-
-
-def convert_column_to_datetime(dataframe: pd.DataFrame, column_name: str) -> None:
-    dataframe[column_name] = pd.to_datetime(dataframe[column_name])
-    return
 
 
 def add_delta_time_to_dataframe(dataframe: pd.DataFrame) -> None:
@@ -91,32 +72,6 @@ def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> None:
         cumulative_time_list.append(cumulative_time)
     dataframe["timeCumulative"] = cumulative_time_list
     return
-
-
-def interpolate_zero_arrays(dataframe: pd.DataFrame, column_name: str) -> pd.DataFrame:
-    def is_zero_array(arr):
-        return np.array_equal(arr, np.array([0, 0, 0]))
-
-    dataframe = dataframe.copy()
-    mask = dataframe[column_name].apply(is_zero_array)
-
-    for i in range(3):
-        col_name = f"{column_name}_{i}"
-        dataframe[col_name] = dataframe[column_name].apply(lambda arr: arr[i])
-        dataframe.loc[mask, col_name] = np.nan
-        dataframe[col_name] = dataframe[col_name].interpolate(method='linear')
-
-    dataframe.drop(columns=[column_name], inplace=True)
-    dataframe[column_name] = dataframe.apply(lambda row: np.array([row[f"{column_name}_{i}"] for i in range(3)]), axis=1)
-    dataframe.drop(columns=[f"{column_name}_{i}" for i in range(3)], inplace=True)
-    return dataframe
-
-
-def interpolate_zeros(dataframe: pd.DataFrame, column_name: str) -> pd.DataFrame:
-    dataframe = dataframe.copy()
-    dataframe[column_name] = dataframe[column_name].replace(0, np.nan)
-    dataframe[column_name] = dataframe[column_name].interpolate(method="linear")
-    return dataframe
 
 
 # dataset = create_clean_dataframe()

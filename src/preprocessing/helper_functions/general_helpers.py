@@ -2,7 +2,13 @@ import numpy as np
 import numpy.typing as npt
 import math
 import datetime
+import os
 from scipy.signal import butter, filtfilt, lfilter
+from dotenv import load_dotenv
+
+load_dotenv()
+DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
+ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 
 
 def angle_between_points(point1: npt.NDArray, point2: npt.NDArray, reference_point: npt.NDArray) -> float:
@@ -46,3 +52,11 @@ def butter_lowpass_filter(dataframe, column_name) -> npt.NDArray:
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     filtered_data = filtfilt(b, a, data)
     return filtered_data
+
+
+def text_file_name(participant_number):
+    return f"{DATA_DIRECTORY}\p{participant_number}\p{participant_number}.txt"
+
+
+def csv_file_name(participant_number, condition):
+    return f"{DATA_DIRECTORY}\p{participant_number}\datafile_C{condition}.csv"
