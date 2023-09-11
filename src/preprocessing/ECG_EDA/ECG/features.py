@@ -1,9 +1,12 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.patches import Ellipse
 from biosppy.signals import ecg
 import os
-from scipy.stats import zscore
+from scipy.stats import zscore, trapz
+from scipy.interpolate import interp1d
+from scipy import signal
 from dotenv import load_dotenv
 
 from src.preprocessing.ECG_EDA.clean_raw_data import (
@@ -48,6 +51,7 @@ def compute_rr_intervals(r_peaks, plot=False):
     rr_intervals = np.diff(r_peaks)
     rr_corrected = rr_intervals.copy()
     rr_corrected[np.abs(zscore(rr_intervals)) > 2] = np.median(rr_intervals)
+    rr_corrected = rr_corrected
     if plot:
         plt.figure(figsize=(20, 7))
         plt.title("RR-intervals")
@@ -62,7 +66,7 @@ def compute_rr_intervals(r_peaks, plot=False):
 
 def time_domain_features(rr):
     features = {}
-    hr = 60000 / rr
+    hr = 60 / (rr / ECG_SAMPLE_RATE)
     features['Mean RR (ms)'] = np.mean(rr)
     features['STD RR/SDNN (ms)'] = np.std(rr)
     features['Mean HR (beats/min)'] = np.mean(hr)
@@ -75,10 +79,64 @@ def time_domain_features(rr):
     return features
 
 
-df = create_clean_dataframe(101)
-r_peaks = detect_r_peaks(df, plot=False)
-rr_intervals = compute_rr_intervals(r_peaks, plot=True)
+def interpolate_rr_intervals(rr):
+    x = np.cumsum(rr) / ECG_SAMPLE_RATE
+    f = interp1d(x, rr, kind='cubic')
+    fs = 4.0
+    steps = 1 / fs
+    xx = np.arange(1, np.max(x), steps)
+    rr_interpolated = f(xx)
+    return rr_interpolated
 
+
+def frequency_domain(rri):
+    fxx, pxx = signal.welch(x=rri, fs=4)
+    cond_vlf = (fxx >= 0) & (fxx < 0.04)
+    cond_lf = (fxx >= 0.04) & (fxx < 0.15)
+    cond_hf = (fxx >= 0.15) & (fxx < 0.4)
+    vlf = trapz(pxx[cond_vlf], fxx[cond_vlf])
+    lf = trapz(pxx[cond_lf], fxx[cond_lf])
+    hf = trapz(pxx[cond_hf], fxx[cond_hf])
+    total_power = vlf + lf + hf
+
+    peak_vlf = fxx[cond_vlf][np.argmax(pxx[cond_vlf])]
+    peak_lf = fxx[cond_lf][np.argmax(pxx[cond_lf])]
+    peak_hf = fxx[cond_hf][np.argmax(pxx[cond_hf])]
+
+    lf_nu = 100 * lf / (lf + hf)
+    hf_nu = 100 * hf / (lf + hf)
+
+    results = {'Power VLF (ms2)': vlf,
+               'Power LF (ms2)': lf,
+               'Power HF (ms2)': hf,
+               'Power Total (ms2)': total_power,
+               'LF/HF': (lf / hf),
+               'Peak VLF (Hz)': peak_vlf,
+               'Peak LF (Hz)': peak_lf,
+               'Peak HF (Hz)': peak_hf,
+               'Fraction LF (nu)': lf_nu,
+               'Fraction HF (nu)': hf_nu
+               }
+
+    return results, fxx, pxx
+
+
+df = create_clean_dataframe(101)
+print(mean_hr(df, 0, -1))
+r_peaks = detect_r_peaks(df, plot=False)
+rr_intervals = compute_rr_intervals(r_peaks, plot=False)
+rr_interpolated = interpolate_rr_intervals(rr_intervals)
+# features_frequency_domain, fxx, pxx = frequency_domain(rr_interpolated)
+# features_time_domain = time_domain_features(rr_intervals)
+
+print("Time domain metrics - automatically corrected RR-intervals:")
+for k, v in time_domain_features(rr_intervals).items():
+    print("- %s: %.2f" % (k, v))
+
+print("Frequency domain metrics:")
+results, fxx, pxx = frequency_domain(rr_interpolated)
+for k, v in results.items():
+    print("- %s: %.2f" % (k, v))
 
 # condition_indexes = synchronize_all_conditions(102)
 # for key, value in condition_indexes.items():
