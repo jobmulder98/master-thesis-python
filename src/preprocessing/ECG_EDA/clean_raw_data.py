@@ -1,9 +1,11 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import dateutil.parser as dparser
+import matplotlib.pyplot as plt
 import linecache
 import os
+from biosppy.signals import ecg
+from typing import Union
 
 from datetime import datetime
 from dotenv import load_dotenv
@@ -23,8 +25,7 @@ DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 
 
-def replace_string_in_textfile(participant_number, search_text, replace_text):
-    raw_data_file = text_file_name(participant_number)
+def replace_string_in_textfile(raw_data_file, search_text, replace_text):
     with open(raw_data_file, "r") as file:
         data = file.read()
         data = data.replace(search_text, replace_text)
@@ -33,10 +34,10 @@ def replace_string_in_textfile(participant_number, search_text, replace_text):
     return
 
 
-def text_to_dataframe(participant_number, delimiter=',', skip_rows=11):
+def text_to_dataframe(participant_number: int, delimiter=',', skip_rows=11) -> pd.DataFrame:
     raw_data_file = text_file_name(participant_number)
-    replace_string_in_textfile(participant_no, "(0,04-0,16 Hz)", "(0.04-0.16 Hz)")
-    replace_string_in_textfile(participant_no, "(0,16-0,4 Hz)", "(0.16-0.4 Hz)")
+    replace_string_in_textfile(raw_data_file, "(0,04-0,16 Hz)", "(0.04-0.16 Hz)")
+    replace_string_in_textfile(raw_data_file, "(0,16-0,4 Hz)", "(0.16-0.4 Hz)")
     try:
         dataframe = pd.read_csv(raw_data_file,
                                 delimiter=delimiter,
@@ -50,7 +51,10 @@ def text_to_dataframe(participant_number, delimiter=',', skip_rows=11):
         return None
 
 
-def create_clean_dataframe(dataframe):
+def create_clean_dataframe(participant_no: int) -> pd.DataFrame:
+    dataframe = text_to_dataframe(participant_no)
+
+    # Convert column values to float
     float_columns = ["[B] Heart Rate",
                      "[B] HRV Amp.",
                      "[B] HRV-LF Power (0.04-0.16 Hz)",
@@ -58,10 +62,25 @@ def create_clean_dataframe(dataframe):
                      "[B] HRV-LF / HRV-HF "]
     for column in float_columns:
         convert_column_to_float(dataframe, column)
-    return
+
+    #  Convert to float and filter ECG signal and replace in dataframe
+    if "Sensor-B:EEG" in dataframe.columns:
+        convert_column_to_float(dataframe, "Sensor-B:EEG")
+        raw_ecg_signal = dataframe["Sensor-B:EEG"]
+        filtered_ecg_signal = filter_ecg_signal(raw_ecg_signal)
+        dataframe["Sensor-B:EEG-Filtered"] = filtered_ecg_signal
+
+    # Convert to float and filter EDA signal and replace in dataframe
+    if "Sensor-C:SC/GSR" in dataframe.columns:
+        convert_column_to_float(dataframe, "Sensor-C:SC/GSR")
+    return dataframe
 
 
-def obtain_start_end_times_hmd(participant_number, condition):
+def filter_ecg_signal(ecg_signal):
+    return ecg.ecg(ecg_signal, sampling_rate=ECG_SAMPLE_RATE, show=False)[1]
+
+
+def obtain_start_end_times_hmd(participant_number: int, condition: int) -> tuple[datetime, datetime]:
     raw_data_file = csv_file_name(participant_number, condition)
     clean_dataframe = pd.read_csv(raw_data_file, delimiter=";", header=0, index_col=4, keep_default_na=True)
     convert_column_to_datetime(clean_dataframe, "timeStampDatetime")
@@ -79,7 +98,9 @@ def obtain_start_time_ecg(participant_number: int) -> datetime:
     return time_datetime
 
 
-def synchronize_times(start_time_condition, end_time_condition, start_time_ecg):
+def synchronize_times(start_time_condition: datetime,
+                      end_time_condition: datetime,
+                      start_time_ecg: datetime) -> tuple[int, int]:
     difference_in_seconds = delta_time_seconds(start_time_ecg, start_time_condition)
     start_at_index = difference_in_seconds * ECG_SAMPLE_RATE
     total_time_condition = delta_time_seconds(start_time_condition, end_time_condition)
@@ -87,21 +108,17 @@ def synchronize_times(start_time_condition, end_time_condition, start_time_ecg):
     return int(start_at_index), int(end_at_index)
 
 
-def mean_hr(dataframe, start_index, end_index):
-    return dataframe["[B] Heart Rate"].iloc[start_index:end_index].mean()
+def synchronize_all_conditions(participant_number: int) -> dict:
+    start_end_times = {}
+    for condition in np.arange(1, 8):
+        start_time_condition, end_time_condition = obtain_start_end_times_hmd(participant_number, condition)
+        start_time_ecg = obtain_start_time_ecg(participant_number)
+        index_start, index_end = synchronize_times(start_time_condition, end_time_condition, start_time_ecg)
+        start_end_times[condition] = [index_start, index_end]
+    return start_end_times
 
 
-def mean_hrv_amplitude(dataframe, start_index, end_index):
-    return dataframe["[B] HRV Amp."].iloc[start_index:end_index].mean()
-
-
-participant_no = 103
-df = text_to_dataframe(participant_no)
-create_clean_dataframe(df)
-
-for condition in np.arange(1, 8):
-    start_time_condition, end_time_condition = obtain_start_end_times_hmd(participant_no, condition)
-    start_time_ecg = obtain_start_time_ecg(participant_no)
-    index_start, index_end = synchronize_times(start_time_condition, end_time_condition, start_time_ecg)
-    # print(f"The mean HR for condition {condition} is {mean_hr(df, index_start, index_end)}")
-    # print(f"The mean HRV for condition {condition} is {mean_hrv_amplitude(df, index_start, index_end)}")
+# df = create_clean_dataframe(101)
+# print(df.head(5))
+# plt.plot(df["Sensor-B:EEG"].iloc[0:10200])
+# plt.show()
