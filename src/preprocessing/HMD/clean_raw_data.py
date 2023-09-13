@@ -49,7 +49,12 @@ def create_clean_dataframe(participant_number, condition):
 
 def create_dataframe(participant_number: int, condition: int) -> pd.DataFrame:
     data_file = DATA_DIRECTORY + "\p" + str(participant_number) + "\datafile_C" + str(condition) + ".csv"
-    dataframe = pd.read_csv(data_file, delimiter=";", header=0, keep_default_na=True, index_col="frame")
+    dataframe = pd.read_csv(data_file,
+                            delimiter=";",
+                            header=0,
+                            keep_default_na=True,
+                            ).fillna(value="None")
+    dataframe.set_index(keys="frame")
     dataframe = dataframe.dropna(axis=1, how="all")
     return dataframe
 
@@ -74,5 +79,5 @@ def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> None:
     return
 
 
-dataset = create_clean_dataframe(103, 1)
-print(dataset["rayOrigin"].iloc[63:75])
+# dataset = create_clean_dataframe(103, 1)
+# print(dataset["rayOrigin"].iloc[63:75])
