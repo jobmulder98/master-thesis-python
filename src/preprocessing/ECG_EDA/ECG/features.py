@@ -1,20 +1,12 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.patches import Ellipse
 from biosppy.signals import ecg
-import os
-from scipy.stats import zscore
-from scipy.interpolate import interp1d
-from scipy.integrate import trapz
-from scipy import signal
 from dotenv import load_dotenv
+from scipy.stats import zscore
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pandas as pd
 
-from src.preprocessing.ECG_EDA.clean_raw_data import (
-    create_clean_dataframe,
-    synchronize_all_conditions,
-    text_to_dataframe,
-)
+from src.preprocessing.ECG_EDA.clean_raw_data import create_clean_dataframe
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -34,7 +26,7 @@ def detect_r_peaks(dataframe: pd.DataFrame,
                    end_index: int,
                    sample_frequency=ECG_SAMPLE_RATE,
                    plot=False):
-    filtered_ecg_signal = dataframe["Sensor-B:EEG-Filtered"].values
+    filtered_ecg_signal = dataframe["Sensor-B:EEG-Filtered"].iloc[start_index:end_index].values
     r_peaks_uncorrected = ecg.ecg(filtered_ecg_signal,
                                   sampling_rate=sample_frequency,
                                   show=False)[2]
@@ -91,7 +83,7 @@ def time_domain_features(dataframe: pd.DataFrame,
     return features
 
 
-def frequency_domain(dataframe, start_index: int, end_index: int) -> dict:
+def frequency_domain_features(dataframe, start_index: int, end_index: int) -> dict:
     low_frequency_signal = dataframe["[B] HRV-LF Power (0.04-0.16 Hz)"].iloc[start_index:end_index]
     high_frequency_signal = dataframe["[B] HRV-HF Power (0.16-0.4 Hz)"].iloc[start_index:end_index]
     lf_power = low_frequency_signal.sum() / ECG_SAMPLE_RATE
@@ -108,17 +100,15 @@ def frequency_domain(dataframe, start_index: int, end_index: int) -> dict:
     return features
 
 
-df = create_clean_dataframe(101)
-# features_frequency_domain = frequency_domain(df, 0, -1)
-# features_time_domain = time_domain_features(df, 0, -1)
-
-print("Time domain metrics - automatically corrected RR-intervals:")
-for k, v in time_domain_features(df, 23000, 43000).items():
-    print("- %s: %.2f" % (k, v))
-print()
-
-print("Frequency domain metrics - automatically corrected RR-intervals:")
-for k, v in frequency_domain(df, 23000, 43000).items():
-    print("- %s: %.2f" % (k, v))
-print()
-
+# df = create_clean_dataframe(101)
+# start_index_condition = 23000
+# end_index_condition = 43000
+#
+# print("Time domain metrics - automatically corrected RR-intervals:")
+# for k, v in time_domain_features(df, start_index_condition, end_index_condition).items():
+#     print("- %s: %.2f" % (k, v))
+# print()
+#
+# print("Frequency domain metrics - automatically corrected RR-intervals:")
+# for k, v in frequency_domain_features(df, start_index_condition, end_index_condition).items():
+#     print("- %s: %.2f" % (k, v))

@@ -16,11 +16,10 @@ from src.preprocessing.helper_functions.general_helpers import delta_time_second
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
-data_file = f"{DATA_DIRECTORY}\P0\datafile_C1.csv"
 
 
-def create_clean_dataframe():
-    clean_dataframe = create_dataframe(data_file)
+def create_clean_dataframe(participant_number, condition):
+    clean_dataframe = create_dataframe(participant_number, condition)
 
     coordinate_column_names = ["rayOrigin", "rayDirection", "eyesDirection", "HMDposition", "HMDrotation",
                                "LeftControllerPosition", "LeftControllerRotation", "RightControllerPosition",
@@ -48,8 +47,9 @@ def create_clean_dataframe():
     return clean_dataframe
 
 
-def create_dataframe(raw_data_file: str) -> pd.DataFrame:
-    dataframe = pd.read_csv(raw_data_file, delimiter=";", header=0, keep_default_na=True, index_col="frame")
+def create_dataframe(participant_number: int, condition: int) -> pd.DataFrame:
+    data_file = DATA_DIRECTORY + "\p" + str(participant_number) + "\datafile_C" + str(condition) + ".csv"
+    dataframe = pd.read_csv(data_file, delimiter=";", header=0, keep_default_na=True, index_col="frame")
     dataframe = dataframe.dropna(axis=1, how="all")
     return dataframe
 
@@ -74,5 +74,5 @@ def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> None:
     return
 
 
-# dataset = create_clean_dataframe()
-# print(dataset["rayOrigin"].iloc[63:75])
+dataset = create_clean_dataframe(103, 1)
+print(dataset["rayOrigin"].iloc[63:75])
