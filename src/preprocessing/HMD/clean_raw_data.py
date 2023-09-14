@@ -18,7 +18,11 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 
 
-def create_clean_dataframe(participant_number, condition):
+def create_clean_dataframe(participant_number: int, condition: int) -> pd.DataFrame:
+    """
+
+    :rtype: object
+    """
     clean_dataframe = create_dataframe(participant_number, condition)
 
     coordinate_column_names = ["rayOrigin", "rayDirection", "eyesDirection", "HMDposition", "HMDrotation",
@@ -80,5 +84,5 @@ def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> None:
 
 
 # dataset = create_dataframe(103, 3)
-dataset = create_clean_dataframe(103, 3)
-print(dataset.head())
+# dataset = create_clean_dataframe(103, 3)
+# print(dataset.head())

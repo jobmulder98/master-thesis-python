@@ -12,7 +12,8 @@ DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 
 
-def eda_features(dataframe: pd.DataFrame, start_index: int, end_index: int, plot=False) -> dict:
+def eda_features(participant_number, start_index: int, end_index: int, plot=False) -> dict:
+    dataframe = create_clean_dataframe(participant_number)
     eda_signal = dataframe["Sensor-C:SC/GSR"].iloc[start_index:end_index].values
     signals, info = nk.eda_process(eda_signal, sampling_rate=ECG_SAMPLE_RATE)
     scl_signal = signals["EDA_Tonic"]
@@ -41,9 +42,9 @@ def eda_features(dataframe: pd.DataFrame, start_index: int, end_index: int, plot
     return features
 
 
-# df = create_clean_dataframe(101)
+# participant_no = 101
 # start_index_eda, end_index_eda = 0, -1
 #
-# print("Frequency domain metrics - automatically corrected RR-intervals:")
-# for k, v in eda_features(df, start_index_eda, end_index_eda, plot=True).items():
+# print("EDA features:")
+# for k, v in eda_features(participant_no, start_index_eda, end_index_eda, plot=True).items():
 #     print("- %s: %s" % (k, v))

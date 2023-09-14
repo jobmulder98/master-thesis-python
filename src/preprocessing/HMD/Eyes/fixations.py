@@ -71,9 +71,10 @@ def count_fixations(dataframe: pd.DataFrame,
                     fixations_column_name: str,
                     max_rotational_velocity: int,
                     min_threshold_milliseconds: int,
-                    max_threshold_milliseconds: int) -> int:
+                    max_threshold_milliseconds: int) -> tuple:
     time_counter = 0
     fixation_counter = 0
+    fixation_times = []
     is_fixation = False
     min_threshold = milliseconds_to_seconds(min_threshold_milliseconds)
     max_threshold = milliseconds_to_seconds(max_threshold_milliseconds)
@@ -82,15 +83,25 @@ def count_fixations(dataframe: pd.DataFrame,
             time_counter += dataframe["deltaSeconds"].iloc[i]
             if min_threshold <= time_counter < max_threshold and is_fixation is False:
                 fixation_counter += 1
+                fixation_times.append(time_counter)
                 is_fixation = True
         else:
             time_counter = 0
             is_fixation = False
-    return fixation_counter
+    return fixation_counter, fixation_times
 
 
-if __name__ == "__main__":
-    clean_dataframe = create_clean_dataframe(103, 3)
+def fixation_features(participant_no, condition, start_index, end_index, plot=False):
+    fixation_time_thresholds = {
+        "short fixations": [100, 150],
+        "medium fixations": [150, 300],
+        "long fixations": [300, 500],
+        "very long fixations": [500, 2000],
+        "all fixations": [100, 2000],
+    }
+    max_rotational_velocity = 50
+    features = {}
+    clean_dataframe = create_clean_dataframe(participant_no, condition)[start_index:end_index]
     add_gaze_position_to_dataframe(clean_dataframe)
     add_filter_average_to_dataframe(
         clean_dataframe,
@@ -99,12 +110,32 @@ if __name__ == "__main__":
         3
     )
     add_degrees_per_second_to_dataframe(clean_dataframe, "gazePositionAverage")
-    number_of_fixations = count_fixations(clean_dataframe,
-                                          "degreesPerSecond",
-                                          50,
-                                          100,
-                                          2000,
-                                          )
-    print(number_of_fixations)
-    # print(clean_dataframe["degreesPerSecond"])
-    # print(clean_dataframe["angle"])
+
+    for key, value in fixation_time_thresholds.items():
+        number_of_fixations, fixation_times = count_fixations(clean_dataframe,
+                                                              "degreesPerSecond",
+                                                              max_rotational_velocity,
+                                                              value[0],
+                                                              value[1],
+                                                              )
+        features[key] = number_of_fixations
+        if key == "all fixations":
+            features["mean fixation time"] = np.mean(fixation_times) * 1000
+            features["median fixation time"] = np.median(np.sort(fixation_times)) * 1000
+
+    if plot:
+        return features  # TODO
+    return features
+
+
+# participant_number = 103
+# condition = 1
+# start = 0
+# end = -1
+#
+# print("Fixation features:")
+# for k, v in fixation_features(participant_no=participant_number,
+#                               condition=condition,
+#                               start_index=start,
+#                               end_index=end).items():
+#     print("- %s: %.2f" % (k, v))

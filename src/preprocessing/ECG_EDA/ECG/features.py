@@ -61,14 +61,23 @@ def compute_rr_intervals(r_peaks, plot=False):
     return rr_corrected
 
 
-def time_domain_features(dataframe: pd.DataFrame,
+def time_domain_features(participant_number,
                          start_index: int,
                          end_index: int,
                          plot_r_peaks=False,
                          plot_rr_intervals=False) -> dict:
+    dataframe = create_clean_dataframe(participant_number)
+
     r_peaks = detect_r_peaks(dataframe, start_index, end_index, plot=plot_r_peaks)
     rr_intervals = compute_rr_intervals(r_peaks, plot=plot_rr_intervals)
     hr = 60 / (rr_intervals / ECG_SAMPLE_RATE)
+
+    low_frequency_signal = dataframe["[B] HRV-LF Power (0.04-0.16 Hz)"].iloc[start_index:end_index]
+    high_frequency_signal = dataframe["[B] HRV-HF Power (0.16-0.4 Hz)"].iloc[start_index:end_index]
+    lf_power = low_frequency_signal.sum() / ECG_SAMPLE_RATE
+    hf_power = high_frequency_signal.sum() / ECG_SAMPLE_RATE
+    total_power = lf_power + hf_power
+
     features = {
         "Mean RR (ms)": np.mean(rr_intervals),
         "STD RR/SDNN (ms)": np.std(rr_intervals),
@@ -78,18 +87,7 @@ def time_domain_features(dataframe: pd.DataFrame,
         "Max HR (beats/min)": np.max(hr),
         "RMSSD (ms)": np.sqrt(np.mean(np.square(np.diff(rr_intervals)))),
         "NNxx": np.sum(np.abs(np.diff(rr_intervals)) > 50) * 1,
-        "pNNxx (%)": 100 * np.sum((np.abs(np.diff(rr_intervals)) > 50) * 1) / len(rr_intervals)
-    }
-    return features
-
-
-def frequency_domain_features(dataframe, start_index: int, end_index: int) -> dict:
-    low_frequency_signal = dataframe["[B] HRV-LF Power (0.04-0.16 Hz)"].iloc[start_index:end_index]
-    high_frequency_signal = dataframe["[B] HRV-HF Power (0.16-0.4 Hz)"].iloc[start_index:end_index]
-    lf_power = low_frequency_signal.sum() / ECG_SAMPLE_RATE
-    hf_power = high_frequency_signal.sum() / ECG_SAMPLE_RATE
-    total_power = lf_power + hf_power
-    features = {
+        "pNNxx (%)": 100 * np.sum((np.abs(np.diff(rr_intervals)) > 50) * 1) / len(rr_intervals),
         "Power LF (ms2)": lf_power,
         "Power HF (ms2)": hf_power,
         "Power Total (ms2)": total_power,
@@ -100,15 +98,11 @@ def frequency_domain_features(dataframe, start_index: int, end_index: int) -> di
     return features
 
 
-# df = create_clean_dataframe(101)
+# participant_no = 101
 # start_index_condition = 23000
 # end_index_condition = 43000
 #
-# print("Time domain metrics - automatically corrected RR-intervals:")
-# for k, v in time_domain_features(df, start_index_condition, end_index_condition).items():
+# print("ECG features:")
+# for k, v in time_domain_features(participant_no, start_index_condition, end_index_condition).items():
 #     print("- %s: %.2f" % (k, v))
 # print()
-#
-# print("Frequency domain metrics - automatically corrected RR-intervals:")
-# for k, v in frequency_domain_features(df, start_index_condition, end_index_condition).items():
-#     print("- %s: %.2f" % (k, v))
