@@ -1,7 +1,11 @@
 import pandas as pd
+import numpy as np
 
-from preprocessing.HMD.clean_raw_data import create_clean_dataframe
-from preprocessing.helper_functions import *
+from src.preprocessing.HMD.clean_raw_data import create_clean_dataframe
+from src.preprocessing.helper_functions.general_helpers import (
+    angle_between_points,
+    milliseconds_to_seconds,
+)
 
 # pandas warning setting
 pd.options.mode.chained_assignment = None
@@ -86,7 +90,7 @@ def count_fixations(dataframe: pd.DataFrame,
 
 
 if __name__ == "__main__":
-    clean_dataframe = create_clean_dataframe()
+    clean_dataframe = create_clean_dataframe(103, 3)
     add_gaze_position_to_dataframe(clean_dataframe)
     add_filter_average_to_dataframe(
         clean_dataframe,
@@ -98,9 +102,9 @@ if __name__ == "__main__":
     number_of_fixations = count_fixations(clean_dataframe,
                                           "degreesPerSecond",
                                           50,
-                                          1000,
+                                          100,
                                           2000,
                                           )
     print(number_of_fixations)
-    print(clean_dataframe["degreesPerSecond"])
+    # print(clean_dataframe["degreesPerSecond"])
     # print(clean_dataframe["angle"])
