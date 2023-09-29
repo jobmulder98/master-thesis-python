@@ -71,33 +71,36 @@ def count_fixations(dataframe: pd.DataFrame,
                     fixations_column_name: str,
                     max_rotational_velocity: int,
                     min_threshold_milliseconds: int,
-                    max_threshold_milliseconds: int) -> tuple:
+                    max_threshold_milliseconds: int,
+                    on_other_object=False) -> tuple:
     time_counter = 0
     fixation_counter = 0
     fixation_times = []
-    is_fixation = False
     min_threshold = milliseconds_to_seconds(min_threshold_milliseconds)
     max_threshold = milliseconds_to_seconds(max_threshold_milliseconds)
     for i in range(len(dataframe[fixations_column_name])):
         if dataframe[fixations_column_name].iloc[i] < max_rotational_velocity:
-            time_counter += dataframe["deltaSeconds"].iloc[i]
-            if min_threshold <= time_counter < max_threshold and is_fixation is False:
+            if on_other_object:
+                if dataframe["focusObjectTag"].iloc[i] == "notAssigned":
+                    time_counter += dataframe["deltaSeconds"].iloc[i]
+            else:
+                time_counter += dataframe["deltaSeconds"].iloc[i]
+        else:
+            if min_threshold <= time_counter < max_threshold:
                 fixation_counter += 1
                 fixation_times.append(time_counter)
-                is_fixation = True
-        else:
             time_counter = 0
-            is_fixation = False
     return fixation_counter, fixation_times
 
 
 def fixation_features(participant_no, condition, start_index, end_index, plot=False):
     fixation_time_thresholds = {
-        "short fixations": [100, 150],
-        "medium fixations": [150, 300],
-        "long fixations": [300, 500],
-        "very long fixations": [500, 2000],
-        "all fixations": [100, 2000],
+        "short fixations": [100, 150, False],  # Here False corresponds to on_other_object
+        "medium fixations": [150, 300, False],
+        "long fixations": [300, 500, False],
+        "very long fixations": [500, 2000, False],
+        "all fixations": [100, 2000, False],
+        "fixations other object": [100, 2000, True],
     }
     max_rotational_velocity = 50
     features = {}
@@ -117,25 +120,31 @@ def fixation_features(participant_no, condition, start_index, end_index, plot=Fa
                                                               max_rotational_velocity,
                                                               value[0],
                                                               value[1],
+                                                              value[2],
                                                               )
         features[key] = number_of_fixations
         if key == "all fixations":
             features["mean fixation time"] = np.mean(fixation_times) * 1000
             features["median fixation time"] = np.median(np.sort(fixation_times)) * 1000
+        elif key == "fixations other object":
+            features["mean fixation time other object"] = np.mean(fixation_times) * 1000
+            features["median fixation time other object"] = np.median(np.sort(fixation_times)) * 1000
+            features["longest fixation other object"] = np.max(fixation_times) * 1000
 
     if plot:
         return features  # TODO
     return features
 
 
-# participant_number = 103
-# condition = 1
-# start = 0
-# end = -1
-#
-# print("Fixation features:")
-# for k, v in fixation_features(participant_no=participant_number,
-#                               condition=condition,
-#                               start_index=start,
-#                               end_index=end).items():
-#     print("- %s: %.2f" % (k, v))
+participant_number = 103
+condition = 3
+start = 0
+end = -1
+
+print("Fixation features:")
+for k, v in fixation_features(participant_no=participant_number,
+                              condition=condition,
+                              start_index=start,
+                              end_index=end).items():
+    print("- %s: %.2f" % (k, v))
+

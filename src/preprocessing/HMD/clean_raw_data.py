@@ -75,14 +75,13 @@ def add_delta_time_to_dataframe(dataframe: pd.DataFrame) -> None:
 
 def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> None:
     cumulative_time = 0
-    cumulative_time_list = [0]
-    for i in range(len(dataframe["deltaSeconds"])-1):
+    cumulative_time_list = []
+    for i in range(len(dataframe["deltaSeconds"])):
         cumulative_time += dataframe["deltaSeconds"].iloc[i]
         cumulative_time_list.append(cumulative_time)
     dataframe["timeCumulative"] = cumulative_time_list
     return
 
 
-# dataset = create_dataframe(103, 3)
-# dataset = create_clean_dataframe(103, 3)
-# print(dataset.head())
+# dataset = create_clean_dataframe(103, 5)
+# print(dataset.to_string()[0:10000])

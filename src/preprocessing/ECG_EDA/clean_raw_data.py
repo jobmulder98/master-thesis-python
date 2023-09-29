@@ -118,7 +118,7 @@ def synchronize_all_conditions(participant_number: int) -> dict:
     return start_end_times
 
 
-# df = create_clean_dataframe(101)
-# print(df.head(5))
+df = create_clean_dataframe(101)
+print(df.head(5))
 # plt.plot(df["Sensor-B:EEG"].iloc[0:10200])
-# plt.show()
+plt.show()

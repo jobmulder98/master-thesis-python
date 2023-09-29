@@ -98,11 +98,11 @@ def time_domain_features(participant_number,
     return features
 
 
-# participant_no = 101
-# start_index_condition = 23000
-# end_index_condition = 43000
-#
-# print("ECG features:")
-# for k, v in time_domain_features(participant_no, start_index_condition, end_index_condition).items():
-#     print("- %s: %.2f" % (k, v))
-# print()
+participant_no = 101
+start_index_condition = 23000
+end_index_condition = 43000
+
+print("ECG features:")
+for k, v in time_domain_features(participant_no, start_index_condition, end_index_condition).items():
+    print("- %s: %.2f" % (k, v))
+print()
