@@ -36,8 +36,8 @@ def fixation_features(participant_no, condition, start_index, end_index, fixatio
     )
     add_degrees_per_second_to_dataframe(clean_dataframe, "gazePositionAverage")
 
-    for key, value in fixation_time_thresholds.items():
-        number_of_fixations, fixation_times = count_fixations(clean_dataframe,
+    for key, value in fixation_time_thresholds.i
+        number_of_fixations, fixation_times = cotems():unt_fixations(clean_dataframe,
                                                               "degreesPerSecond",
                                                               max_rotational_velocity,
                                                               value[0],

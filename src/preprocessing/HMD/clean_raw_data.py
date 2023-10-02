@@ -66,9 +66,9 @@ def create_dataframe(participant_number: int, condition: int) -> pd.DataFrame:
 def add_delta_time_to_dataframe(dataframe: pd.DataFrame) -> None:
     dataframe["deltaSeconds"] = 0
     for i in range(len(dataframe["timeStampDatetime"]) - 1):
-        dataframe["deltaSeconds"].iloc[i + 1] = delta_time_seconds(
-            dataframe["timeStampDatetime"].iloc[i],
-            dataframe["timeStampDatetime"].iloc[i + 1]
+        dataframe.loc[i + 1, "deltaSeconds"] = delta_time_seconds(
+            dataframe.loc[i, "timeStampDatetime"],
+            dataframe.loc[i + 1, "timeStampDatetime"]
         )
     return
 
