@@ -19,9 +19,7 @@ def new_item_in_cart(dataframe: pd.DataFrame, performance_column: str, differenc
     return new_item_in_cart_indexes, new_item_in_cart_time_stamp
 
 
-def delta_time_new_item(participant_no: int, condition: int, start_index, end_index):
-    dataframe = create_clean_dataframe(participant_no, condition)[start_index:end_index]
-    performance_column, difference_column = "numberOfItemsInCart", "numberOfItemsInCartDifference"
+def delta_time_new_item(dataframe: pd.DataFrame, performance_column, difference_column) -> list[float]:
     indexes, time_stamps = new_item_in_cart(dataframe, performance_column, difference_column)
     delta_times = []
     for i in range(len(time_stamps) - 1):
@@ -30,19 +28,23 @@ def delta_time_new_item(participant_no: int, condition: int, start_index, end_in
 
 
 def performance_features(participant_no: int, condition: int, start_index: int, end_index: int) -> dict:
-    delta_times = delta_time_new_item(participant_no, condition, start_index, end_index)
+    dataframe = create_clean_dataframe(participant_no, condition)[start_index:end_index]
+    performance_column, difference_column = "numberOfItemsInCart", "numberOfItemsInCartDifference"
+    delta_times = delta_time_new_item(dataframe, performance_column, difference_column)
     time_sum = sum(map(float, delta_times))
+    items_collected = int(dataframe[performance_column].iloc[-1]) - int(dataframe[performance_column].iloc[0])
     features = {
         "seconds/item": time_sum / len(delta_times),
-        "std dev. seconds/item" : np.std(delta_times),
+        "std dev. seconds/item": np.std(delta_times),
+        "total items collected": items_collected
     }
     return features
 
 
 participant_number = 103
-condition = 3
+condition = 7
 start_idx = 0
-end_idx = 3000
+end_idx = -1
 
 print("Performance features:")
 for k, v in performance_features(participant_number, condition, start_idx, end_idx).items():
