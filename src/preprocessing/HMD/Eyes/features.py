@@ -15,11 +15,12 @@ from src.preprocessing.HMD.Eyes.fixations import (
 )
 
 
-def area_of_interest_features(participant_no: int, condition: int):
-    features = {"total time other object": total_time_other_object(participant_no, condition),
-                "total time main shelf": total_time_main_shelf(participant_no, condition),
-                "total time list": total_time_list(participant_no, condition),
-                "total time cart": total_time_cart(participant_no, condition)}
+def area_of_interest_features(participant_no: int, condition: int, start_index: int, end_index: int):
+    dataframe = create_clean_dataframe(participant_no, condition)[start_index:end_index]
+    features = {"total time other object": total_time_other_object(dataframe),
+                "total time main shelf": total_time_main_shelf(dataframe),
+                "total time list": total_time_list(dataframe),
+                "total time cart": total_time_cart(dataframe)}
     return features
 
 
@@ -36,8 +37,8 @@ def fixation_features(participant_no, condition, start_index, end_index, fixatio
     )
     add_degrees_per_second_to_dataframe(clean_dataframe, "gazePositionAverage")
 
-    for key, value in fixation_time_thresholds.i
-        number_of_fixations, fixation_times = cotems():unt_fixations(clean_dataframe,
+    for key, value in fixation_time_thresholds.items():
+        number_of_fixations, fixation_times = count_fixations(clean_dataframe,
                                                               "degreesPerSecond",
                                                               max_rotational_velocity,
                                                               value[0],
@@ -58,30 +59,30 @@ def fixation_features(participant_no, condition, start_index, end_index, fixatio
     return features
 
 
-participant_number = 103
-condition = 3
-start = 0
-end = -1
-
-fixation_time_thresholds = {
-        "short fixations": [100, 150, False],  # Here False corresponds to on_other_object
-        "medium fixations": [150, 300, False],
-        "long fixations": [300, 500, False],
-        "very long fixations": [500, 2000, False],
-        "all fixations": [100, 2000, False],
-        "fixations other object": [100, 2000, True],
-    }
-
-print("Fixation features:")
-for k, v in fixation_features(participant_no=participant_number,
-                              condition=condition,
-                              start_index=start,
-                              end_index=end,
-                              fixation_time_thresholds=fixation_time_thresholds).items():
-    print("- %s: %.2f" % (k, v))
-
-print("\nAOI features:")
-for k, v in area_of_interest_features(participant_no=participant_number,
-                                      condition=condition,
-                                      ).items():
-    print("- %s: %.2f" % (k, v))
+# participant_number = 103
+# condition = 3
+# start = 0
+# end = -1
+#
+# fixation_time_thresholds = {
+#         "short fixations": [100, 150, False],  # Here False corresponds to on_other_object
+#         "medium fixations": [150, 300, False],
+#         "long fixations": [300, 500, False],
+#         "very long fixations": [500, 2000, False],
+#         "all fixations": [100, 2000, False],
+#         "fixations other object": [100, 2000, True],
+#     }
+#
+# print("Fixation features:")
+# for k, v in fixation_features(participant_no=participant_number,
+#                               condition=condition,
+#                               start_index=start,
+#                               end_index=end,
+#                               fixation_time_thresholds=fixation_time_thresholds).items():
+#     print("- %s: %.2f" % (k, v))
+#
+# print("\nAOI features:")
+# for k, v in area_of_interest_features(participant_no=participant_number,
+#                                       condition=condition,
+#                                       ).items():
+#     print("- %s: %.2f" % (k, v))

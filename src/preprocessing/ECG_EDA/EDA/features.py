@@ -42,9 +42,9 @@ def eda_features(participant_number, start_index: int, end_index: int, plot=Fals
     return features
 
 
-participant_no = 101
-start_index_eda, end_index_eda = 0, -1
-
-print("EDA features:")
-for k, v in eda_features(participant_no, start_index_eda, end_index_eda, plot=True).items():
-    print("- %s: %s" % (k, v))
+# participant_no = 101
+# start_index_eda, end_index_eda = 0, -1
+#
+# print("EDA features:")
+# for k, v in eda_features(participant_no, start_index_eda, end_index_eda, plot=True).items():
+#     print("- %s: %s" % (k, v))

@@ -61,11 +61,11 @@ def compute_rr_intervals(r_peaks, plot=False):
     return rr_corrected
 
 
-def time_domain_features(participant_number,
-                         start_index: int,
-                         end_index: int,
-                         plot_r_peaks=False,
-                         plot_rr_intervals=False) -> dict:
+def ecg_features(participant_number,
+                 start_index: int,
+                 end_index: int,
+                 plot_r_peaks=False,
+                 plot_rr_intervals=False) -> dict:
     dataframe = create_clean_dataframe(participant_number)
 
     r_peaks = detect_r_peaks(dataframe, start_index, end_index, plot=plot_r_peaks)
@@ -98,11 +98,11 @@ def time_domain_features(participant_number,
     return features
 
 
-participant_no = 101
-start_index_condition = 23000
-end_index_condition = 43000
-
-print("ECG features:")
-for k, v in time_domain_features(participant_no, start_index_condition, end_index_condition).items():
-    print("- %s: %.2f" % (k, v))
-print()
+# participant_no = 101
+# start_index_condition = 23000
+# end_index_condition = 43000
+#
+# print("ECG features:")
+# for k, v in ecg_features(participant_no, start_index_condition, end_index_condition).items():
+#     print("- %s: %.2f" % (k, v))
+# print()

@@ -27,25 +27,51 @@ def delta_time_new_item(dataframe: pd.DataFrame, performance_column, difference_
     return delta_times
 
 
-def performance_features(participant_no: int, condition: int, start_index: int, end_index: int) -> dict:
+def feature_calculation(participant_no: int, condition: int, start_index: int, end_index: int, first_16=False) -> tuple:
     dataframe = create_clean_dataframe(participant_no, condition)[start_index:end_index]
     performance_column, difference_column = "numberOfItemsInCart", "numberOfItemsInCartDifference"
     delta_times = delta_time_new_item(dataframe, performance_column, difference_column)
     time_sum = sum(map(float, delta_times))
+    seconds_per_item = time_sum / len(delta_times)
+    seconds_per_item_std_dev = np.std(delta_times)
     items_collected = int(dataframe[performance_column].iloc[-1]) - int(dataframe[performance_column].iloc[0])
+    if first_16:
+        if len(delta_times) >= 16:
+            time_sum = sum(map(float, delta_times[0:16]))
+            seconds_per_item = time_sum / len(delta_times[0:16])
+            seconds_per_item_std_dev = np.std(delta_times[0:16])
+    return seconds_per_item, seconds_per_item_std_dev, items_collected
+
+
+def performance_features(participant_no, condition, start_index, end_index):
+    seconds_per_item, seconds_per_item_std_dev, items_collected = feature_calculation(
+        participant_no,
+        condition,
+        start_index,
+        end_index,
+    )
+    seconds_per_item_16, seconds_per_item_std_dev_16, _ = feature_calculation(
+        participant_no,
+        condition,
+        0,
+        -1,
+        first_16=True
+    )
     features = {
-        "seconds/item": time_sum / len(delta_times),
-        "std dev. seconds/item": np.std(delta_times),
-        "total items collected": items_collected
+        "seconds/item window": seconds_per_item,
+        "std dev. seconds/item window": seconds_per_item_std_dev,
+        "total items collected window": items_collected,
+        "seconds/item first 16": seconds_per_item_16,
+        "std dev. seconds/item first 16": seconds_per_item_std_dev_16,
     }
     return features
 
 
-participant_number = 103
-condition = 7
-start_idx = 0
-end_idx = -1
-
-print("Performance features:")
-for k, v in performance_features(participant_number, condition, start_idx, end_idx).items():
-    print("- %s: %.2f" % (k, v))
+# participant_number = 103
+# condition = 1
+# start_idx = 0
+# end_idx = 3000
+#
+# print("Performance features:")
+# for k, v in performance_features(participant_number, condition, start_idx, end_idx).items():
+#     print("- %s: %.2f" % (k, v))
