@@ -1,8 +1,8 @@
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 import os
 from dotenv import load_dotenv
+from scipy.spatial.transform import Rotation as R
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -11,6 +11,11 @@ DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 def convert_column_to_array(dataframe: pd.DataFrame, column_name: str) -> None:
     dataframe[column_name] = dataframe[column_name].apply(
         lambda x: np.array([float(coordinate) for coordinate in x.strip('()').split(',')]))
+    return
+
+
+def convert_quaternion_column_to_euler(dataframe: pd.DataFrame, column_name: str, new_column_name: str) -> None:
+    dataframe[new_column_name] = dataframe[column_name].apply(lambda q: R.from_quat(q).as_euler('xyz'))
     return
 
 
