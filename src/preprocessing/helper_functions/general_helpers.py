@@ -22,24 +22,10 @@ def angle_between_points(point1: npt.NDArray, point2: npt.NDArray, reference_poi
     return angle_in_degrees
 
 
-def delta_time_seconds(time1: datetime.datetime, time2: datetime.datetime) -> float:
-    dt = time2 - time1
-    dt_seconds = dt.total_seconds()
-    return dt_seconds
-
-
-def unit_vector(vector: npt.NDArray) -> npt.NDArray:
-    return vector / np.linalg.norm(vector)
-
-
 def angle_between_vectors(v1: npt.NDArray, v2: npt.NDArray) -> float:
     v1_u = unit_vector(v1)
     v2_u = unit_vector(v2)
     return math.degrees(np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)))
-
-
-def milliseconds_to_seconds(milliseconds):
-    return milliseconds/1000
 
 
 def butter_lowpass_filter(dataframe, column_name) -> npt.NDArray:
@@ -54,9 +40,30 @@ def butter_lowpass_filter(dataframe, column_name) -> npt.NDArray:
     return filtered_data
 
 
+def csv_file_name(participant_number, condition):
+    return f"{DATA_DIRECTORY}\p{participant_number}\datafile_C{condition}.csv"
+
+
+def delta_time_seconds(time1: datetime.datetime, time2: datetime.datetime) -> float:
+    dt = time2 - time1
+    dt_seconds = dt.total_seconds()
+    return dt_seconds
+
+
+def milliseconds_to_seconds(milliseconds):
+    return milliseconds/1000
+
+
+def perpendicular_distance_3d(point, start, end):
+    a = start - end
+    b = point - end
+    distance = np.linalg.norm(np.cross(a, b)) / np.linalg.norm(a)
+    return distance
+
+
 def text_file_name(participant_number):
     return f"{DATA_DIRECTORY}\p{participant_number}\p{participant_number}.txt"
 
 
-def csv_file_name(participant_number, condition):
-    return f"{DATA_DIRECTORY}\p{participant_number}\datafile_C{condition}.csv"
+def unit_vector(vector: npt.NDArray) -> npt.NDArray:
+    return vector / np.linalg.norm(vector)

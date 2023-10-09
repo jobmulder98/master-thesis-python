@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from src.preprocessing.HMD.Eyes.area_of_interest import (
     total_time_cart,
@@ -11,12 +12,11 @@ from src.preprocessing.HMD.Eyes.fixations import (
     add_gaze_position_to_dataframe,
     add_filter_average_to_dataframe,
     count_fixations,
-    create_clean_dataframe,
 )
+from src.preprocessing.HMD.Eyes.convergence_distance import mean_convergence_distance
 
 
-def area_of_interest_features(participant_no: int, condition: int, start_index: int, end_index: int):
-    dataframe = create_clean_dataframe(participant_no, condition)[start_index:end_index]
+def area_of_interest_features(dataframe: pd.DataFrame):
     features = {"total time other object": total_time_other_object(dataframe),
                 "total time main shelf": total_time_main_shelf(dataframe),
                 "total time list": total_time_list(dataframe),
@@ -24,21 +24,20 @@ def area_of_interest_features(participant_no: int, condition: int, start_index: 
     return features
 
 
-def fixation_features(participant_no, condition, start_index, end_index, fixation_time_thresholds, plot=False):
+def fixation_features(dataframe: pd.DataFrame, fixation_time_thresholds, plot=False):
     max_rotational_velocity = 50
     features = {}
-    clean_dataframe = create_clean_dataframe(participant_no, condition)[start_index:end_index]
-    add_gaze_position_to_dataframe(clean_dataframe)
+    add_gaze_position_to_dataframe(dataframe)
     add_filter_average_to_dataframe(
-        clean_dataframe,
+        dataframe,
         "gazePosition",
         "gazePositionAverage",
         3
     )
-    add_degrees_per_second_to_dataframe(clean_dataframe, "gazePositionAverage")
+    add_degrees_per_second_to_dataframe(dataframe, "gazePositionAverage")
 
     for key, value in fixation_time_thresholds.items():
-        number_of_fixations, fixation_times = count_fixations(clean_dataframe,
+        number_of_fixations, fixation_times = count_fixations(dataframe,
                                                               "degreesPerSecond",
                                                               max_rotational_velocity,
                                                               value[0],
@@ -53,6 +52,8 @@ def fixation_features(participant_no, condition, start_index, end_index, fixatio
             features["mean fixation time other object"] = np.mean(fixation_times) * 1000
             features["median fixation time other object"] = np.median(np.sort(fixation_times)) * 1000
             features["longest fixation other object"] = np.max(fixation_times) * 1000
+
+    features["mean convergence distance"] = mean_convergence_distance(dataframe)
 
     if plot:
         return features  # TODO

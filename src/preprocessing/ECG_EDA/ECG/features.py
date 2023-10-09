@@ -6,7 +6,7 @@ import numpy as np
 import os
 import pandas as pd
 
-from src.preprocessing.ECG_EDA.clean_raw_data import create_clean_dataframe
+from src.preprocessing.ECG_EDA.clean_raw_data import create_clean_dataframe_ecg_eda
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -61,13 +61,11 @@ def compute_rr_intervals(r_peaks, plot=False):
     return rr_corrected
 
 
-def ecg_features(participant_number,
+def ecg_features(dataframe: pd.DataFrame,
                  start_index: int,
                  end_index: int,
                  plot_r_peaks=False,
                  plot_rr_intervals=False) -> dict:
-    dataframe = create_clean_dataframe(participant_number)
-
     r_peaks = detect_r_peaks(dataframe, start_index, end_index, plot=plot_r_peaks)
     rr_intervals = compute_rr_intervals(r_peaks, plot=plot_rr_intervals)
     hr = 60 / (rr_intervals / ECG_SAMPLE_RATE)

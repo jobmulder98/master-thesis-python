@@ -5,15 +5,14 @@ import numpy as np
 import os
 import pandas as pd
 
-from src.preprocessing.ECG_EDA.clean_raw_data import create_clean_dataframe
+from src.preprocessing.ECG_EDA.clean_raw_data import create_clean_dataframe_ecg_eda
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 
 
-def eda_features(participant_number, start_index: int, end_index: int, plot=False) -> dict:
-    dataframe = create_clean_dataframe(participant_number)
+def eda_features(dataframe: pd.DataFrame, start_index: int, end_index: int, plot=False) -> dict:
     eda_signal = dataframe["Sensor-C:SC/GSR"].iloc[start_index:end_index].values
     signals, info = nk.eda_process(eda_signal, sampling_rate=ECG_SAMPLE_RATE)
     scl_signal = signals["EDA_Tonic"]

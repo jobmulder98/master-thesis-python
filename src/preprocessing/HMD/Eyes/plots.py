@@ -8,7 +8,7 @@ from fixations import *
 
 
 def initialize_dataframe():
-    dataframe = create_clean_dataframe()
+    dataframe = create_clean_dataframe_hmd()
     add_gaze_position_to_dataframe(dataframe)
     add_filter_average_to_dataframe(
         dataframe,

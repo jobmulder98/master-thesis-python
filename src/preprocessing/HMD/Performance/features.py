@@ -27,8 +27,7 @@ def delta_time_new_item(dataframe: pd.DataFrame, performance_column, difference_
     return delta_times
 
 
-def feature_calculation(participant_no: int, condition: int, start_index: int, end_index: int, first_16=False) -> tuple:
-    dataframe = create_clean_dataframe(participant_no, condition)[start_index:end_index]
+def feature_calculation(dataframe: pd.DataFrame, first_16=False) -> tuple:
     performance_column, difference_column = "numberOfItemsInCart", "numberOfItemsInCartDifference"
     delta_times = delta_time_new_item(dataframe, performance_column, difference_column)
     time_sum = sum(map(float, delta_times))
@@ -43,20 +42,9 @@ def feature_calculation(participant_no: int, condition: int, start_index: int, e
     return seconds_per_item, seconds_per_item_std_dev, items_collected
 
 
-def performance_features(participant_no, condition, start_index, end_index):
-    seconds_per_item, seconds_per_item_std_dev, items_collected = feature_calculation(
-        participant_no,
-        condition,
-        start_index,
-        end_index,
-    )
-    seconds_per_item_16, seconds_per_item_std_dev_16, _ = feature_calculation(
-        participant_no,
-        condition,
-        0,
-        -1,
-        first_16=True
-    )
+def performance_features(dataframe: pd.DataFrame) -> dict:
+    seconds_per_item, seconds_per_item_std_dev, items_collected = feature_calculation(dataframe)
+    seconds_per_item_16, seconds_per_item_std_dev_16, _ = feature_calculation(dataframe, first_16=True)
     features = {
         "seconds/item window": seconds_per_item,
         "std dev. seconds/item window": seconds_per_item_std_dev,

@@ -19,40 +19,6 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 
 
-def create_clean_dataframe(participant_number: int, condition: int) -> pd.DataFrame:
-    """
-
-    :rtype: object
-    """
-    clean_dataframe = create_dataframe(participant_number, condition)
-
-    coordinate_column_names = ["rayOrigin", "rayDirection", "eyesDirection", "hmdPosition", "hmdRotation",
-                               "leftControllerPosition", "leftControllerRotation", "rightControllerPosition",
-                               "rightControllerRotation"]
-    for column in coordinate_column_names:
-        convert_column_to_array(clean_dataframe, column)
-
-    boolean_column_names = ["isLeftEyeBlinking", "isRightEyeBlinking", "isGrabbing"]
-    for column in boolean_column_names:
-        convert_column_to_boolean(clean_dataframe, column)
-
-    integer_column_names = ["userId", "condition", "numberOfItemsInCart"]
-    for column in integer_column_names:
-        convert_column_to_integer(clean_dataframe, column)
-
-    convert_column_to_float_and_replace_commas(clean_dataframe, "convergenceDistance")
-    convert_column_to_datetime(clean_dataframe, "timeStampDatetime")
-    convert_quaternion_column_to_euler(clean_dataframe, "hmdRotation", "hmdEuler")
-
-    add_delta_time_to_dataframe(clean_dataframe)
-    add_cumulative_time_to_dataframe(clean_dataframe)
-
-    clean_dataframe = interpolate_zero_arrays(clean_dataframe, "rayOrigin")
-    clean_dataframe = interpolate_zero_arrays(clean_dataframe, "rayDirection")
-    clean_dataframe = interpolate_zeros(clean_dataframe, "convergenceDistance")
-    return clean_dataframe
-
-
 def create_dataframe(participant_number: int, condition: int) -> pd.DataFrame:
     data_file = DATA_DIRECTORY + "\p" + str(participant_number) + "\datafile_C" + str(condition) + ".csv"
     dataframe = pd.read_csv(data_file,
@@ -83,6 +49,41 @@ def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> None:
         cumulative_time_list.append(cumulative_time)
     dataframe["timeCumulative"] = cumulative_time_list
     return
+
+
+def create_clean_dataframe_hmd(participant_number: int, condition: int) -> pd.DataFrame:
+    """
+
+    :rtype: object
+    """
+    clean_dataframe = create_dataframe(participant_number, condition)
+
+    coordinate_column_names = ["rayOrigin", "rayDirection", "eyesDirection", "hmdPosition", "hmdRotation",
+                               "leftControllerPosition", "leftControllerRotation", "rightControllerPosition",
+                               "rightControllerRotation"]
+    for column in coordinate_column_names:
+        convert_column_to_array(clean_dataframe, column)
+
+    boolean_column_names = ["isLeftEyeBlinking", "isRightEyeBlinking", "isGrabbing"]
+    for column in boolean_column_names:
+        convert_column_to_boolean(clean_dataframe, column)
+
+    integer_column_names = ["userId", "condition", "numberOfItemsInCart"]
+    for column in integer_column_names:
+        convert_column_to_integer(clean_dataframe, column)
+
+    convert_column_to_float_and_replace_commas(clean_dataframe, "convergenceDistance")
+    convert_column_to_datetime(clean_dataframe, "timeStampDatetime")
+    convert_quaternion_column_to_euler(clean_dataframe, "hmdRotation", "hmdEuler")
+
+    add_delta_time_to_dataframe(clean_dataframe)
+    add_cumulative_time_to_dataframe(clean_dataframe)
+
+    clean_dataframe = interpolate_zero_arrays(clean_dataframe, "rayOrigin")
+    clean_dataframe = interpolate_zero_arrays(clean_dataframe, "rayDirection")
+    clean_dataframe = interpolate_zeros(clean_dataframe, "convergenceDistance")
+
+    return clean_dataframe
 
 
 # dataset = create_clean_dataframe(103, 5)

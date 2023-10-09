@@ -14,18 +14,13 @@ def convert_column_to_array(dataframe: pd.DataFrame, column_name: str) -> None:
     return
 
 
-def convert_quaternion_column_to_euler(dataframe: pd.DataFrame, column_name: str, new_column_name: str) -> None:
-    dataframe[new_column_name] = dataframe[column_name].apply(lambda q: R.from_quat(q).as_euler('xyz'))
-    return
-
-
 def convert_column_to_boolean(dataframe: pd.DataFrame, column_name: str) -> None:
     dataframe[column_name] = dataframe[column_name].astype(bool)
     return
 
 
-def convert_column_to_integer(dataframe: pd.DataFrame, column_name: str) -> None:
-    dataframe[column_name] = dataframe[column_name].astype(int)
+def convert_column_to_datetime(dataframe: pd.DataFrame, column_name: str) -> None:
+    dataframe[column_name] = pd.to_datetime(dataframe[column_name])
     return
 
 
@@ -35,12 +30,19 @@ def convert_column_to_float(dataframe: pd.DataFrame, column_name: str) -> None:
 
 
 def convert_column_to_float_and_replace_commas(dataframe: pd.DataFrame, column_name: str) -> None:
-    dataframe[column_name] = dataframe[column_name].str.replace(",", ".").astype(float)
+    dataframe[column_name] = dataframe[column_name].apply(
+        lambda x: float(x.replace(',', '.')) if isinstance(x, str) else x
+    )
     return
 
 
-def convert_column_to_datetime(dataframe: pd.DataFrame, column_name: str) -> None:
-    dataframe[column_name] = pd.to_datetime(dataframe[column_name])
+def convert_column_to_integer(dataframe: pd.DataFrame, column_name: str) -> None:
+    dataframe[column_name] = dataframe[column_name].astype(int)
+    return
+
+
+def convert_quaternion_column_to_euler(dataframe: pd.DataFrame, column_name: str, new_column_name: str) -> None:
+    dataframe[new_column_name] = dataframe[column_name].apply(lambda q: R.from_quat(q).as_euler('xyz'))
     return
 
 
@@ -68,3 +70,4 @@ def interpolate_zero_arrays(dataframe: pd.DataFrame, column_name: str) -> pd.Dat
     dataframe[column_name] = dataframe.apply(lambda row: np.array([row[f"{column_name}_{i}"] for i in range(3)]), axis=1)
     dataframe.drop(columns=[f"{column_name}_{i}" for i in range(3)], inplace=True)
     return dataframe
+
