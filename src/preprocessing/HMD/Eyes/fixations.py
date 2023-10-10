@@ -78,13 +78,13 @@ def count_fixations(dataframe: pd.DataFrame,
     fixation_times = []
     min_threshold = milliseconds_to_seconds(min_threshold_milliseconds)
     max_threshold = milliseconds_to_seconds(max_threshold_milliseconds)
-    for i in range(len(dataframe[fixations_column_name])):
-        if dataframe[fixations_column_name].iloc[i] < max_rotational_velocity:
+    for index, row in dataframe.iterrows():
+        if row[fixations_column_name] < max_rotational_velocity:
             if on_other_object:
-                if dataframe["focusObjectTag"].iloc[i] == "notAssigned":
-                    time_counter += dataframe["deltaSeconds"].iloc[i]
+                if row["focusObjectTag"] == "notAssigned":
+                    time_counter += row["deltaSeconds"]
             else:
-                time_counter += dataframe["deltaSeconds"].iloc[i]
+                time_counter += row["deltaSeconds"]
         else:
             if min_threshold <= time_counter < max_threshold:
                 fixation_counter += 1
