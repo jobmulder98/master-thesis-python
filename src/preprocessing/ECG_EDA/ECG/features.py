@@ -48,7 +48,6 @@ def compute_rr_intervals(r_peaks, plot=False):
     rr_intervals = np.diff(r_peaks)
     rr_corrected = rr_intervals.copy()
     rr_corrected[np.abs(zscore(rr_intervals)) > 2] = np.median(rr_intervals)
-    rr_corrected = rr_corrected
     if plot:
         plt.figure(figsize=(20, 7))
         plt.title("RR-intervals")
@@ -84,8 +83,8 @@ def ecg_features(dataframe: pd.DataFrame,
         "Min HR (beats/min)": np.min(hr),
         "Max HR (beats/min)": np.max(hr),
         "RMSSD (ms)": np.sqrt(np.mean(np.square(np.diff(rr_intervals)))),
-        "NNxx": np.sum(np.abs(np.diff(rr_intervals)) > 50) * 1,
-        "pNNxx (%)": 100 * np.sum((np.abs(np.diff(rr_intervals)) > 50) * 1) / len(rr_intervals),
+        "NN50": np.sum(np.abs(np.diff(rr_intervals)) > 50) * 1,
+        "pNN50 (%)": 100 * np.sum((np.abs(np.diff(rr_intervals)) > 50) * 1) / len(rr_intervals),
         "Power LF (ms2)": lf_power,
         "Power HF (ms2)": hf_power,
         "Power Total (ms2)": total_power,

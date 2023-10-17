@@ -50,6 +50,8 @@ def rmse_hand_trajectory(dataframe: pd.DataFrame, start_end_coordinates: list[di
 
 
 def mean_grab_time(dataframe: pd.DataFrame, start_end_coordinates) -> float:
+    if not start_end_coordinates:
+        return 0
     grab_time = 0
     for hand_trajectory in start_end_coordinates:
         grab_time += hand_trajectory["grab_time"]
@@ -62,6 +64,5 @@ def hand_movement_features(dataframe: pd.DataFrame) -> dict:
             "mean grab time": mean_grab_time(dataframe, start_end_coordinates)}
 
 
-# df = create_clean_dataframe_hmd(103, 3)
-# print(rmse_hand_trajectory(df))
+# df = create_clean_dataframe_hmd(1, 1)
 # print(hand_movement_features(df))

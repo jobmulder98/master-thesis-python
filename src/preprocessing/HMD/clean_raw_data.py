@@ -52,10 +52,6 @@ def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> None:
 
 
 def create_clean_dataframe_hmd(participant_number: int, condition: int) -> pd.DataFrame:
-    """
-
-    :rtype: object
-    """
     clean_dataframe = create_dataframe(participant_number, condition)
 
     coordinate_column_names = ["rayOrigin", "rayDirection", "eyesDirection", "hmdPosition", "hmdRotation",
@@ -86,5 +82,5 @@ def create_clean_dataframe_hmd(participant_number: int, condition: int) -> pd.Da
     return clean_dataframe
 
 
-# dataset = create_clean_dataframe(103, 5)
+# dataset = create_clean_dataframe_hmd(103, 5)
 # print(dataset.to_string()[0:10000])
