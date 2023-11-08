@@ -22,12 +22,11 @@ feature = "total time other object"
 for condition in conditions:
     with open(f"{DATA_DIRECTORY}\pickles\c{condition}.pickle", "rb") as handle:
         p = pickle.load(handle)
-    for key, _ in p.items():
-        print('"' + key + '"')
     plot_dictionary[condition] = p[feature]
 
-
 ax.set_title(feature)
+ax.set_xlabel("condition")
+ax.set_ylabel("seconds")
 ax.boxplot(plot_dictionary.values())
 ax.set_xticklabels(plot_dictionary.keys())
 plt.show()

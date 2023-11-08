@@ -1,8 +1,6 @@
 from collections import defaultdict
 from typing import List
 
-import numpy as np
-
 from src.preprocessing.ecg_eda.ecg.features import ecg_features
 from src.preprocessing.ecg_eda.eda.features import eda_features
 from src.preprocessing.hmd.eyes.features import area_of_interest_features, fixation_features
@@ -53,19 +51,23 @@ def merge_dictionaries(dictionaries: List[dict]) -> dict:
 
 def empty_ecg_dictionary():
     return {
-        "Mean RR (ms)": None,
-        "STD RR/SDNN (ms)": None,
+        "Mean NNI (ms)": None,
+        "Minimum NNI": None,
+        "Maximum NNI": None,
         "Mean HR (beats/min)": None,
         "STD HR (beats/min)": None,
         "Min HR (beats/min)": None,
         "Max HR (beats/min)": None,
+        "SDNN (ms)": None,
         "RMSSD (ms)": None,
         "NN50": None,
         "pNN50 (%)": None,
+        "Power VLF (ms2)": None,
         "Power LF (ms2)": None,
         "Power HF (ms2)": None,
         "Power Total (ms2)": None,
         "LF/HF": None,
+        "Peak VLF (Hz)": None,
         "Peak LF (Hz)": None,
         "Peak HF (Hz)": None,
     }
