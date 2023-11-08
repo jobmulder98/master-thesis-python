@@ -3,10 +3,11 @@ import pandas as pd
 import pickle
 from dotenv import load_dotenv
 import os
+from tqdm import tqdm
 
 from src.preprocessing.helper_functions.data_merge_helpers import (
-        merge_all_features_into_dictionary,
-        merge_dictionaries,
+    merge_all_features_into_dictionary,
+    merge_dictionaries,
 )
 from src.preprocessing.helper_functions.time_synchronize_helpers import synchronize_all_conditions
 
@@ -15,10 +16,11 @@ DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 
 
-def initialize_synchronized_times(participants) -> dict:
+def initialize_synchronized_times(participants, overwrite_old_pickle=False) -> dict:
     if os.path.exists(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle"):
-        with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
-            return pickle.load(handle)
+        if not overwrite_old_pickle:
+            with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
+                return pickle.load(handle)
 
     synchronized_times = {}
     for participant in participants:
@@ -33,52 +35,65 @@ def initialize_data_per_condition(participants,
                                   synchronized_times,
                                   start_idx,
                                   end_idx,
-                                  fixation_time_thresholds):
+                                  fixation_time_thresholds,
+                                  overwrite_old_pickle=True):
     """
     Create pickle files with the data of all participants per condition.
-    Inputs numbers of participants and conditions, synchronized times for the ECG and EDA
+    Inputs numbers of participants and conditions, synchronized times for the ecg and eda
     signal, fixation settings, and the time window if required
 
     Only run if the pickles do not exist, skip this function otherwise.
     """
-    for condition in conditions:
+    for condition in tqdm(conditions,
+                          ncols=100,
+                          desc="Processing conditions",
+                          unit="condition",
+                          colour="white"
+                          ):
         features = []
-        for participant in participants:
-            # start_idx_ecg_eda, end_idx_ecg_eda = synchronized_times[condition]
+        for participant in tqdm(participants,
+                                ncols=100,
+                                desc="Processing participants",
+                                unit="participant",
+                                colour="green"
+                                ):
+            start_idx_ecg_eda, end_idx_ecg_eda = synchronized_times[participant][condition]
             features.append(merge_all_features_into_dictionary(
                 participant,
                 condition,
-                start_idx,  # NOTE THAT THIS SHOULD BE CHANGED TO start_idx_ecg_eda
-                end_idx,  # NOTE THAT THIS SHOULD BE CHANGED TO end_idx_ecg_eda
+                start_idx_ecg_eda,
+                end_idx_ecg_eda,
                 start_idx,
                 end_idx,
                 fixation_time_thresholds,
             ))
         all_features_participant = merge_dictionaries(features)
-        with open(f"{DATA_DIRECTORY}\pickles\c{condition}.pickle", "wb") as handle:
-            pickle.dump(all_features_participant, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        if overwrite_old_pickle:
+            with open(f"{DATA_DIRECTORY}\pickles\c{condition}.pickle", "wb") as handle:
+                pickle.dump(all_features_participant, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-participants = np.arange(1, 15)
-conditions = np.arange(1, 8)
-start_idx = 0
-end_idx = -1
-fixation_time_thresholds = {
-    "short fixations": [100, 150, False],  # Here False corresponds to on_other_object
-    "medium fixations": [150, 300, False],
-    "long fixations": [300, 500, False],
-    "very long fixations": [500, 2000, False],
-    "all fixations": [100, 2000, False],
-    "fixations other object": [100, 2000, True],
-}
-# synchronized_times = initialize_synchronized_times(participants)
+if __name__ == "__main__":
+    participants = np.arange(1, 23)
+    conditions = np.arange(1, 8)
+    start_idx = 0
+    end_idx = -1
+    fixation_time_thresholds = {
+        "short fixations": [100, 150, False],  # Here False corresponds to on_other_object
+        "medium fixations": [150, 300, False],
+        "long fixations": [300, 500, False],
+        "very long fixations": [500, 2000, False],
+        "all fixations": [100, 2000, False],
+        "fixations other object": [100, 2000, True],
+    }
+    synchronized_times = initialize_synchronized_times(participants, overwrite_old_pickle=False)
+    # print(synchronized_times)
 
-initialize_data_per_condition(participants=participants,
-                              conditions=[1],
-                              start_idx=start_idx,
-                              end_idx=end_idx,
-                              synchronized_times=None,
-                              fixation_time_thresholds=fixation_time_thresholds
-                              )
-
-
+    initialize_data_per_condition(participants=participants,
+                                  conditions=conditions,
+                                  start_idx=start_idx,
+                                  end_idx=end_idx,
+                                  synchronized_times=synchronized_times,
+                                  fixation_time_thresholds=fixation_time_thresholds,
+                                  overwrite_old_pickle=True
+                                  )

@@ -5,7 +5,7 @@ import numpy as np
 import os
 import pandas as pd
 
-from src.preprocessing.ECG_EDA.clean_raw_data import create_clean_dataframe_ecg_eda
+from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -44,6 +44,6 @@ def eda_features(dataframe: pd.DataFrame, start_index: int, end_index: int, plot
 # participant_no = 101
 # start_index_eda, end_index_eda = 0, -1
 #
-# print("EDA features:")
+# print("eda features:")
 # for k, v in eda_features(participant_no, start_index_eda, end_index_eda, plot=True).items():
 #     print("- %s: %s" % (k, v))

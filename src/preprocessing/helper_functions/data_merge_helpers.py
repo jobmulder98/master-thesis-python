@@ -3,15 +3,15 @@ from typing import List
 
 import numpy as np
 
-from src.preprocessing.ECG_EDA.ECG.features import ecg_features
-from src.preprocessing.ECG_EDA.EDA.features import eda_features
-from src.preprocessing.HMD.Eyes.features import area_of_interest_features, fixation_features
-from src.preprocessing.HMD.Movements.head_movements import head_movement_features
-from src.preprocessing.HMD.Movements.hand_movements import hand_movement_features
-from src.preprocessing.HMD.Performance.features import performance_features
+from src.preprocessing.ecg_eda.ecg.features import ecg_features
+from src.preprocessing.ecg_eda.eda.features import eda_features
+from src.preprocessing.hmd.eyes.features import area_of_interest_features, fixation_features
+from src.preprocessing.hmd.movements.head_movements import head_movement_features
+from src.preprocessing.hmd.movements.hand_movements import hand_movement_features
+from src.preprocessing.hmd.performance.features import performance_features
 
-from src.preprocessing.HMD.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.ECG_EDA.clean_raw_data import create_clean_dataframe_ecg_eda
+from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
+from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
 
 
 def merge_all_features_into_dictionary(
@@ -24,8 +24,11 @@ def merge_all_features_into_dictionary(
         fixation_time_thresholds: dict,
 ) -> dict:
 
-    ecg_eda_dataframe = create_clean_dataframe_ecg_eda(participant_no)[start_index_ecg_eda:end_index_ecg_eda]
-    ecg = ecg_features(ecg_eda_dataframe, start_index_ecg_eda, end_index_ecg_eda)
+    ecg_eda_dataframe = create_clean_dataframe_ecg_eda(participant_no)
+    if participant_no == 12 and condition == 4:  # The ecg data in this session has not been recorded
+        ecg = empty_ecg_dictionary()
+    else:
+        ecg = ecg_features(ecg_eda_dataframe, start_index_ecg_eda, end_index_ecg_eda)
     eda = eda_features(ecg_eda_dataframe, start_index_ecg_eda, end_index_ecg_eda)
 
     hmd_dataframe = create_clean_dataframe_hmd(participant_no, condition)[start_index:end_index]
@@ -46,6 +49,23 @@ def merge_dictionaries(dictionaries: List[dict]) -> dict:
     return dict(merged_dict)
 
 
-example_dictionary_list = [dict(), dict(), dict()]
+def empty_ecg_dictionary():
+    return {
+        "Mean RR (ms)": None,
+        "STD RR/SDNN (ms)": None,
+        "Mean HR (beats/min)": None,
+        "STD HR (beats/min)": None,
+        "Min HR (beats/min)": None,
+        "Max HR (beats/min)": None,
+        "RMSSD (ms)": None,
+        "NN50": None,
+        "pNN50 (%)": None,
+        "Power LF (ms2)": None,
+        "Power HF (ms2)": None,
+        "Power Total (ms2)": None,
+        "LF/HF": None,
+        "Peak LF (Hz)": None,
+        "Peak HF (Hz)": None,
+    }
 
 

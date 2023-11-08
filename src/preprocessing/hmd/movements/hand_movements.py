@@ -3,7 +3,7 @@ import pandas as pd
 from numpy.linalg import norm
 
 
-from src.preprocessing.HMD.clean_raw_data import create_clean_dataframe_hmd
+from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.preprocessing.helper_functions.general_helpers import perpendicular_distance_3d
 
 

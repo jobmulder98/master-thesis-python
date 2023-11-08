@@ -1,19 +1,19 @@
 import numpy as np
 import pandas as pd
 
-from src.preprocessing.HMD.Eyes.area_of_interest import (
+from src.preprocessing.hmd.eyes.area_of_interest import (
     total_time_cart,
     total_time_list,
     total_time_main_shelf,
     total_time_other_object,
 )
-from src.preprocessing.HMD.Eyes.fixations import (
+from src.preprocessing.hmd.eyes.fixations import (
     add_degrees_per_second_to_dataframe,
     add_gaze_position_to_dataframe,
     add_filter_average_to_dataframe,
     count_fixations,
 )
-from src.preprocessing.HMD.Eyes.convergence_distance import mean_convergence_distance
+from src.preprocessing.hmd.eyes.convergence_distance import mean_convergence_distance
 
 
 def area_of_interest_features(dataframe: pd.DataFrame):
@@ -49,9 +49,14 @@ def fixation_features(dataframe: pd.DataFrame, fixation_time_thresholds, plot=Fa
             features["mean fixation time"] = np.mean(fixation_times) * 1000
             features["median fixation time"] = np.median(np.sort(fixation_times)) * 1000
         elif key == "fixations other object":
-            features["mean fixation time other object"] = np.mean(fixation_times) * 1000
-            features["median fixation time other object"] = np.median(np.sort(fixation_times)) * 1000
-            features["longest fixation other object"] = np.max(fixation_times) * 1000
+            if fixation_times:
+                features["mean fixation time other object"] = np.mean(fixation_times) * 1000
+                features["median fixation time other object"] = np.median(np.sort(fixation_times)) * 1000
+                features["longest fixation other object"] = np.max(fixation_times) * 1000
+            else:
+                features["mean fixation time other object"] = 0
+                features["median fixation time other object"] = 0
+                features["longest fixation other object"] = 0
 
     features["mean convergence distance"] = mean_convergence_distance(dataframe)
 

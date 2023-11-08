@@ -4,14 +4,14 @@ import pandas as pd
 
 from dotenv import load_dotenv
 
-from src.preprocessing.HMD.clean_raw_data import create_clean_dataframe_hmd
-
-#  TODO: total time not looking at main task, number of fixations on other than main task,
-#   mean fixation time on other object, minimum fixation time on other object, maximum fixation time on other object.
+from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 
 
 def total_time_other_object(dataframe: pd.DataFrame) -> float:
-    return dataframe.loc[dataframe["focusObjectTag"] == "notAssigned", "deltaSeconds"].sum()
+    condition = (dataframe["focusObjectTag"] == "notAssigned") | \
+                (dataframe["focusObjectTag"] == "NPC") | \
+                (dataframe["focusObjectTag"] == "Alarm")
+    return dataframe.loc[condition, "deltaSeconds"].sum()
 
 
 def total_time_list(dataframe: pd.DataFrame) -> float:

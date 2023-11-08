@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from src.preprocessing.HMD.clean_raw_data import create_clean_dataframe_hmd
+from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.preprocessing.helper_functions.general_helpers import (
     angle_between_points,
     milliseconds_to_seconds,

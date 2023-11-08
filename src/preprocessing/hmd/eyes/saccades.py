@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from src.preprocessing.HMD.Eyes.fixations import (
+from src.preprocessing.hmd.eyes.fixations import (
     create_clean_dataframe_hmd,
     add_filter_average_to_dataframe,
     add_degrees_per_second_to_dataframe,

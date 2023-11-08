@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import find_peaks, argrelextrema, lfilter
 
 
-from src.preprocessing.HMD.clean_raw_data import create_clean_dataframe_hmd
+from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 
 #  TODO: CHECK THE REST OF THE FEATURES AND DECIDE WHICH ONES ARE USEFUL + IMPLEMENT
 

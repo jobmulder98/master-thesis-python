@@ -5,20 +5,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
+from pyhrv.hrv import hrv
 
-from src.preprocessing.ECG_EDA.clean_raw_data import create_clean_dataframe_ecg_eda
+from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
-
-
-def mean_hr(dataframe, start_index, end_index):
-    return dataframe["[B] Heart Rate"].iloc[start_index:end_index].mean()
-
-
-def mean_hrv_amplitude(dataframe, start_index, end_index):
-    return dataframe["[B] HRV Amp."].iloc[start_index:end_index].mean()
 
 
 def detect_r_peaks(dataframe: pd.DataFrame,
@@ -68,7 +61,7 @@ def ecg_features(dataframe: pd.DataFrame,
     r_peaks = detect_r_peaks(dataframe, start_index, end_index, plot=plot_r_peaks)
     rr_intervals = compute_rr_intervals(r_peaks, plot=plot_rr_intervals)
     hr = 60 / (rr_intervals / ECG_SAMPLE_RATE)
-
+    mean_hr = (len(rr_intervals) - 1) / ((r_peaks[-1] - r_peaks[0]) / ECG_SAMPLE_RATE) * 60
     low_frequency_signal = dataframe["[B] HRV-LF Power (0.04-0.16 Hz)"].iloc[start_index:end_index]
     high_frequency_signal = dataframe["[B] HRV-HF Power (0.16-0.4 Hz)"].iloc[start_index:end_index]
     lf_power = low_frequency_signal.sum() / ECG_SAMPLE_RATE
@@ -78,7 +71,7 @@ def ecg_features(dataframe: pd.DataFrame,
     features = {
         "Mean RR (ms)": np.mean(rr_intervals),
         "STD RR/SDNN (ms)": np.std(rr_intervals),
-        "Mean HR (beats/min)": np.mean(hr),
+        "Mean HR (beats/min)": mean_hr,
         "STD HR (beats/min)": np.std(hr),
         "Min HR (beats/min)": np.min(hr),
         "Max HR (beats/min)": np.max(hr),
@@ -95,11 +88,21 @@ def ecg_features(dataframe: pd.DataFrame,
     return features
 
 
-# participant_no = 101
-# start_index_condition = 23000
-# end_index_condition = 43000
-#
-# print("ECG features:")
-# for k, v in ecg_features(participant_no, start_index_condition, end_index_condition).items():
-#     print("- %s: %.2f" % (k, v))
-# print()
+# participant_no = 5
+# condition = 7
+# sync = {5: {1: [2592486, 2717829],
+#             2: [250177, 375555],
+#             3: [1022819, 1148211],
+#             4: [2278270, 2403647],
+#             5: [695468, 820912],
+#             6: [1418978, 1544377],
+#             7: [1912605, 2038021]
+#             }
+#         }
+# start_index_condition, end_index_condition = sync[participant_no][condition]
+# df = create_clean_dataframe_ecg_eda(participant_no)
+# print(ecg_features(dataframe=df,
+#                    start_index=start_index_condition,
+#                    end_index=end_index_condition,
+#                    plot_r_peaks=False,
+#                    plot_rr_intervals=False))

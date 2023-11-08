@@ -1,0 +1,61 @@
+ECG TIME DOMAIN FEATURES
+"Mean RR (ms)"
+"STD RR/SDNN (ms)"
+"Mean HR (beats/min)"
+"STD HR (beats/min)"
+"Min HR (beats/min)"
+"Max HR (beats/min)"
+"RMSSD (ms)"
+"NN50"
+"pNN50 (%)"
+
+ECG FREQUENCY DOMAIN FEATURES
+"Power LF (ms2)"
+"Power HF (ms2)"
+"Power Total (ms2)"
+"LF/HF"
+"Peak LF (Hz)"
+"Peak HF (Hz)"
+
+EDA / SKIN CONDUCTANCE FEATURES
+"Mean SCL"
+"Mean derivative SCL"
+"Number of SCR peaks"
+"Mean SCR peak amplitude"
+"Mean rise time SCR peaks"
+
+FIXATION FEATURES NORMAL
+"short fixations"
+"medium fixations"
+"long fixations"
+"very long fixations"
+"all fixations"
+"mean fixation time"
+"median fixation time"
+
+FIXATION FEATURES OTHER OBJECT
+"fixations other object"
+"mean fixation time other object"
+"median fixation time other object"
+"longest fixation other object"
+"mean convergence distance"
+
+AREAS OF INTEREST TIMES
+"total time other object"
+"total time main shelf"
+"total time list"
+"total time cart"
+
+HEAD AND HAND MOVEMENT FEATURES
+"mean head acceleration"
+"min head acceleration"
+"max head acceleration"
+"rmse trajectory item to cart"
+"mean grab time"
+
+PERFORMANCE FEATURES
+"seconds/item window"
+"std dev. seconds/item window"
+"total items collected window"
+"seconds/item first 16"
+"std dev. seconds/item first 16"

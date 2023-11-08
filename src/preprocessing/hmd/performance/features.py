@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from src.preprocessing.HMD.clean_raw_data import *
+from src.preprocessing.hmd.clean_raw_data import *
 from src.preprocessing.helper_functions.general_helpers import delta_time_seconds
 
 
@@ -60,6 +60,6 @@ def performance_features(dataframe: pd.DataFrame) -> dict:
 # start_idx = 0
 # end_idx = 3000
 #
-# print("Performance features:")
+# print("performance features:")
 # for k, v in performance_features(participant_number, condition, start_idx, end_idx).items():
 #     print("- %s: %.2f" % (k, v))
