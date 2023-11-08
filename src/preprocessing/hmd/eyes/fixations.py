@@ -81,7 +81,7 @@ def count_fixations(dataframe: pd.DataFrame,
     for index, row in dataframe.iterrows():
         if row[fixations_column_name] < max_rotational_velocity:
             if on_other_object:
-                if row["focusObjectTag"] == "notAssigned":
+                if row["focusObjectTag"] == "notAssigned" or row["focusObjectTag"] == "NPC" or row["focusObjectTag"] == "Alarm":
                     time_counter += row["deltaSeconds"]
             else:
                 time_counter += row["deltaSeconds"]

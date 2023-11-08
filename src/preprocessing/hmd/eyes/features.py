@@ -14,6 +14,7 @@ from src.preprocessing.hmd.eyes.fixations import (
     count_fixations,
 )
 from src.preprocessing.hmd.eyes.convergence_distance import mean_convergence_distance
+from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 
 
 def area_of_interest_features(dataframe: pd.DataFrame):
@@ -65,7 +66,7 @@ def fixation_features(dataframe: pd.DataFrame, fixation_time_thresholds, plot=Fa
     return features
 
 
-# participant_number = 103
+# participant_number = 7
 # condition = 3
 # start = 0
 # end = -1
@@ -80,15 +81,11 @@ def fixation_features(dataframe: pd.DataFrame, fixation_time_thresholds, plot=Fa
 #     }
 #
 # print("Fixation features:")
-# for k, v in fixation_features(participant_no=participant_number,
-#                               condition=condition,
-#                               start_index=start,
-#                               end_index=end,
+# df = create_clean_dataframe_hmd(participant_number, condition)
+# for k, v in fixation_features(dataframe=df,
 #                               fixation_time_thresholds=fixation_time_thresholds).items():
 #     print("- %s: %.2f" % (k, v))
 #
 # print("\nAOI features:")
-# for k, v in area_of_interest_features(participant_no=participant_number,
-#                                       condition=condition,
-#                                       ).items():
+# for k, v in area_of_interest_features(dataframe=df).items():
 #     print("- %s: %.2f" % (k, v))
