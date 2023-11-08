@@ -9,6 +9,7 @@ from src.preprocessing.hmd.eyes.features import area_of_interest_features, fixat
 from src.preprocessing.hmd.movements.head_movements import head_movement_features
 from src.preprocessing.hmd.movements.hand_movements import hand_movement_features
 from src.preprocessing.hmd.performance.features import performance_features
+from src.preprocessing.nasa_tlx.features import nasa_tlx_features
 
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
@@ -37,8 +38,9 @@ def merge_all_features_into_dictionary(
     hand_movement = hand_movement_features(hmd_dataframe)
     head_movement = head_movement_features(hmd_dataframe)
     performance = performance_features(hmd_dataframe)
+    nasa_tlx = nasa_tlx_features(participant_no, condition)
 
-    return {**ecg, **eda, **fixations, **areas_of_interest, **head_movement, **hand_movement, **performance}
+    return {**ecg, **eda, **fixations, **areas_of_interest, **head_movement, **hand_movement, **performance, **nasa_tlx}
 
 
 def merge_dictionaries(dictionaries: List[dict]) -> dict:
