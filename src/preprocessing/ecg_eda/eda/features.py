@@ -6,6 +6,7 @@ import os
 import pandas as pd
 
 from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
+from src.preprocessing.helper_functions.general_helpers import butter_lowpass_filter
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -14,7 +15,9 @@ ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 
 def eda_features(dataframe: pd.DataFrame, start_index: int, end_index: int, plot=False) -> dict:
     eda_signal = dataframe["Sensor-C:SC/GSR"].iloc[start_index:end_index].values
-    signals, info = nk.eda_process(eda_signal, sampling_rate=ECG_SAMPLE_RATE)
+    filtered_data = butter_lowpass_filter(eda_signal)
+    plt.plot(filtered_data)
+    signals, info = nk.eda_process(filtered_data, sampling_rate=ECG_SAMPLE_RATE)
     scl_signal = signals["EDA_Tonic"]
     scr_peaks = signals["SCR_Peaks"]
 
@@ -41,9 +44,18 @@ def eda_features(dataframe: pd.DataFrame, start_index: int, end_index: int, plot
     return features
 
 
-# participant_no = 101
-# start_index_eda, end_index_eda = 0, -1
-#
+participant_no = 18
+start_index_eda, end_index_eda = 0, -1
+df = create_clean_dataframe_ecg_eda(participant_no)
+
 # print("eda features:")
-# for k, v in eda_features(participant_no, start_index_eda, end_index_eda, plot=True).items():
+# for k, v in eda_features(df, start_index_eda, end_index_eda, plot=True).items():
 #     print("- %s: %s" % (k, v))
+
+
+participants = np.arange(3, 4)
+for p in participants:
+    df = create_clean_dataframe_ecg_eda(p)
+    eda_features(df, start_index_eda, end_index_eda, plot=False)
+
+plt.show()

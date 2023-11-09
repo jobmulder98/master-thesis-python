@@ -14,7 +14,6 @@ from src.preprocessing.hmd.eyes.fixations import (
     count_fixations,
 )
 from src.preprocessing.hmd.eyes.convergence_distance import mean_convergence_distance
-from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 
 
 def area_of_interest_features(dataframe: pd.DataFrame):

@@ -1,5 +1,6 @@
 import pickle
 
+import numpy as np
 from dotenv import load_dotenv
 import os
 
@@ -13,5 +14,6 @@ def obtain_feature_data(feature, conditions):
     for condition in conditions:
         with open(f"{DATA_DIRECTORY}\pickles\c{condition}.pickle", "rb") as handle:
             p = pickle.load(handle)
-        feature_dictionary[condition] = p[feature]
+        filtered_data = [x for x in p[feature] if x is not None]
+        feature_dictionary[condition] = filtered_data
     return feature_dictionary

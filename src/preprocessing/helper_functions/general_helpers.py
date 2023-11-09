@@ -28,15 +28,14 @@ def angle_between_vectors(v1: npt.NDArray, v2: npt.NDArray) -> float:
     return math.degrees(np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)))
 
 
-def butter_lowpass_filter(dataframe, column_name) -> npt.NDArray:
-    data = dataframe[column_name]
-    fs = 200
-    cutoff = 2
+def butter_lowpass_filter(raw_data) -> npt.NDArray:
+    fs = 1024
+    cutoff = 1
     nyq = 0.5 * fs
-    order = 2
+    order = 4
     normal_cutoff = cutoff / nyq
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
-    filtered_data = filtfilt(b, a, data)
+    filtered_data = filtfilt(b, a, raw_data)
     return filtered_data
 
 

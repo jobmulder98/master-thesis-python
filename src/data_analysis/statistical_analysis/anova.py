@@ -1,6 +1,8 @@
 import numpy as np
 from dotenv import load_dotenv
 import os
+import scipy.stats as stats
+from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 from src.data_analysis.helper_functions.data_helpers import obtain_feature_data
 
@@ -8,10 +10,30 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 conditions = np.arange(1, 8)
-feature = "fixations other object"
+feature = "nasa-tlx unweighted"
 
-print(obtain_feature_data(feature, conditions))
+feature_data = obtain_feature_data(feature, conditions)
 
 
-def anova(features: dict):
-    return
+def anova(data: dict):
+    data_values = list(data.values())
+    return stats.f_oneway(*data_values)
+
+
+def post_hoc_test(feature_1: list, feature_2: list):
+    return stats.ttest_ind(feature_1, feature_2)
+
+
+def pairwise_tukey_test(data: dict):
+    value_list = []
+    key_list = []
+    for key, values in data.items():
+        value_list.extend(values)
+        key_list.extend([key] * len(values))
+    tukey = pairwise_tukeyhsd(value_list, key_list, alpha=0.05)
+    return tukey
+
+
+print(feature_data)
+print(anova(feature_data))
+print(pairwise_tukey_test(feature_data))

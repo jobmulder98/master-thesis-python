@@ -16,12 +16,10 @@ def nasa_tlx_unweighted(participant, condition):
 
 
 def nasa_tlx_weighted(participant, condition):
-    dataframe = pd.read_excel(filename, sheet_name="nasa_tlx_weighted")
+    dataframe = pd.read_excel(filename, sheet_name="nasa_tlx_weighted", index_col=0)
     return dataframe.at[f"p{participant}", f"c{condition}"]
 
 
 def nasa_tlx_features(participant, condition):
     return {"nasa-tlx weighted": nasa_tlx_weighted(participant, condition),
             "nasa-tlx unweighted": nasa_tlx_unweighted(participant, condition)}
-
-

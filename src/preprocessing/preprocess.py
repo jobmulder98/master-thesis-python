@@ -95,5 +95,5 @@ if __name__ == "__main__":
                                   end_idx=end_idx,
                                   synchronized_times=synchronized_times,
                                   fixation_time_thresholds=fixation_time_thresholds,
-                                  overwrite_old_pickle=True
+                                  overwrite_old_pickle=False
                                   )

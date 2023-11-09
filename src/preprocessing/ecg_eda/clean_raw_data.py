@@ -81,7 +81,7 @@ def filter_ecg_signal(ecg_signal):
 
 
 
-# df = create_clean_dataframe(101)
-# print(df.head(5))
+df = create_clean_dataframe_ecg_eda(13)
+print(df.head(5))
 # plt.plot(df["Sensor-B:EEG"].iloc[0:10200])
 # plt.show()
