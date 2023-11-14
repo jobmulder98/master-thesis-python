@@ -27,7 +27,7 @@ def merge_all_features_into_dictionary(
     if participant_no == 12 and condition == 4:  # The ecg data in this session has not been recorded
         ecg = empty_ecg_dictionary()
     else:
-        ecg = ecg_features(ecg_eda_dataframe, start_index_ecg_eda, end_index_ecg_eda)
+        ecg = ecg_features(ecg_eda_dataframe, participant_no, condition, start_index_ecg_eda, end_index_ecg_eda)
     eda = eda_features(ecg_eda_dataframe, start_index_ecg_eda, end_index_ecg_eda)
 
     hmd_dataframe = create_clean_dataframe_hmd(participant_no, condition)[start_index:end_index]

@@ -10,7 +10,17 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 conditions = np.arange(1, 8)
-feature = "nasa-tlx unweighted"
+
+# feature = "nasa-tlx unweighted"
+# feature = "nasa-tlx weighted"
+# feature = "Mean HR (beats/min)"
+# feature = "STD HR (beats/min)"
+# feature = "all fixations"
+# feature = "mean fixation time"
+feature = "total time other object"
+# feature = "fixations other object"
+# feature = "seconds/item first 16"
+# feature = "std dev. seconds/item first 16"
 
 feature_data = obtain_feature_data(feature, conditions)
 
@@ -34,6 +44,8 @@ def pairwise_tukey_test(data: dict):
     return tukey
 
 
-print(feature_data)
-print(anova(feature_data))
-print(pairwise_tukey_test(feature_data))
+# print(feature_data)
+# print(anova(feature_data))
+# print(pairwise_tukey_test(feature_data))
+
+

@@ -66,13 +66,15 @@ def create_clean_dataframe_ecg_eda(participant_no: int) -> pd.DataFrame:
     #  Convert to float and filter ecg signal and replace in dataframe
     if "Sensor-B:EEG" in dataframe.columns:
         convert_column_to_float(dataframe, "Sensor-B:EEG")
-        raw_ecg_signal = dataframe["Sensor-B:EEG"]
-        filtered_ecg_signal = filter_ecg_signal(raw_ecg_signal)
-        dataframe["Sensor-B:EEG-Filtered"] = filtered_ecg_signal
+        # raw_ecg_signal = dataframe["Sensor-B:EEG"]
+        # filtered_ecg_signal = filter_ecg_signal(raw_ecg_signal)
+        # dataframe["Sensor-B:EEG-Filtered"] = filtered_ecg_signal
 
     # Convert to float and filter eda signal and replace in dataframe
     if "Sensor-C:SC/GSR" in dataframe.columns:
         convert_column_to_float(dataframe, "Sensor-C:SC/GSR")
+
+    dataframe["userId"] = participant_no
     return dataframe
 
 
@@ -81,7 +83,7 @@ def filter_ecg_signal(ecg_signal):
 
 
 
-df = create_clean_dataframe_ecg_eda(13)
-print(df.head(5))
+# df = create_clean_dataframe_ecg_eda(13)
+# print(df.head(5))
 # plt.plot(df["Sensor-B:EEG"].iloc[0:10200])
 # plt.show()

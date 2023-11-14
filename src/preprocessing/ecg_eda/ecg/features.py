@@ -2,9 +2,19 @@ import biosppy.signals.ecg
 from dotenv import load_dotenv
 import os
 import pandas as pd
+import numpy as np
+import pickle
 import biosppy
 from pyhrv.hrv import hrv
 import warnings
+import matplotlib.pyplot as plt
+
+from preprocessing.ecg_eda.ecg.rpeak_correction import (
+    correct_rpeaks,
+    correct_rpeaks_manually,
+    check_for_corrupted_data,
+)
+from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
 
 # Suppress specific warning
 warnings.filterwarnings("ignore", category=UserWarning,
@@ -20,8 +30,11 @@ ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 
 
 def ecg_features(dataframe: pd.DataFrame,
+                 participant: int,
+                 condition: int,
                  start_index: int,
                  end_index: int,
+                 plot_corrected_peaks=False,
                  plot_biosppy_analysis=False,
                  plot_hrv_analysis=False,
                  plot_ecg=False,
@@ -31,10 +44,22 @@ def ecg_features(dataframe: pd.DataFrame,
     """
 
     raw_ecg_signal = dataframe["Sensor-B:EEG"].iloc[start_index:end_index].values
+    raw_ecg_signal = check_for_corrupted_data(participant, condition, raw_ecg_signal)
     t, filtered_signal, rpeaks = biosppy.signals.ecg.ecg(raw_ecg_signal,
                                                          sampling_rate=ECG_SAMPLE_RATE,
                                                          show=plot_biosppy_analysis)[:3]
-    signal_features = hrv(rpeaks=t[rpeaks], show=plot_hrv_analysis, plot_ecg=plot_ecg, plot_tachogram=plot_tachogram)
+    corrected_peaks = correct_rpeaks(rpeaks)
+    corrected_peaks = correct_rpeaks_manually(participant, condition, corrected_peaks)
+    corrected_peaks = np.unique(corrected_peaks)
+
+    if plot_corrected_peaks:
+        fig, ax = plt.subplots()
+        ax.plot(filtered_signal)
+        ax.vlines(corrected_peaks, ymin=min(filtered_signal), ymax=max(filtered_signal), color='red')
+        ax.vlines(rpeaks, ymin=min(filtered_signal), ymax=max(filtered_signal), linestyles='dashed', color='green')
+        plt.show()
+
+    signal_features = hrv(rpeaks=t[corrected_peaks], show=plot_hrv_analysis, plot_ecg=plot_ecg, plot_tachogram=plot_tachogram)
     features = {
         "Mean NNI (ms)": signal_features["nni_mean"],
         "Minimum NNI": signal_features["nni_min"],
@@ -59,25 +84,23 @@ def ecg_features(dataframe: pd.DataFrame,
     return features
 
 
-# participant_no = 5
+participant_no = 15
+with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
+    synchronized_times = pickle.load(handle)
 # condition = 7
-# sync = {5: {1: [2592486, 2717829],
-#             2: [250177, 375555],
-#             3: [1022819, 1148211],
-#             4: [2278270, 2403647],
-#             5: [695468, 820912],
-#             6: [1418978, 1544377],
-#             7: [1912605, 2038021]
-#             }
-#         }
-# start_index_condition, end_index_condition = sync[participant_no][condition]
-# df = create_clean_dataframe_ecg_eda(participant_no)
-# print(ecg_features(
-#     dataframe=df,
-#     start_index=start_index_condition,
-#     end_index=end_index_condition,
-#     plot_biosppy_analysis=False,
-#     plot_hrv_analysis=False,
-#     plot_ecg=False,
-#     plot_tachogram=False)
-# )
+
+for condition in np.arange(1, 8):
+    start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
+    df = create_clean_dataframe_ecg_eda(participant_no)
+    print(ecg_features(
+        dataframe=df,
+        participant=participant_no,
+        condition=condition,
+        start_index=start_index_condition,
+        end_index=end_index_condition,
+        plot_corrected_peaks=False,
+        plot_biosppy_analysis=False,
+        plot_hrv_analysis=False,
+        plot_ecg=False,
+        plot_tachogram=False)
+    )

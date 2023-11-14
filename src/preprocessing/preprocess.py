@@ -87,13 +87,13 @@ if __name__ == "__main__":
         "fixations other object": [100, 2000, True],
     }
     synchronized_times = initialize_synchronized_times(participants, overwrite_old_pickle=False)
-    # print(synchronized_times)
+    print(synchronized_times)
 
-    initialize_data_per_condition(participants=participants,
-                                  conditions=conditions,
-                                  start_idx=start_idx,
-                                  end_idx=end_idx,
-                                  synchronized_times=synchronized_times,
-                                  fixation_time_thresholds=fixation_time_thresholds,
-                                  overwrite_old_pickle=False
-                                  )
+    # initialize_data_per_condition(participants=participants,
+    #                               conditions=conditions,
+    #                               start_idx=start_idx,
+    #                               end_idx=end_idx,
+    #                               synchronized_times=synchronized_times,
+    #                               fixation_time_thresholds=fixation_time_thresholds,
+    #                               overwrite_old_pickle=False
+    #                               )
