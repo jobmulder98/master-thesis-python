@@ -9,7 +9,7 @@ from pyhrv.hrv import hrv
 import warnings
 import matplotlib.pyplot as plt
 
-from preprocessing.ecg_eda.ecg.rpeak_correction import (
+from preprocessing.ecg_eda.ecg.signal_correction import (
     correct_rpeaks,
     correct_rpeaks_manually,
     check_for_corrupted_data,
