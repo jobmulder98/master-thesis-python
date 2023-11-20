@@ -20,3 +20,5 @@ def plot_heart_rate(corrected_peaks: list):
     ax.set_ylabel("Heart Rate (bpm)")
     ax.legend()
     plt.show()
+
+

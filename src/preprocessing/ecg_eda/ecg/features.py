@@ -3,19 +3,19 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 import numpy as np
-import pickle
 import biosppy
+import pickle
 from pyhrv.hrv import hrv
 import warnings
 import matplotlib.pyplot as plt
 
-from preprocessing.ecg_eda.ecg.signal_correction import (
+from preprocessing.ecg_eda.ecg.filtering import (
     correct_rpeaks,
     correct_rpeaks_manually,
     check_for_corrupted_data,
+    obtain_filtered_signal_and_peaks,
 )
-from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
-from src.preprocessing.ecg_eda.ecg.plotting import plot_heart_rate
+from preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
 
 # Suppress specific warning
 warnings.filterwarnings("ignore", category=UserWarning,
@@ -44,12 +44,11 @@ def ecg_features(dataframe: pd.DataFrame,
     """
     For documentation see https://pyhrv.readthedocs.io/en/latest/index.html
     """
-
-    raw_ecg_signal = dataframe["Sensor-B:EEG"].iloc[start_index:end_index].values
-    raw_ecg_signal = check_for_corrupted_data(participant, condition, raw_ecg_signal)
-    t, filtered_signal, rpeaks = biosppy.signals.ecg.ecg(raw_ecg_signal,
-                                                         sampling_rate=ECG_SAMPLE_RATE,
-                                                         show=plot_biosppy_analysis)[:3]
+    t, filtered_signal, rpeaks = obtain_filtered_signal_and_peaks(dataframe,
+                                                                  participant,
+                                                                  condition,
+                                                                  start_index,
+                                                                  end_index)
     corrected_peaks = correct_rpeaks(rpeaks)
     corrected_peaks = correct_rpeaks_manually(participant, condition, corrected_peaks)
     corrected_peaks = np.unique(corrected_peaks)
@@ -62,7 +61,8 @@ def ecg_features(dataframe: pd.DataFrame,
         ax.vlines(rpeaks, ymin=min(filtered_signal), ymax=max(filtered_signal), linestyles='dashed', color='green')
         plt.show()
 
-    signal_features = hrv(rpeaks=t[corrected_peaks], show=plot_hrv_analysis, plot_ecg=plot_ecg, plot_tachogram=plot_tachogram)
+    signal_features = hrv(rpeaks=t[corrected_peaks], show=plot_hrv_analysis, plot_ecg=plot_ecg,
+                          plot_tachogram=plot_tachogram)
     features = {
         "Mean NNI (ms)": signal_features["nni_mean"],
         "Minimum NNI": signal_features["nni_min"],
@@ -84,34 +84,28 @@ def ecg_features(dataframe: pd.DataFrame,
         "Peak LF (Hz)": signal_features["fft_peak"][1],
         "Peak HF (Hz)": signal_features["fft_peak"][2],
     }
-    plt.close('all')    # avoid error: Failed to allocate bitmap
-    plt.clf()           # avoid error: Failed to allocate bitmap
-    return features, corrected_peaks
+    plt.close('all')  # avoid error: Failed to allocate bitmap
+    plt.clf()  # avoid error: Failed to allocate bitmap
+    return features
 
 
-participants = np.arange(1, 23)
-with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
-    synchronized_times = pickle.load(handle)
-# condition = 7
-
-corrected_peaks_list = []
-for participant_no in participants:
-    for condition in np.arange(7, 8):
-        start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
-        df = create_clean_dataframe_ecg_eda(participant_no)
-        features, corrected_peaks = ecg_features(
-            dataframe=df,
-            participant=participant_no,
-            condition=condition,
-            start_index=start_index_condition,
-            end_index=end_index_condition,
-            plot_corrected_peaks=False,
-            plot_biosppy_analysis=False,
-            plot_hrv_analysis=False,
-            plot_ecg=False,
-            plot_tachogram=False,)
-        print(features)
-        corrected_peaks_list.append(corrected_peaks)
-
-plot_heart_rate(corrected_peaks_list)
+# participants = np.arange(1, 23)
+# with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
+#     synchronized_times = pickle.load(handle)
+#
+# for participant_no in participants:
+#     for condition in np.arange(7, 8):
+#         start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
+#         df = create_clean_dataframe_ecg_eda(participant_no)
+#         print(ecg_features(
+#             dataframe=df,
+#             participant=participant_no,
+#             condition=condition,
+#             start_index=start_index_condition,
+#             end_index=end_index_condition,
+#             plot_corrected_peaks=False,
+#             plot_biosppy_analysis=False,
+#             plot_hrv_analysis=False,
+#             plot_ecg=False,
+#             plot_tachogram=False, ))
 

@@ -46,7 +46,7 @@ def pairwise_tukey_test(data: dict):
 
 
 # print(feature_data)
-print(anova(feature_data))
-print(pairwise_tukey_test(feature_data))
+# print(anova(feature_data))
+# print(pairwise_tukey_test(feature_data))
 
 

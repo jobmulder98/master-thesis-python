@@ -1,5 +1,19 @@
+import biosppy.signals
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from numpy import typing as npt
+import pickle
+from dotenv import load_dotenv
+import os
+
+from preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
+
+
+load_dotenv()
+DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
+ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
+
 
 
 def correct_rpeaks(peak_indices):
@@ -113,3 +127,56 @@ def check_for_corrupted_data(participant: int, condition: int, signal: npt.NDArr
     if participant == 22 and condition == 6:
         signal = signal[:55000]
     return signal
+
+
+def delete_outliers_iqr(detected_rr_peaks):
+    rr_intervals = np.diff(detected_rr_peaks)
+    heart_rate = 60 / (rr_intervals / ECG_SAMPLE_RATE)
+    sorted_data = np.sort(heart_rate)
+    quartile_1 = sorted_data[int(len(heart_rate) * 0.25)]
+    quartile_3 = sorted_data[int(len(heart_rate) * 0.75)]
+    iqr = quartile_3 - quartile_1
+    lower_bound = quartile_1 - 1.5 * iqr
+    upper_bound = quartile_3 + 1.5 * iqr
+    filtered_heart_rate = [x if lower_bound <= x <= upper_bound else np.nan for x in heart_rate]
+    return filtered_heart_rate
+
+
+def obtain_filtered_signal_and_peaks(dataframe: pd.DataFrame,
+                                     participant: int,
+                                     condition: int,
+                                     start_index: int,
+                                     end_index: int,
+                                     plot_biosppy_analysis=False):
+    raw_ecg_signal = dataframe["Sensor-B:EEG"].iloc[start_index:end_index].values
+    raw_ecg_signal = check_for_corrupted_data(participant, condition, raw_ecg_signal)
+    t, filtered_signal, rpeaks = biosppy.signals.ecg.ecg(raw_ecg_signal,
+                                                         sampling_rate=ECG_SAMPLE_RATE,
+                                                         show=plot_biosppy_analysis)[:3]
+    return t, filtered_signal, rpeaks
+
+
+participants = np.arange(5, 6)
+with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
+    synchronized_times = pickle.load(handle)
+
+for participant_no in participants:
+    for condition in np.arange(7, 8):
+        start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
+        df = create_clean_dataframe_ecg_eda(participant_no)
+        _, _, rpeaks = (obtain_filtered_signal_and_peaks(
+            dataframe=df,
+            participant=participant_no,
+            condition=condition,
+            start_index=start_index_condition,
+            end_index=end_index_condition,
+            plot_biosppy_analysis=False)
+        )
+        filtered_rpeaks = delete_outliers_iqr(rpeaks)
+
+
+# plt.plot(60 / (np.diff(rpeaks) / ECG_SAMPLE_RATE))
+time_axis = np.cumsum(np.diff(rpeaks)) / ECG_SAMPLE_RATE
+plt.plot(time_axis, filtered_rpeaks, marker=".")
+plt.show()
+
