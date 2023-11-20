@@ -17,7 +17,8 @@ conditions = np.arange(1, 8)
 # feature = "STD HR (beats/min)"
 # feature = "all fixations"
 # feature = "mean fixation time"
-feature = "total time other object"
+# feature = "total time other object"
+feature = "total time list"
 # feature = "fixations other object"
 # feature = "seconds/item first 16"
 # feature = "std dev. seconds/item first 16"
@@ -45,7 +46,7 @@ def pairwise_tukey_test(data: dict):
 
 
 # print(feature_data)
-# print(anova(feature_data))
-# print(pairwise_tukey_test(feature_data))
+print(anova(feature_data))
+print(pairwise_tukey_test(feature_data))
 
 

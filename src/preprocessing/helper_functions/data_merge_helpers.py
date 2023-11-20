@@ -27,8 +27,8 @@ def merge_all_features_into_dictionary(
     if participant_no == 12 and condition == 4:  # The ecg data in this session has not been recorded
         ecg = empty_ecg_dictionary()
     else:
-        ecg = ecg_features(ecg_eda_dataframe, participant_no, condition, start_index_ecg_eda, end_index_ecg_eda)
-    eda = eda_features(ecg_eda_dataframe, start_index_ecg_eda, end_index_ecg_eda)
+        ecg, _ = ecg_features(ecg_eda_dataframe, participant_no, condition, start_index_ecg_eda, end_index_ecg_eda)
+    # eda = eda_features(ecg_eda_dataframe, participant_no, condition, start_index_ecg_eda, end_index_ecg_eda)
 
     hmd_dataframe = create_clean_dataframe_hmd(participant_no, condition)[start_index:end_index]
     areas_of_interest = area_of_interest_features(hmd_dataframe)
@@ -38,7 +38,8 @@ def merge_all_features_into_dictionary(
     performance = performance_features(hmd_dataframe)
     nasa_tlx = nasa_tlx_features(participant_no, condition)
 
-    return {**ecg, **eda, **fixations, **areas_of_interest, **head_movement, **hand_movement, **performance, **nasa_tlx}
+    return {**ecg, **fixations, **areas_of_interest, **head_movement, **hand_movement, **performance, **nasa_tlx}
+    # return {**ecg, **eda, **fixations, **areas_of_interest, **head_movement, **hand_movement, **performance, **nasa_tlx}
 
 
 def merge_dictionaries(dictionaries: List[dict]) -> dict:

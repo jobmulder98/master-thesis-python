@@ -15,6 +15,7 @@ from preprocessing.ecg_eda.ecg.signal_correction import (
     check_for_corrupted_data,
 )
 from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
+from src.preprocessing.ecg_eda.ecg.plotting import plot_heart_rate
 
 # Suppress specific warning
 warnings.filterwarnings("ignore", category=UserWarning,
@@ -38,7 +39,8 @@ def ecg_features(dataframe: pd.DataFrame,
                  plot_biosppy_analysis=False,
                  plot_hrv_analysis=False,
                  plot_ecg=False,
-                 plot_tachogram=False) -> dict:
+                 plot_tachogram=False
+                 ):
     """
     For documentation see https://pyhrv.readthedocs.io/en/latest/index.html
     """
@@ -51,6 +53,7 @@ def ecg_features(dataframe: pd.DataFrame,
     corrected_peaks = correct_rpeaks(rpeaks)
     corrected_peaks = correct_rpeaks_manually(participant, condition, corrected_peaks)
     corrected_peaks = np.unique(corrected_peaks)
+    # print(corrected_peaks)
 
     if plot_corrected_peaks:
         fig, ax = plt.subplots()
@@ -81,26 +84,34 @@ def ecg_features(dataframe: pd.DataFrame,
         "Peak LF (Hz)": signal_features["fft_peak"][1],
         "Peak HF (Hz)": signal_features["fft_peak"][2],
     }
-    return features
+    plt.close('all')    # avoid error: Failed to allocate bitmap
+    plt.clf()           # avoid error: Failed to allocate bitmap
+    return features, corrected_peaks
 
 
-participant_no = 15
+participants = np.arange(1, 23)
 with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
     synchronized_times = pickle.load(handle)
 # condition = 7
 
-for condition in np.arange(1, 8):
-    start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
-    df = create_clean_dataframe_ecg_eda(participant_no)
-    print(ecg_features(
-        dataframe=df,
-        participant=participant_no,
-        condition=condition,
-        start_index=start_index_condition,
-        end_index=end_index_condition,
-        plot_corrected_peaks=False,
-        plot_biosppy_analysis=False,
-        plot_hrv_analysis=False,
-        plot_ecg=False,
-        plot_tachogram=False)
-    )
+corrected_peaks_list = []
+for participant_no in participants:
+    for condition in np.arange(7, 8):
+        start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
+        df = create_clean_dataframe_ecg_eda(participant_no)
+        features, corrected_peaks = ecg_features(
+            dataframe=df,
+            participant=participant_no,
+            condition=condition,
+            start_index=start_index_condition,
+            end_index=end_index_condition,
+            plot_corrected_peaks=False,
+            plot_biosppy_analysis=False,
+            plot_hrv_analysis=False,
+            plot_ecg=False,
+            plot_tachogram=False,)
+        print(features)
+        corrected_peaks_list.append(corrected_peaks)
+
+plot_heart_rate(corrected_peaks_list)
+

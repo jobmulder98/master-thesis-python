@@ -30,9 +30,9 @@ def angle_between_vectors(v1: npt.NDArray, v2: npt.NDArray) -> float:
 
 def butter_lowpass_filter(raw_data) -> npt.NDArray:
     fs = 1024
-    cutoff = 1
+    cutoff = 2
     nyq = 0.5 * fs
-    order = 4
+    order = 2
     normal_cutoff = cutoff / nyq
     b, a = butter(order, normal_cutoff, btype='low', analog=False)
     filtered_data = filtfilt(b, a, raw_data)
@@ -66,3 +66,8 @@ def text_file_name(participant_number):
 
 def unit_vector(vector: npt.NDArray) -> npt.NDArray:
     return vector / np.linalg.norm(vector)
+
+
+def format_time(seconds, _):
+    minutes, seconds = divmod(seconds, 60)
+    return f"{int(minutes):02d}:{int(seconds):02d}"

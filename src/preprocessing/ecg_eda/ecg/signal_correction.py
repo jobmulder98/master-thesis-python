@@ -39,6 +39,15 @@ def correct_rpeaks(peak_indices):
 
 
 def correct_rpeaks_manually(participant, condition, corrected_rpeaks: npt.NDArray) -> npt.NDArray:
+    if participant == 2 and condition == 7:
+        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 70182))
+        corrected_rpeaks = np.append(corrected_rpeaks, 70462)
+        corrected_rpeaks = np.append(corrected_rpeaks, 71279)
+        corrected_rpeaks = np.sort(corrected_rpeaks)
+    if participant == 7 and condition == 7:
+        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 42024))
+        corrected_rpeaks = np.append(corrected_rpeaks, 42262)
+        corrected_rpeaks = np.sort(corrected_rpeaks)
     if participant == 11 and condition == 2:
         corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 10176))
         corrected_rpeaks = np.append(corrected_rpeaks, 9996)
@@ -76,10 +85,13 @@ def correct_rpeaks_manually(participant, condition, corrected_rpeaks: npt.NDArra
         corrected_rpeaks = np.append(corrected_rpeaks, 28850)
         corrected_rpeaks = np.sort(corrected_rpeaks)
     if participant == 21 and condition == 7:
+        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 51707))
+        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 80818))
         corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 81422))
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 109054))
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 109559))
-        corrected_rpeaks = np.append(corrected_rpeaks, 81340)
+        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 109055))
+        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 109560))
+        corrected_rpeaks = np.append(corrected_rpeaks, 51858)
+        corrected_rpeaks = np.append(corrected_rpeaks, 80656)
         corrected_rpeaks = np.append(corrected_rpeaks, 109321)
         corrected_rpeaks = np.sort(corrected_rpeaks)
     if participant == 22 and condition == 2:
@@ -89,8 +101,10 @@ def correct_rpeaks_manually(participant, condition, corrected_rpeaks: npt.NDArra
         corrected_rpeaks = np.append(corrected_rpeaks, 114440)
         corrected_rpeaks = np.sort(corrected_rpeaks)
     if participant == 22 and condition == 7:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 44977))
-        corrected_rpeaks = np.append(corrected_rpeaks, 44902)
+        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 44485))
+        corrected_rpeaks = np.append(corrected_rpeaks, 44339)
+        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 45469))
+        corrected_rpeaks = np.append(corrected_rpeaks, 45593)
         corrected_rpeaks = np.sort(corrected_rpeaks)
     return corrected_rpeaks
 

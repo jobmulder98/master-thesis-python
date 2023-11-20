@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
 import pickle
 from dotenv import load_dotenv
@@ -30,12 +31,12 @@ def initialize_synchronized_times(participants, overwrite_old_pickle=False) -> d
     return synchronized_times
 
 
-def initialize_data_per_condition(participants,
-                                  conditions,
-                                  synchronized_times,
-                                  start_idx,
-                                  end_idx,
-                                  fixation_time_thresholds,
+def initialize_data_per_condition(participants: npt.NDArray,
+                                  conditions: npt.NDArray,
+                                  synchronized_times: dict,
+                                  start_idx: int,
+                                  end_idx: int,
+                                  fixation_time_thresholds: dict,
                                   overwrite_old_pickle=True):
     """
     Create pickle files with the data of all participants per condition.
@@ -75,7 +76,7 @@ def initialize_data_per_condition(participants,
 
 if __name__ == "__main__":
     participants = np.arange(1, 23)
-    conditions = np.arange(1, 8)
+    conditions = np.arange(7, 8)
     start_idx = 0
     end_idx = -1
     fixation_time_thresholds = {
@@ -87,13 +88,13 @@ if __name__ == "__main__":
         "fixations other object": [100, 2000, True],
     }
     synchronized_times = initialize_synchronized_times(participants, overwrite_old_pickle=False)
-    print(synchronized_times)
+    # print(synchronized_times)
 
-    # initialize_data_per_condition(participants=participants,
-    #                               conditions=conditions,
-    #                               start_idx=start_idx,
-    #                               end_idx=end_idx,
-    #                               synchronized_times=synchronized_times,
-    #                               fixation_time_thresholds=fixation_time_thresholds,
-    #                               overwrite_old_pickle=False
-    #                               )
+    initialize_data_per_condition(participants=participants,
+                                  conditions=conditions,
+                                  start_idx=start_idx,
+                                  end_idx=end_idx,
+                                  synchronized_times=synchronized_times,
+                                  fixation_time_thresholds=fixation_time_thresholds,
+                                  overwrite_old_pickle=True
+                                  )

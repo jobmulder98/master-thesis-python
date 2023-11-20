@@ -7,8 +7,7 @@ import pandas as pd
 import pickle
 
 from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
-from src.preprocessing.helper_functions.general_helpers import butter_lowpass_filter
-from src.preprocessing.ecg_eda.eda.signal_correction import remove_spikes
+from src.preprocessing.ecg_eda.eda.signal_correction import filter_eda_signal, plot_filtered_signals
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -20,11 +19,17 @@ def eda_features(dataframe: pd.DataFrame,
                  condition: int,
                  start_index: int,
                  end_index: int,
-                 plot=False) -> dict:
-    eda_signal = dataframe["Sensor-C:SC/GSR"].iloc[start_index:end_index].values
-    # filtered_data = butter_lowpass_filter(eda_signal)
-    # plt.plot(filtered_data)
-    signals, info = nk.eda_process(eda_signal, sampling_rate=ECG_SAMPLE_RATE)
+                 plot_eda_analysis=False,
+                 plot_signals=False) -> dict:
+
+    eda_signal = dataframe["Sensor-C:SC/GSR"]
+    filtered_signal = filter_eda_signal(eda_signal)
+    filtered_signal_condition = filtered_signal[start_index:end_index]
+
+    if plot_signals:
+        plot_filtered_signals(np.abs(eda_signal[start_index:end_index]), filtered_signal_condition)
+
+    signals, info = nk.eda_process(filtered_signal_condition, sampling_rate=ECG_SAMPLE_RATE)
     scl_signal = signals["EDA_Tonic"]
     scr_peaks = signals["SCR_Peaks"]
 
@@ -44,14 +49,14 @@ def eda_features(dataframe: pd.DataFrame,
         "Mean rise time SCR peaks": np.mean(scr_rise_time_peaks),
     }
 
-    if plot:
+    if plot_eda_analysis:
         nk.eda_plot(signals, info)
         plt.show()
 
     return features
 
 
-participant_no = 15
+participant_no = 21
 with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
     synchronized_times = pickle.load(handle)
 # condition = 7
@@ -65,5 +70,6 @@ for condition in np.arange(1, 8):
         condition=condition,
         start_index=start_index_condition,
         end_index=end_index_condition,
-        plot=False)
+        plot_eda_analysis=False,
+        plot_signals=True)
     )
