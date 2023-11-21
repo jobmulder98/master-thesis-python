@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import os
 
 from preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
+from preprocessing.helper_functions.general_helpers import interpolate_nan_values, load_pickle, write_pickle
 
 
 load_dotenv()
@@ -156,27 +157,64 @@ def obtain_filtered_signal_and_peaks(dataframe: pd.DataFrame,
     return t, filtered_signal, rpeaks
 
 
-participants = np.arange(5, 6)
-with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
-    synchronized_times = pickle.load(handle)
-
-for participant_no in participants:
-    for condition in np.arange(7, 8):
-        start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
-        df = create_clean_dataframe_ecg_eda(participant_no)
-        _, _, rpeaks = (obtain_filtered_signal_and_peaks(
-            dataframe=df,
-            participant=participant_no,
-            condition=condition,
-            start_index=start_index_condition,
-            end_index=end_index_condition,
-            plot_biosppy_analysis=False)
-        )
-        filtered_rpeaks = delete_outliers_iqr(rpeaks)
+def calculate_mean_heart_rate(times, rpeaks):
+    if rpeaks is None:
+        return None
+    number_of_intervals = len(rpeaks)
+    total_time = times[-1] - times[0]
+    return number_of_intervals / (total_time / 60)
 
 
-# plt.plot(60 / (np.diff(rpeaks) / ECG_SAMPLE_RATE))
-time_axis = np.cumsum(np.diff(rpeaks)) / ECG_SAMPLE_RATE
-plt.plot(time_axis, filtered_rpeaks, marker=".")
-plt.show()
+def calculate_heart_rate_variability(rpeaks):
+    if rpeaks is None:
+        return None
+    interpolated_rpeaks = interpolate_nan_values(rpeaks)
+    return np.std(interpolated_rpeaks)
+
+
+# participants = np.arange(1, 22)
+# with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
+#     synchronized_times = pickle.load(handle)
+#
+# unfiltered_times_of_rpeaks_all = {}
+# unfiltered_rpeaks_all = {}
+# mask_all = {}
+# filtered_times_of_rpeaks_all = {}
+# filtered_rpeaks_all = {}
+#
+# for condition in np.arange(1, 8):
+#     times = []
+#     heart_rate_values = []
+#     masks = []
+#     for participant_no in participants:
+#         if participant_no == 12 and condition == 4:
+#             times.append(None)
+#             heart_rate_values.append(None)
+#         else:
+#             start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
+#             df = create_clean_dataframe_ecg_eda(participant_no)
+#             t, _, rpeaks = (obtain_filtered_signal_and_peaks(
+#                 dataframe=df,
+#                 participant=participant_no,
+#                 condition=condition,
+#                 start_index=start_index_condition,
+#                 end_index=end_index_condition,
+#                 plot_biosppy_analysis=False)
+#             )
+#             time_filtered_rpeaks = np.array(t[rpeaks][1:]).astype(np.double)
+#             filtered_rpeaks = np.array(delete_outliers_iqr(rpeaks)).astype(np.double)
+#             times.append(time_filtered_rpeaks)
+#             heart_rate_values.append(filtered_rpeaks)
+#             mask = np.isfinite(filtered_rpeaks)
+#             masks.append(mask)
+#             # times.append(time_filtered_rpeaks[mask])
+#             # heart_rate_values.append(filtered_rpeaks[mask])
+#     filtered_times_of_rpeaks_all[condition] = times
+#     filtered_rpeaks_all[condition] = heart_rate_values
+#     mask_all[condition] = masks
+
+
+# time_and_rpeaks = [filtered_times_of_rpeaks_all, filtered_rpeaks_all, mask_all]
+# write_pickle("ecg_data_unfiltered", time_and_rpeaks)
+
 

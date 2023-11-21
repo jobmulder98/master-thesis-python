@@ -16,8 +16,6 @@ plot_dictionary = {}
 
 # feature = "nasa-tlx unweighted"
 # feature = "nasa-tlx weighted"
-# feature = "Mean HR (beats/min)"
-# feature = "STD HR (beats/min)"
 # feature = "all fixations"
 # feature = "mean fixation time"
 # feature = "total time other object"

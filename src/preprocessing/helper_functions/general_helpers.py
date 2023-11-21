@@ -3,6 +3,7 @@ import numpy.typing as npt
 import math
 import datetime
 import os
+import pickle
 from scipy.signal import butter, filtfilt, lfilter
 from dotenv import load_dotenv
 
@@ -49,6 +50,28 @@ def delta_time_seconds(time1: datetime.datetime, time2: datetime.datetime) -> fl
     return dt_seconds
 
 
+def format_time(seconds, _):
+    minutes, seconds = divmod(seconds, 60)
+    return f"{int(minutes):02d}:{int(seconds):02d}"
+
+
+def interpolate_nan_values(data: list) -> list:
+    data_array = np.array(data, dtype=float)
+    nan_indices = np.isnan(data_array)
+    indices = np.arange(len(data_array))
+    data_array[nan_indices] = np.interp(indices[nan_indices], indices[~nan_indices], data_array[~nan_indices])
+    interpolated_data = data_array.tolist()
+    return interpolated_data
+
+
+def load_pickle(pickle_name):
+    try:
+        with open(f"{DATA_DIRECTORY}\pickles\{pickle_name}", "rb") as handle:
+            return pickle.load(handle)
+    except FileNotFoundError:
+        return "file does not exists"
+
+
 def milliseconds_to_seconds(milliseconds):
     return milliseconds/1000
 
@@ -68,6 +91,6 @@ def unit_vector(vector: npt.NDArray) -> npt.NDArray:
     return vector / np.linalg.norm(vector)
 
 
-def format_time(seconds, _):
-    minutes, seconds = divmod(seconds, 60)
-    return f"{int(minutes):02d}:{int(seconds):02d}"
+def write_pickle(pickle_name, data):
+    with open(f"{DATA_DIRECTORY}\pickles\{pickle_name}.pickle", "wb") as handle:
+        pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
