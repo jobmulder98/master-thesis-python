@@ -5,6 +5,7 @@ import scipy.stats as stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 from src.data_analysis.helper_functions.data_helpers import obtain_feature_data
+from src.data_analysis.visualization.ecg.plotting import heart_rate_boxplot, heart_rate_variability_boxplot
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -45,8 +46,8 @@ def pairwise_tukey_test(data: dict):
     return tukey
 
 
-# print(feature_data)
-# print(anova(feature_data))
-# print(pairwise_tukey_test(feature_data))
+hrv = heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", np.arange(1, 22), np.arange(1, 8))
+# print(anova(hrv))
+print(pairwise_tukey_test(feature_data))
 
 

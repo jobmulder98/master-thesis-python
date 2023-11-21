@@ -10,7 +10,7 @@ from preprocessing.helper_functions.general_helpers import load_pickle
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
-condition_names = ["no stimuli", "visual low", "visual high", "auditory low", "auditory high", "mental low", "mental high"]
+condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
 
 
 def plot_heart_rate_participant(pickle_filename: str, participant: int):
@@ -115,7 +115,7 @@ def heart_rate_boxplot(pickle_filename, participants, conditions):
     fig.autofmt_xdate(rotation=45)
     ax.set_ylabel("Heart Rate (beats/min)")
     ax.boxplot(heart_rates.values())
-    ax.set_xticklabels(heart_rates.keys())
+    ax.set_xticklabels(condition_names)
     plt.show()
     return
 
@@ -144,8 +144,8 @@ def heart_rate_variability_boxplot(pickle_filename, participants, conditions):
 
 conditions = np.arange(1, 8)
 participants = np.arange(1, 22)
-plot_average_heart_rate_all("ecg_data_filtered.pickle", outline_condition=None)
-# plot_average_per_condition(3, "ecg_data_filtered.pickle")
+# plot_average_heart_rate_all("ecg_data_filtered.pickle", outline_condition=3)
+# plot_average_per_condition(1, "ecg_data_filtered.pickle")
 # heart_rate_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
 # heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
 # plot_heart_rate_participant("ecg_data_filtered.pickle", 21)
