@@ -7,7 +7,7 @@ import pandas as pd
 import pickle
 
 from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
-from src.preprocessing.ecg_eda.eda.signal_correction import filter_eda_signal, plot_filtered_signals
+from src.preprocessing.ecg_eda.eda.remove_spikes import filter_eda_signal, plot_filtered_signals
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -38,8 +38,8 @@ def eda_features(dataframe: pd.DataFrame,
     scr_amplitude_peaks = scr_amplitude_all[scr_amplitude_indexes]
 
     scr_rise_time_all = signals["SCR_RiseTime"].values
-    scr_rise_time_indexes = np.nonzero(scr_rise_time_all)
-    scr_rise_time_peaks = scr_rise_time_all[scr_rise_time_indexes]
+    scr_rise_time_indices = np.nonzero(scr_rise_time_all)
+    scr_rise_time_peaks = scr_rise_time_all[scr_rise_time_indices]
 
     features = {
         "Mean SCL": np.mean(scl_signal),
@@ -56,20 +56,20 @@ def eda_features(dataframe: pd.DataFrame,
     return features
 
 
-participant_no = 21
-with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
-    synchronized_times = pickle.load(handle)
-# condition = 7
-
-for condition in np.arange(1, 8):
-    start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
-    df = create_clean_dataframe_ecg_eda(participant_no)
-    print(eda_features(
-        dataframe=df,
-        participant=participant_no,
-        condition=condition,
-        start_index=start_index_condition,
-        end_index=end_index_condition,
-        plot_eda_analysis=False,
-        plot_signals=True)
-    )
+# participant_no = 21
+# with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
+#     synchronized_times = pickle.load(handle)
+# # condition = 7
+#
+# for condition in np.arange(1, 8):
+#     start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
+#     df = create_clean_dataframe_ecg_eda(participant_no)
+#     print(eda_features(
+#         dataframe=df,
+#         participant=participant_no,
+#         condition=condition,
+#         start_index=start_index_condition,
+#         end_index=end_index_condition,
+#         plot_eda_analysis=False,
+#         plot_signals=True)
+#     )

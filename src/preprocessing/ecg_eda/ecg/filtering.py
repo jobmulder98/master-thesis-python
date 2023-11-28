@@ -172,6 +172,18 @@ def calculate_heart_rate_variability(rpeaks):
     return np.std(interpolated_rpeaks)
 
 
+def calculate_rmssd(rpeaks):
+    if rpeaks is None:
+        return None
+    rpeaks_interpolated = interpolate_nan_values(rpeaks)
+    rr_intervals = [60 / (hr / ECG_SAMPLE_RATE) for hr in rpeaks_interpolated]
+    differences_between_consecutive_intervals = np.diff(rr_intervals)
+    squared_diff = differences_between_consecutive_intervals ** 2
+    mean_squared_diff = np.mean(squared_diff)
+    rmssd = np.sqrt(mean_squared_diff)
+    return rmssd
+
+
 # participants = np.arange(1, 22)
 # with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
 #     synchronized_times = pickle.load(handle)

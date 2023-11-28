@@ -5,7 +5,7 @@ import scipy.stats as stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 from src.data_analysis.helper_functions.data_helpers import obtain_feature_data
-from src.data_analysis.visualization.ecg.plotting import heart_rate_boxplot, heart_rate_variability_boxplot
+from data_analysis.visualization.plotting_ecg import heart_rate_variability_boxplot
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")

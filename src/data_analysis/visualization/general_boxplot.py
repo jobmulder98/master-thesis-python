@@ -21,11 +21,12 @@ plot_dictionary = {}
 # feature = "total time other object"
 # feature = "fixations other object"
 # feature = "seconds/item first 16"
+feature = "seconds/item window"
 # feature = "std dev. seconds/item first 16"
 # feature = "total time other object"
-# "total time main shelf"
-feature = "total time list"
-# "total time cart"
+# feature = "total time main shelf"
+# feature = "total time list"
+# feature = "total time cart"
 
 for condition in conditions:
     with open(f"{DATA_DIRECTORY}\pickles\c{condition}.pickle", "rb") as handle:

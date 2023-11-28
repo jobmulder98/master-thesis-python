@@ -64,6 +64,10 @@ def interpolate_nan_values(data: list) -> list:
     return interpolated_data
 
 
+def is_zero_array(array):
+    return np.array_equal(array, np.array([0, 0, 0]))
+
+
 def load_pickle(pickle_name):
     try:
         with open(f"{DATA_DIRECTORY}\pickles\{pickle_name}", "rb") as handle:
@@ -92,5 +96,5 @@ def unit_vector(vector: npt.NDArray) -> npt.NDArray:
 
 
 def write_pickle(pickle_name, data):
-    with open(f"{DATA_DIRECTORY}\pickles\{pickle_name}.pickle", "wb") as handle:
+    with open(f"{DATA_DIRECTORY}\pickles\{pickle_name}", "wb") as handle:
         pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)

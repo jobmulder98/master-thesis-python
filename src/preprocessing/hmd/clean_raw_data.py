@@ -13,7 +13,7 @@ from src.preprocessing.helper_functions.dataframe_helpers import (
     interpolate_zero_arrays,
 )
 
-from src.preprocessing.helper_functions.general_helpers import delta_time_seconds
+from src.preprocessing.helper_functions.general_helpers import delta_time_seconds, is_zero_array
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -31,24 +31,44 @@ def create_dataframe(participant_number: int, condition: int) -> pd.DataFrame:
     return dataframe
 
 
-def add_delta_time_to_dataframe(dataframe: pd.DataFrame) -> None:
+def add_delta_time_to_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe["deltaSeconds"] = np.nan
     for i in range(len(dataframe["timeStampDatetime"]) - 1):
         dataframe.loc[i + 1, "deltaSeconds"] = delta_time_seconds(
             dataframe.loc[i, "timeStampDatetime"],
             dataframe.loc[i + 1, "timeStampDatetime"]
         )
-    return
+    return dataframe
 
 
-def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> None:
+def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
     cumulative_time = 0
     cumulative_time_list = []
     for i in range(len(dataframe["deltaSeconds"])):
         cumulative_time += dataframe["deltaSeconds"].iloc[i]
         cumulative_time_list.append(cumulative_time)
     dataframe["timeCumulative"] = cumulative_time_list
-    return
+    return dataframe
+
+
+def filter_invalid_values_missing_data(dataframe: pd.DataFrame):
+    conditions = (
+            (dataframe['rayOrigin'].apply(lambda x: np.array_equal(x, np.array([0, 0, 0])))) &
+            (dataframe['rayDirection'].apply(lambda x: np.array_equal(x, np.array([0, 0, 0])))
+             ))
+    dataframe.loc[conditions, "focusObjectTag"] = "Invalid"
+    dataframe.loc[conditions, "focusObjectName"] = "Invalid"
+    return dataframe
+
+
+def filter_invalid_values_blinking(dataframe: pd.DataFrame):
+    conditions = (
+            (dataframe['isLeftEyeBlinking']) |
+            (dataframe['isRightEyeBlinking'])
+    )
+    dataframe.loc[conditions, "focusObjectTag"] = "Invalid"
+    dataframe.loc[conditions, "focusObjectName"] = "Invalid"
+    return dataframe
 
 
 def create_clean_dataframe_hmd(participant_number: int, condition: int) -> pd.DataFrame:
@@ -72,15 +92,17 @@ def create_clean_dataframe_hmd(participant_number: int, condition: int) -> pd.Da
     convert_column_to_datetime(clean_dataframe, "timeStampDatetime")
     convert_quaternion_column_to_euler(clean_dataframe, "hmdRotation", "hmdEuler")
 
-    add_delta_time_to_dataframe(clean_dataframe)
-    add_cumulative_time_to_dataframe(clean_dataframe)
+    clean_dataframe = add_delta_time_to_dataframe(clean_dataframe)
+    clean_dataframe = add_cumulative_time_to_dataframe(clean_dataframe)
+
+    clean_dataframe = filter_invalid_values_blinking(clean_dataframe)
+    clean_dataframe = filter_invalid_values_missing_data(clean_dataframe)
 
     clean_dataframe = interpolate_zero_arrays(clean_dataframe, "rayOrigin")
     clean_dataframe = interpolate_zero_arrays(clean_dataframe, "rayDirection")
     clean_dataframe = interpolate_zeros(clean_dataframe, "convergenceDistance")
 
     return clean_dataframe
-
 
 # dataset = create_clean_dataframe_hmd(103, 5)
 # print(dataset.to_string()[0:10000])
