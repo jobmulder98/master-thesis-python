@@ -42,12 +42,7 @@ def add_delta_time_to_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
 
 
 def add_cumulative_time_to_dataframe(dataframe: pd.DataFrame) -> pd.DataFrame:
-    cumulative_time = 0
-    cumulative_time_list = []
-    for i in range(len(dataframe["deltaSeconds"])):
-        cumulative_time += dataframe["deltaSeconds"].iloc[i]
-        cumulative_time_list.append(cumulative_time)
-    dataframe["timeCumulative"] = cumulative_time_list
+    dataframe["timeCumulative"] = dataframe["deltaSeconds"].cumsum()
     return dataframe
 
 
