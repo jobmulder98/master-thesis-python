@@ -5,7 +5,7 @@ import scipy.stats as stats
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
 from src.data_analysis.helper_functions.data_helpers import obtain_feature_data
-from data_analysis.visualization.plotting_ecg import heart_rate_variability_boxplot
+from data_analysis.visualization.plotting_aoi import boxplots_aoi
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -19,12 +19,12 @@ conditions = np.arange(1, 8)
 # feature = "all fixations"
 # feature = "mean fixation time"
 # feature = "total time other object"
-feature = "total time list"
+# feature = "total time list"
 # feature = "fixations other object"
 # feature = "seconds/item first 16"
 # feature = "std dev. seconds/item first 16"
 
-feature_data = obtain_feature_data(feature, conditions)
+# feature_data = obtain_feature_data(feature, conditions)
 
 
 def anova(data: dict):
@@ -46,8 +46,9 @@ def pairwise_tukey_test(data: dict):
     return tukey
 
 
-hrv = heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", np.arange(1, 22), np.arange(1, 8))
-# print(anova(hrv))
-print(pairwise_tukey_test(feature_data))
+aoi = boxplots_aoi("cart")
+# hrv = heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", np.arange(1, 22), np.arange(1, 8))
+# print(anova(aoi))
+print(pairwise_tukey_test(aoi))
 
 

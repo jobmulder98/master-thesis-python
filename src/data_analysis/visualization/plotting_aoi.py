@@ -1,3 +1,4 @@
+import math
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.patches as patches
@@ -75,6 +76,58 @@ def plot_fixation_location_heat_map_object_tag(condition, object_tags):
     plt.show()
 
 
+def ray_direction_histogram(condition, object_tags):
+    if isinstance(object_tags, str):
+        object_tags = [object_tags]
+
+    ray_direction_data = []
+    for participant in [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]:
+        hmd_dataframe = create_clean_dataframe_hmd(participant, condition)
+        filtered_hmd_dataframe = filter_location_transitions(hmd_dataframe, ["notAssigned", "NPC"], 0.1)
+        window_dataframe = filtered_hmd_dataframe[filtered_hmd_dataframe["focusObjectTag"].isin(object_tags)]
+        window_dataframe["rayDirection"] = window_dataframe["rayDirection"].apply(
+            lambda x: x if not is_zero_array(x) else None)
+        hmd_dataframe_filtered = window_dataframe.dropna(subset=["rayDirection"])
+        ray_direction_data.append(hmd_dataframe_filtered)
+
+    combined_dataframe = pd.concat(ray_direction_data, ignore_index=True)
+    x_coords, y_coords, z_coords = zip(*combined_dataframe["rayDirection"])
+    xz_angle_rad = np.arctan2(z_coords, x_coords)
+    xz_angle_degrees = np.degrees(xz_angle_rad)
+    xz_angle_degrees = (xz_angle_degrees + 180) % 360 - 180
+
+    fig, ax = plt.subplots()
+    ax.hist(xz_angle_degrees, bins=360, color="skyblue", edgecolor="black")
+    ax.set_title(f"Number of rays in degrees for condition {condition}")
+    ax.set_xlabel('Degrees')
+    ax.set_ylabel('Total rays')
+    plt.show()
+
+
+def ray_origin_plot(condition, object_tags):
+    if isinstance(object_tags, str):
+        object_tags = [object_tags]
+
+    ray_direction_data = []
+    for participant in participants:
+        hmd_dataframe = create_clean_dataframe_hmd(participant, condition)
+        filtered_hmd_dataframe = filter_location_transitions(hmd_dataframe, ["notAssigned", "NPC"], 0.1)
+        window_dataframe = filtered_hmd_dataframe[filtered_hmd_dataframe["focusObjectTag"].isin(object_tags)]
+        window_dataframe["rayOrigin"] = window_dataframe["rayOrigin"].apply(
+            lambda x: x if not is_zero_array(x) else None)
+        hmd_dataframe_filtered = window_dataframe.dropna(subset=["rayOrigin"])
+        ray_direction_data.append(hmd_dataframe_filtered)
+
+    combined_dataframe = pd.concat(ray_direction_data, ignore_index=True)
+    x_coords, y_coords, z_coords = zip(*combined_dataframe["rayOrigin"])
+
+    fig, ax = plt.subplots()
+    ax.scatter(x_coords, z_coords, color="black")
+    ax.set_xlabel('X')
+    ax.set_ylabel('Z')
+    plt.show()
+
+
 def barplot_names_of_npc(condition):
     participant_counts = {}
     for participant in participants:
@@ -109,14 +162,15 @@ def boxplots_aoi(name_aoi):
         for participant in participants:
             aoi_values.append(aoi_dictionary[condition][participant-1][name_aoi])
         plot_dictionary[condition] = aoi_values
-    fig, ax = plt.subplots()
-    plot_title = f"Total time looking at {name_aoi} for each condition".replace("_", " ").title()
-    ax.set_title(plot_title)
-    ax.set_xlabel("Condition")
-    ax.set_ylabel("Time (s)")
-    ax.boxplot(plot_dictionary.values())
-    ax.set_xticklabels(plot_dictionary.keys())
-    plt.show()
+    # fig, ax = plt.subplots()
+    # plot_title = f"Total time looking at {name_aoi} for each condition".replace("_", " ").title()
+    # ax.set_title(plot_title)
+    # ax.set_xlabel("Condition")
+    # ax.set_ylabel("Time (s)")
+    # ax.boxplot(plot_dictionary.values())
+    # ax.set_xticklabels(plot_dictionary.keys())
+    # plt.show()
+    return plot_dictionary
 
 
 def barplot_total_times_condition(condition, name_aoi):
@@ -125,7 +179,6 @@ def barplot_total_times_condition(condition, name_aoi):
         The options of this name are ["list", "cart", "main_shelf", "other_object", "invalid", "transition"]
     """
     aoi_dictionary = load_pickle("aoi_results.pickle")
-    print(aoi_dictionary)
     participant_dictionary = {}
     for participant in participants:
         participant_dictionary[participant] = aoi_dictionary[condition][participant-1][name_aoi]
@@ -194,7 +247,7 @@ def barplot_other_object_over_time(condition: int, names_aoi, window_size: int) 
     plt.show()
 
 
-def lineplot_other_object_over_time(names_aoi, window_size: int):
+def lineplot_aoi_over_time(names_aoi, window_size: int):
     if isinstance(names_aoi, str):
         names_aoi = [names_aoi]
 
@@ -204,17 +257,28 @@ def lineplot_other_object_over_time(names_aoi, window_size: int):
             hmd_dataframe = create_clean_dataframe_hmd(participant, condition)
             filtered_hmd_dataframe = filter_location_transitions(hmd_dataframe, ["notAssigned", "NPC"], 0.1)
             df = replace_destination_with_character(filtered_hmd_dataframe)
-            for start_time in range(0, 120, window_size):
-                end_time = start_time + window_size if start_time != 110 else 122
-                window_name = f"{start_time}-{end_time}"
+            for start_time in range(2, 122, window_size):
+                end_time = start_time + window_size
+                window_name = f"{start_time-2}-{end_time-2}"
                 window_df = df[(df["timeCumulative"] >= start_time) & (df["timeCumulative"] < end_time)]
                 total_time = window_df[window_df["focusObjectTag"].isin(names_aoi)]["deltaSeconds"].sum()
                 time_window_dict[condition].setdefault(window_name, []).append(total_time)
-    average_time_dict = {key: sum(values) / len(values) for key, values in time_window_dict[1].items()}
+    average_time_dict = {condition: {key: np.mean(values) for key, values in time_windows.items()} for
+                         condition, time_windows in time_window_dict.items()}
     plt.figure(figsize=(10, 5))
     for condition in conditions:
-        plt.plot(list(average_time_dict.keys()), list(average_time_dict.values()), marker='o', label=f'Condition {condition}')
-    plt.title(f"Average time looking at another object over time for all conditions")
+        plt.plot(list(average_time_dict[condition].keys()), list(average_time_dict[condition].values()), marker='o',
+                 label=f'Condition {condition}')
+
+    if isinstance(names_aoi, list):
+        if len(names_aoi) > 1:
+            names_aoi_str = f"{', '.join(names_aoi[:-1])} and {names_aoi[-1]}"
+        else:
+            names_aoi_str = names_aoi[0]
+    else:
+        names_aoi_str = names_aoi
+    plot_title = f"Average Time Looking at {names_aoi_str} over time for all conditions".replace("_", " ").title()
+    plt.title(plot_title)
     plt.xlabel("Time window (s)")
     plt.ylabel("Average time (s)")
     plt.xticks(rotation=45, ha='right')
@@ -222,12 +286,15 @@ def lineplot_other_object_over_time(names_aoi, window_size: int):
     plt.show()
 
 
-lineplot_other_object_over_time(["notAssigned", "NPC"], 10)
+# lineplot_aoi_over_time("List", 10)
 # barplot_other_object_over_time(3, ["notAssigned", "NPC"], 10)
 # plot_fixation_location_object_tag(16, 3, "NPC")
-# names_of_npc_bargraph(3)
-# plot_fixation_location_heat_map_object_tag(3, ["NPC", "notAssigned"])
+# barplot_names_of_npc(3)
 # boxplots_aoi("invalid")
-# boxplots_aoi("other_object")
-# bargraph_total_times_condition(3, "main_shelf")
-# histogram_total_time()
+# boxplots_aoi("transition")
+# barplot_total_times_condition(5, "list")
+# barplot_total_time()
+
+# plot_fixation_location_heat_map_object_tag(6, ["NPC", "notAssigned"])
+# ray_direction_histogram(4, ["NPC", "notAssigned"])
+# ray_origin_plot(3, ["NPC", "notAssigned"])
