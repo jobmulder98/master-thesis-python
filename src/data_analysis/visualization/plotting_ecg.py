@@ -3,9 +3,8 @@ from matplotlib import pyplot as plt
 from dotenv import load_dotenv
 import os
 from matplotlib.widgets import CheckButtons
-import matplotlib.colors as mcolors
 
-from data_analysis.visualization.visualization_helpers import increase_opacity_condition
+from data_analysis.helper_functions.visualization_helpers import increase_opacity_condition
 from preprocessing.ecg_eda.ecg.filtering import (calculate_mean_heart_rate,
                                                  calculate_rmssd,
                                                  interpolate_nan_values)
@@ -189,6 +188,6 @@ def heart_rate_variability_boxplot(pickle_filename, participants, conditions):
 # plot_average_heart_rate_all("ecg_data_filtered.pickle", outline_condition=[1, 7])
 # plot_heart_rate_variability_all("ecg_data_filtered.pickle", outline_condition=[5, 6, 7])
 # plot_average_heart_rate_per_condition(1, "ecg_data_filtered.pickle")
-plot_heart_rate_participant("ecg_data_filtered.pickle", 7)
+# plot_heart_rate_participant("ecg_data_filtered.pickle", 7)
 
 

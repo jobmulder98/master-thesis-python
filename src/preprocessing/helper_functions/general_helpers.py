@@ -80,11 +80,22 @@ def milliseconds_to_seconds(milliseconds):
     return milliseconds/1000
 
 
+def moving_average(x, w):
+    padding = (w - 1) // 2
+    padded_x = np.pad(x, (padding, padding), mode='edge')
+    result = np.convolve(padded_x, np.ones(w) / w, 'valid')
+    return result
+
+
 def perpendicular_distance_3d(point, start, end):
     a = start - end
     b = point - end
     distance = np.linalg.norm(np.cross(a, b)) / np.linalg.norm(a)
     return distance
+
+
+def pickle_exists(pickle_name):
+    return os.path.exists(f"{DATA_DIRECTORY}/pickles/{pickle_name}")
 
 
 def text_file_name(participant_number):

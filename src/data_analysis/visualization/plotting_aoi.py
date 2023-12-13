@@ -1,4 +1,3 @@
-import math
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.patches as patches
@@ -81,7 +80,7 @@ def ray_direction_histogram(condition, object_tags):
         object_tags = [object_tags]
 
     ray_direction_data = []
-    for participant in [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]:
+    for participant in participants:
         hmd_dataframe = create_clean_dataframe_hmd(participant, condition)
         filtered_hmd_dataframe = filter_location_transitions(hmd_dataframe, ["notAssigned", "NPC"], 0.1)
         window_dataframe = filtered_hmd_dataframe[filtered_hmd_dataframe["focusObjectTag"].isin(object_tags)]
@@ -142,7 +141,7 @@ def barplot_names_of_npc(condition):
     combined_counts = combined_counts[combined_counts > 50]
     plt.figure(figsize=(12, 8))
     combined_counts.sort_values(ascending=False).plot(kind='bar', color='skyblue')
-    plt.title('Number of Times Each NPC is Focused On for All Participants')
+    plt.title('Total Number of Frames Each NPC is Focused On for All Participants')
     plt.xlabel('Object')
     plt.ylabel('Count')
     plt.xticks(rotation=45, ha='right')
@@ -162,14 +161,14 @@ def boxplots_aoi(name_aoi):
         for participant in participants:
             aoi_values.append(aoi_dictionary[condition][participant-1][name_aoi])
         plot_dictionary[condition] = aoi_values
-    # fig, ax = plt.subplots()
-    # plot_title = f"Total time looking at {name_aoi} for each condition".replace("_", " ").title()
-    # ax.set_title(plot_title)
-    # ax.set_xlabel("Condition")
-    # ax.set_ylabel("Time (s)")
-    # ax.boxplot(plot_dictionary.values())
-    # ax.set_xticklabels(plot_dictionary.keys())
-    # plt.show()
+    fig, ax = plt.subplots()
+    plot_title = f"Total time looking at {name_aoi} for each condition".replace("_", " ").title()
+    ax.set_title(plot_title)
+    ax.set_xlabel("Condition")
+    ax.set_ylabel("Time (s)")
+    ax.boxplot(plot_dictionary.values())
+    ax.set_xticklabels(plot_dictionary.keys())
+    plt.show()
     return plot_dictionary
 
 
@@ -247,7 +246,7 @@ def barplot_other_object_over_time(condition: int, names_aoi, window_size: int) 
     plt.show()
 
 
-def lineplot_aoi_over_time(names_aoi, window_size: int):
+def lineplot_aoi_over_time(names_aoi, window_size: int = 10):
     if isinstance(names_aoi, str):
         names_aoi = [names_aoi]
 
@@ -286,15 +285,15 @@ def lineplot_aoi_over_time(names_aoi, window_size: int):
     plt.show()
 
 
-# lineplot_aoi_over_time("List", 10)
+# lineplot_aoi_over_time("Invalid", 10)
 # barplot_other_object_over_time(3, ["notAssigned", "NPC"], 10)
 # plot_fixation_location_object_tag(16, 3, "NPC")
 # barplot_names_of_npc(3)
-# boxplots_aoi("invalid")
+# boxplots_aoi("main_shelf")
 # boxplots_aoi("transition")
-# barplot_total_times_condition(5, "list")
+# barplot_total_times_condition(3, "main_shelf")
 # barplot_total_time()
 
-# plot_fixation_location_heat_map_object_tag(6, ["NPC", "notAssigned"])
+plot_fixation_location_heat_map_object_tag(5, ["NPC", "notAssigned"])
 # ray_direction_histogram(4, ["NPC", "notAssigned"])
 # ray_origin_plot(3, ["NPC", "notAssigned"])

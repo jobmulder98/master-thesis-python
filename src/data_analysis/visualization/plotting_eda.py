@@ -2,10 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 from dotenv import load_dotenv
 import os
-from matplotlib.widgets import CheckButtons
-import matplotlib.colors as mcolors
 
-from data_analysis.visualization.visualization_helpers import increase_opacity_condition
+from data_analysis.helper_functions.visualization_helpers import increase_opacity_condition
 from preprocessing.helper_functions.general_helpers import load_pickle
 
 load_dotenv()

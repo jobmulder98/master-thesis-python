@@ -54,32 +54,32 @@ def filter_eda_data(eda_signal, peak_threshold, peak_margin, filter_window_size)
     return interpolated_signal, tonic_signal, phasic_signal
 
 
-participants = np.arange(1, 23)
-conditions = np.arange(1, 8)
-
-synchronized_times = load_pickle("synchronized_times.pickle")
-
-filtered_data = {}
-
-for participant in participants:
-    df = create_clean_dataframe_ecg_eda(participant)  #.iloc[start_index_condition:end_index_condition]
-    eda_signal = np.abs(df["Sensor-C:SC/GSR"].values)
-    selected_values = eda_signal[::32]
-    filtered_eda_signal, tonic_signal, phasic_signal = filter_eda_data(eda_signal,
-                                                                       1000,
-                                                                       1000,
-                                                                       200
-                                                                       )
+# participants = np.arange(1, 23)
+# conditions = np.arange(1, 8)
+#
+# synchronized_times = load_pickle("synchronized_times.pickle")
+#
+# filtered_data = {}
+#
+# for participant in participants:
+#     df = create_clean_dataframe_ecg_eda(participant)  #.iloc[start_index_condition:end_index_condition]
+#     eda_signal = np.abs(df["Sensor-C:SC/GSR"].values)
+#     selected_values = eda_signal[::32]
+#     filtered_eda_signal, tonic_signal, phasic_signal = filter_eda_data(eda_signal,
+#                                                                        1000,
+#                                                                        1000,
+#                                                                        200
+#                                                                        )
 
     # mean_value = np.mean(filtered_eda_signal)
     # standard_deviation = np.std(filtered_eda_signal)
     # normalized_data = [((x - mean_value) / standard_deviation) for x in filtered_eda_signal]
     # for condition in conditions:
     #     start_index_condition, end_index_condition = synchronized_times[participant][condition]
-    filtered_data[participant] = [eda_signal, filtered_eda_signal, tonic_signal, phasic_signal]
+    # filtered_data[participant] = [eda_signal, filtered_eda_signal, tonic_signal, phasic_signal]
     # plt.plot(normalized_data)
 
-write_pickle("eda_signal_filtered_normalized.pickle", filtered_data)
+# write_pickle("eda_signal_filtered_normalized.pickle", filtered_data)
 #
 # plt.show()
 # fig, ax = plt.subplots()

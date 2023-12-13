@@ -21,27 +21,25 @@ plot_dictionary = {}
 # feature = "total time other object"
 # feature = "fixations other object"
 # feature = "seconds/item first 16"
-feature = "seconds/item window"
+# feature = "seconds/item window"
 # feature = "std dev. seconds/item first 16"
 # feature = "total time other object"
 # feature = "total time main shelf"
 # feature = "total time list"
 # feature = "total time cart"
+feature = "mean head acceleration"
 
 for condition in conditions:
     with open(f"{DATA_DIRECTORY}\pickles\c{condition}.pickle", "rb") as handle:
         p = pickle.load(handle)
     filtered_data = [x for x in p[feature] if x is not None]
-    # remove_outliers = [x if x <= 50 else 50 for x in filtered_data]
     condition_name = condition_names[condition-1]
     plot_dictionary[condition_name] = filtered_data
 
-# print(plot_dictionary)
-ax.set_title(feature)
-ax.set_xlabel("condition")
+ax.set_title(feature.title())
+ax.set_xlabel("Condition")
 fig.autofmt_xdate(rotation=45)
-ax.set_ylabel("Time (s)")
+ax.set_ylabel("Mean Acceleration (m/s^2)")
 ax.boxplot(plot_dictionary.values())
-# ax.set_ylim(0, 100)
 ax.set_xticklabels(plot_dictionary.keys())
 plt.show()
