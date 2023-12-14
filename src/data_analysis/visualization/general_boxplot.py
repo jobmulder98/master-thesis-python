@@ -27,7 +27,9 @@ plot_dictionary = {}
 # feature = "total time main shelf"
 # feature = "total time list"
 # feature = "total time cart"
-feature = "mean head acceleration"
+# feature = "mean head acceleration"
+# feature = "rmse trajectory item to cart"
+feature = "mean grab time"
 
 for condition in conditions:
     with open(f"{DATA_DIRECTORY}\pickles\c{condition}.pickle", "rb") as handle:

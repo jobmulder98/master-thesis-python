@@ -11,7 +11,7 @@ import os
 from src.data_analysis.helper_functions.visualization_helpers import increase_opacity_condition
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle, pickle_exists
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.hmd.movements.filtering import filter_head_movement_data
+from src.preprocessing.hmd.movements.filtering_head_movements import filter_head_movement_data
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -20,7 +20,7 @@ conditions = np.arange(1, 8)
 
 
 def box_plot_head_accelerations():
-    if pickle_exists("head_acceleration_mean_results.pickle"):
+    if pickle_exists("cead_acceleration_mean_results.pickle"):
         head_accelerations = load_pickle("head_acceleration_mean_results.pickle")
     else:
         head_accelerations = {}
@@ -29,7 +29,7 @@ def box_plot_head_accelerations():
             for participant in participants:
                 dataframe = create_clean_dataframe_hmd(participant, condition)
                 dataframe = filter_head_movement_data(dataframe)
-                accelerations_condition.append(np.nanmean(dataframe["headMovementAcceleration"].values))
+                accelerations_condition.append(np.nanmean(dataframe["headMovementAccelerationFiltered"].values))
             head_accelerations[condition] = accelerations_condition
         write_pickle("head_acceleration_mean_results.pickle", head_accelerations)
     fig, ax = plt.subplots()
@@ -41,8 +41,33 @@ def box_plot_head_accelerations():
     plt.show()
 
 
+def box_plot_head_acceleration_peaks():
+    if pickle_exists("head_acceleration_peaks_mean_results.pickle"):
+        head_acceleration_peaks = load_pickle("head_acceleration_peaks_mean_results.pickle")
+    else:
+        head_acceleration_peaks = {}
+        for condition in conditions:
+            acc_peaks = []
+            for participant in participants:
+                dataframe = create_clean_dataframe_hmd(participant, condition)
+                dataframe = filter_head_movement_data(dataframe)
+                head_movement_accelerations = dataframe["headMovementAccelerationFiltered"].values
+                hm_peaks, _ = scipy.signal.find_peaks(head_movement_accelerations, height=200, distance=30)
+                acc_peaks.append(len(hm_peaks))
+            head_acceleration_peaks[condition] = acc_peaks
+        write_pickle("head_acceleration_peaks_mean_results.pickle", head_acceleration_peaks)
+    fig, ax = plt.subplots()
+    ax.set_title(f"Number of peaks for participants in all conditions".title())
+    ax.set_xlabel("Condition")
+    ax.set_ylabel("Number of peaks")
+    ax.boxplot(head_acceleration_peaks.values())
+    ax.set_xticklabels(head_acceleration_peaks.keys())
+    plt.show()
+
+
 def average_head_acceleration(outline_condition=None):
     opacity = increase_opacity_condition(outline_condition, len(conditions))
+    common_times = np.arange(0, 122, step=0.01)
     if pickle_exists("head_acceleration_condition_averages.pickle"):
         data_dict = load_pickle("head_acceleration_condition_averages.pickle")
         common_times, avg_acceleration_per_condition = data_dict["common_times"], data_dict["average_data"]
@@ -56,7 +81,6 @@ def average_head_acceleration(outline_condition=None):
                 head_movement_acceleration = dataframe["headMovementAcceleration"].values
                 times = dataframe["timeCumulative"].values
                 times[np.isnan(times)] = 0
-                common_times = np.arange(0, 122, step=0.01)
                 interpolated_acceleration = np.interp(common_times, times, head_movement_acceleration)
                 total_acceleration_condition.append(interpolated_acceleration)
             stacked_arrays = np.stack(total_acceleration_condition, axis=0)
@@ -81,7 +105,7 @@ def average_head_acceleration(outline_condition=None):
 def line_plot_head_movements_condition(participant, condition):
     dataframe = create_clean_dataframe_hmd(participant, condition)
     dataframe = filter_head_movement_data(dataframe)
-    head_movement_acceleration = dataframe["headMovementAcceleration"].values
+    head_movement_acceleration = dataframe["headMovementAccelerationFiltered"].values
     times = dataframe["timeCumulative"].values
     times[np.isnan(times)] = 0
     hm_peaks, _ = scipy.signal.find_peaks(head_movement_acceleration, height=200, distance=30)
@@ -90,7 +114,7 @@ def line_plot_head_movements_condition(participant, condition):
     plt.show()
 
 
-def lineplot_accelerations_over_time(window_size: int = 10):
+def line_plot_accelerations_over_time(window_size: int = 10):
     time_window_dict = {condition: {} for condition in conditions}
     for condition in conditions:
         for participant in participants:
@@ -117,7 +141,42 @@ def lineplot_accelerations_over_time(window_size: int = 10):
     plt.show()
 
 
+def line_plot_acceleration_peaks_over_time(window_size: int = 10):
+    if pickle_exists("line_plot_acceleration_peaks_over_time.pickle"):
+        peaks_dict = load_pickle("line_plot_acceleration_peaks_over_time.pickle")
+    else:
+        time_window_dict = {condition: {} for condition in conditions}
+        for condition in conditions:
+            for participant in participants:
+                df = create_clean_dataframe_hmd(participant, condition)
+                df = filter_head_movement_data(df)
+                hm_peaks, _ = scipy.signal.find_peaks(df["headMovementAccelerationFiltered"], height=200, distance=30)
+                for start_time in range(2, 122, window_size):
+                    end_time = start_time + window_size
+                    window_name = f"{start_time-2}-{end_time-2}"
+                    start_index = df[df["timeCumulative"] >= start_time].index.min()
+                    end_index = df[df["timeCumulative"] < end_time].index.max()
+                    peaks_in_window = [peak for peak in hm_peaks if start_index <= peak <= end_index]
+                    time_window_dict[condition].setdefault(window_name, []).append(len(peaks_in_window))
+        peaks_dict = {condition: {key: np.mean(values) for key, values in time_windows.items()} for
+                      condition, time_windows in time_window_dict.items()}
+        write_pickle("line_plot_acceleration_peaks_over_time.pickle", peaks_dict)
+    plt.figure(figsize=(10, 5))
+    for condition in conditions:
+        plt.plot(list(peaks_dict[condition].keys()), list(peaks_dict[condition].values()), marker='o',
+                 label=f'Condition {condition}')
+    plot_title = f"Average number of peaks in accelerations for conditions in windows of {window_size} seconds".title()
+    plt.title(plot_title)
+    plt.xlabel("Time window (s)")
+    plt.ylabel("Number of peaks (>200 m/s^2)")
+    plt.xticks(rotation=45, ha='right')
+    plt.legend()
+    plt.show()
+
+
 # box_plot_head_accelerations()
+# box_plot_head_acceleration_peaks()
 # average_head_acceleration(6)
 # line_plot_head_movements_condition(20, 4)
-lineplot_accelerations_over_time(10)
+# line_plot_accelerations_over_time(10)
+line_plot_acceleration_peaks_over_time(10)
