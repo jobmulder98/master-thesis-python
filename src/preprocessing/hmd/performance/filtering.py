@@ -9,6 +9,7 @@ from src.preprocessing.helper_functions.general_helpers import delta_time_second
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
+PERFORMANCE_FILENAME = os.getenv("PERFORMANCE_FILENAME")
 
 
 def new_item_in_cart(dataframe: pd.DataFrame) -> list:
@@ -32,14 +33,14 @@ def remove_brackets_and_number(input_string):
 
 def product_lists(dataframe: pd.DataFrame):
     condition_number = int(dataframe["condition"][0])
-    df_correct_products = pd.read_excel(f"{DATA_DIRECTORY}/other/performance-results.xlsx")
+    df_correct_products = pd.read_excel(f"{DATA_DIRECTORY}/other/{PERFORMANCE_FILENAME}")
     correct_order = df_correct_products[f"c{condition_number}"].tolist()
     participant_picks = dataframe["itemsInCart"].iloc[-1]
     participant_picks = participant_picks.split(",")
     return correct_order, participant_picks
 
 
-def count_errors(correct_order, participant_picks):
+def count_errors(correct_order, participant_picks, participant, condition):
     errors = 0
     correct_index = 0
     participant_index = 0
@@ -53,16 +54,27 @@ def count_errors(correct_order, participant_picks):
             participant_index += 1
         else:
             errors += 1
-            print(correct_product)
+            print(f"For participant {participant} in condition {condition}, the product is {correct_product}")
             next_correct_index = correct_index + 1 if correct_index + 1 < len(correct_order) else None
+            next_next_correct_index = next_correct_index + 1 if (
+                        next_correct_index is not None and next_correct_index + 1 < len(correct_order)) else None
             next_participant_index = participant_index + 1 if participant_index + 1 < len(participant_picks) else None
 
             next_correct_product = correct_order[next_correct_index].lower() if next_correct_index is not None else None
+            next_next_correct_product = correct_order[next_next_correct_index].lower() if next_next_correct_index is not None else None
             next_participant_product = remove_brackets_and_number(participant_picks[next_participant_index]).lower() if next_participant_index is not None else None
 
-            if next_correct_product == participant_product:
+            if next_correct_product == participant_product and next_participant_product == correct_product:
+                # Swapped two products, skip next product
+                correct_index += 2
+                participant_index += 2
+            elif next_correct_product == participant_product:
                 # Participant skipped a product, move on to the next.
                 correct_index += 1
+            elif next_next_correct_product == participant_product:
+                # Participant skipped two products, skip two products and add 1 error
+                errors += 1
+                correct_index += 2
             elif next_correct_product == next_participant_product:
                 # Took incorrect product and moved on to the next one.
                 correct_index += 1
@@ -75,10 +87,13 @@ def count_errors(correct_order, participant_picks):
     return errors
 
 
-participant = 10
-condition = 4
-df = create_clean_dataframe_hmd(participant, condition)
-cor = ['Milk', 'Bread', 'Basil', 'Dough blue', 'Bottle coke', 'Bottle', 'Chips red', 'Beerbox rood', 'Tomato', 'Banana', 'Cheese ', 'SprayBottle', 'Soil', 'Bottle fanta', 'Joghurt yellow', 'Carrot', 'BeerBox green', 'Joghurt purple', 'Onion', 'Joghurt', 'Chips white', 'Broccoli', 'Meat', 'Broccoli', 'Pepperoni', 'Cheese white', 'Lemon', 'Apple', 'Pear', 'BeerBox green']
-par = ['Milk', 'Bread (6)', 'Basil', 'Dough Blue (1)', 'Bottle coke (6)', 'Bottle (2)', 'Chips red (4)', 'BeerBox rood', 'Tomato (7)', 'banana (2)', 'Cheese', 'SprayBottle (6)', 'Soil (5)', 'Bottle fanta', 'Joghurt yellow', 'Carrot (2)']
+def n_back_task_performance(dataframe: pd.DataFrame):
+    pass
 
-print(count_errors(cor, par))
+
+# participant = 4  # 4, c5, 22, c5
+# condition = 2
+# df = create_clean_dataframe_hmd(participant, condition)
+# cor, par = product_lists(df)
+# errors = count_errors(cor, par, participant, condition)
+# print(f"number of errors is {errors}")

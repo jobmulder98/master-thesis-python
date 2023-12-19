@@ -33,7 +33,7 @@ def speed_accuracy_plot():
                 dataframe = create_clean_dataframe_hmd(participant, condition)
                 speed_participants.append(seconds_per_item(dataframe))
                 correct_order, participant_picks = product_lists(dataframe)
-                errors_participants.append(count_errors(correct_order, participant_picks))
+                errors_participants.append(count_errors(correct_order, participant_picks, participant, condition))
                 condition_values.append(condition)
         plotting_dataframe = pd.DataFrame({"performance": speed_participants,
                                            "condition": condition_values,
@@ -42,16 +42,18 @@ def speed_accuracy_plot():
 
     fig, ax = plt.subplots()
     fig.autofmt_xdate(rotation=30)
-    colors = {0: "blue", 1: "green", 2: "gold", 3: "orange", 4: "red", 5: "hotpink", 6: "blueviolet"}
+    colors = {0: "grey", 1: "red", 2: "green", 3: "cyan", 4: "blue"}
     nan_color = "grey"
     plotting_dataframe["color"] = plotting_dataframe["errors"].apply(lambda x: colors[x] if x in colors else nan_color)
     legend_elements = [
         Line2D([0], [0], marker='o', color='w', markerfacecolor=colors[key], markersize=10, label=str(key)) for key in
         colors]
     ax.scatter(
-        plotting_dataframe["condition"],
+        plotting_dataframe["condition"] + np.random.uniform(-0.05, 0.05, len(plotting_dataframe)),
         plotting_dataframe["performance"],
+        marker="o",
         color=plotting_dataframe["color"],
+        alpha=0.75,
     )
     ax.set_title(f"The seconds/item vs errors for all participants in all condition".title())
     ax.set_xlabel("Errors")
@@ -63,3 +65,5 @@ def speed_accuracy_plot():
 
 
 speed_accuracy_plot()
+# plotting_dataframe = load_pickle("performance_dataframe.pickle")
+# print(plotting_dataframe)
