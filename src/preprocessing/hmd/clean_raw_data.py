@@ -87,8 +87,8 @@ def create_clean_dataframe_hmd(participant_number: int, condition: int) -> pd.Da
     convert_column_to_datetime(clean_dataframe, "timeStampDatetime")
     convert_quaternion_column_to_euler(clean_dataframe, "hmdRotation", "hmdEuler")
 
-    clean_dataframe = add_delta_time_to_dataframe(clean_dataframe)
-    clean_dataframe = add_cumulative_time_to_dataframe(clean_dataframe)
+    clean_dataframe = add_delta_time_to_dataframe(clean_dataframe)          # "deltaSeconds"
+    clean_dataframe = add_cumulative_time_to_dataframe(clean_dataframe)     # "timeCumulative"
 
     clean_dataframe = filter_invalid_values_blinking(clean_dataframe)
     clean_dataframe = filter_invalid_values_missing_data(clean_dataframe)

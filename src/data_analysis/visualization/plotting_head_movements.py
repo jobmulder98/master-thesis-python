@@ -5,6 +5,7 @@ import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 import scipy
+import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
 import os
 
@@ -17,10 +18,11 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
+condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
 
 
 def box_plot_head_accelerations():
-    if pickle_exists("cead_acceleration_mean_results.pickle"):
+    if pickle_exists("head_acceleration_mean_results.pickle"):
         head_accelerations = load_pickle("head_acceleration_mean_results.pickle")
     else:
         head_accelerations = {}
@@ -33,11 +35,14 @@ def box_plot_head_accelerations():
             head_accelerations[condition] = accelerations_condition
         write_pickle("head_acceleration_mean_results.pickle", head_accelerations)
     fig, ax = plt.subplots()
+    data = pd.DataFrame(head_accelerations)
     ax.set_title(f"Mean head acceleration for all conditions".title())
     ax.set_xlabel("Condition")
+    ax.set_xticklabels(condition_names)
+    fig.autofmt_xdate(rotation=30)
     ax.set_ylabel("Mean acceleration (m/s^2)")
-    ax.boxplot(head_accelerations.values())
-    ax.set_xticklabels(head_accelerations.keys())
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
     plt.show()
 
 
@@ -56,12 +61,15 @@ def box_plot_head_acceleration_peaks():
                 acc_peaks.append(len(hm_peaks))
             head_acceleration_peaks[condition] = acc_peaks
         write_pickle("head_acceleration_peaks_mean_results.pickle", head_acceleration_peaks)
+    data = pd.DataFrame(head_acceleration_peaks)
     fig, ax = plt.subplots()
     ax.set_title(f"Number of peaks for participants in all conditions".title())
     ax.set_xlabel("Condition")
+    ax.set_xticklabels(condition_names)
+    fig.autofmt_xdate(rotation=30)
     ax.set_ylabel("Number of peaks")
-    ax.boxplot(head_acceleration_peaks.values())
-    ax.set_xticklabels(head_acceleration_peaks.keys())
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
     plt.show()
 
 
@@ -179,4 +187,4 @@ def line_plot_acceleration_peaks_over_time(window_size: int = 10):
 # average_head_acceleration(6)
 # line_plot_head_movements_condition(20, 4)
 # line_plot_accelerations_over_time(10)
-line_plot_acceleration_peaks_over_time(10)
+# line_plot_acceleration_peaks_over_time(10)

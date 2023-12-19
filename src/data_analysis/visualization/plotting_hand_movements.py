@@ -17,7 +17,18 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
+condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
+
 
 
 def box_plot_hand_movements():
+    # fig, ax = plt.subplots()
+    # ax.set_title(f"Number of peaks for participants in all conditions".title())
+    # ax.set_xlabel("Condition")
+    # ax.set_xticklabels(condition_names)
+    # fig.autofmt_xdate(rotation=30)
+    # ax.set_ylabel("Number of peaks")
+    # sns.boxplot(data=data, ax=ax, palette="Set2")
+    # sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
+    # plt.show()
     return

@@ -7,11 +7,11 @@ from src.preprocessing.helper_functions.general_helpers import delta_time_second
 
 def new_item_in_cart(dataframe: pd.DataFrame, performance_column: str, difference_column: str) -> tuple:
     dataframe[difference_column] = dataframe[performance_column].diff()
-
-    # TODO: should we add the first item as performance? This time might not be representative (start up time).
     dataframe.loc[0, difference_column] = 1  # If the window starts from time stamp 0, this is the start point
 
     new_item_in_cart_indexes, new_item_in_cart_time_stamp = [], []
+    new_item_in_cart_indices = dataframe[difference_column]
+
     for index, row in dataframe.iterrows():
         if row[difference_column] == 1:
             new_item_in_cart_indexes.append(int(index))
@@ -55,11 +55,6 @@ def performance_features(dataframe: pd.DataFrame) -> dict:
     return features
 
 
-# participant_number = 103
-# condition = 1
-# start_idx = 0
-# end_idx = 3000
-#
-# print("performance features:")
-# for k, v in performance_features(participant_number, condition, start_idx, end_idx).items():
-#     print("- %s: %.2f" % (k, v))
+participant_number = 10
+condition = 1
+df = create_clean_dataframe_hmd(participant_number, condition)

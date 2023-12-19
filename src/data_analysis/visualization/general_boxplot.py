@@ -20,7 +20,7 @@ plot_dictionary = {}
 # feature = "mean fixation time"
 # feature = "total time other object"
 # feature = "fixations other object"
-# feature = "seconds/item first 16"
+feature = "seconds/item first 16"
 # feature = "seconds/item window"
 # feature = "std dev. seconds/item first 16"
 # feature = "total time other object"
@@ -29,7 +29,7 @@ plot_dictionary = {}
 # feature = "total time cart"
 # feature = "mean head acceleration"
 # feature = "rmse trajectory item to cart"
-feature = "mean grab time"
+# feature = "mean grab time"
 
 for condition in conditions:
     with open(f"{DATA_DIRECTORY}\pickles\c{condition}.pickle", "rb") as handle:
@@ -41,7 +41,7 @@ for condition in conditions:
 ax.set_title(feature.title())
 ax.set_xlabel("Condition")
 fig.autofmt_xdate(rotation=45)
-ax.set_ylabel("Mean Acceleration (m/s^2)")
+ax.set_ylabel("Seconds per item (s)")
 ax.boxplot(plot_dictionary.values())
 ax.set_xticklabels(plot_dictionary.keys())
 plt.show()

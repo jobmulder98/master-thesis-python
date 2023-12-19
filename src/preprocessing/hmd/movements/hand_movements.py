@@ -10,33 +10,35 @@ from src.preprocessing.helper_functions.general_helpers import perpendicular_dis
 def find_start_end_coordinates(dataframe: pd.DataFrame, time_threshold: float) -> list:
     start_end_coordinates = []
     time_counter = 0  # Time counter used in case participant accidentally picks wrong item for short time
-    start_coordinate, end_coordinate = None, None
-    start_coordinate_idx, end_coordinate_idx = None, None
-    is_grabbing = False
-    for index, row in dataframe.iterrows():
-        if row["isGrabbing"]:
-            if not is_grabbing:
-                start_coordinate = row["rightControllerPosition"]
-                start_coordinate_idx = index
-            time_counter += row["deltaSeconds"]
-            end_coordinate = row["rightControllerPosition"]
-            end_coordinate_idx = index
-            is_grabbing = True
-        else:
-            if time_counter >= time_threshold:
-                start_end_coordinates.append({"start_coordinate": start_coordinate,
-                                              "end_coordinate": end_coordinate,
-                                              "start_index": start_coordinate_idx,
-                                              "end_index": end_coordinate_idx,
-                                              "grab_time": time_counter},
-                                             )
-            time_counter = 0
-            is_grabbing = False
+
+    start_indices = dataframe[dataframe["isGrabbing"] & ~dataframe["isGrabbing"].shift(1, fill_value=False)].index
+    end_indices = dataframe[~dataframe["isGrabbing"] & dataframe["isGrabbing"].shift(1, fill_value=False)].index
+
+    if dataframe["isGrabbing"].iloc[-1]:
+        end_indices = end_indices.append(len(dataframe["isGrabbing"]) - 1)
+
+    for start_index, end_index in zip(start_indices, end_indices):
+        time_counter += dataframe.loc[start_index:end_index, "deltaSeconds"].sum()
+        end_coordinate = dataframe.loc[end_index, "rightControllerPosition"]
+        end_coordinate_idx = end_index
+
+        if time_counter >= time_threshold:
+            start_coordinate = dataframe.loc[start_index, "rightControllerPosition"]
+            start_coordinate_idx = start_index
+            start_end_coordinates.append({
+                "start_coordinate": start_coordinate,
+                "end_coordinate": end_coordinate,
+                "start_index": start_coordinate_idx,
+                "end_index": end_coordinate_idx,
+                "grab_time": time_counter
+            })
+        time_counter = 0
+
     return start_end_coordinates
 
 
 def rmse_hand_trajectory(dataframe: pd.DataFrame, start_end_coordinates: list[dict]) -> float:
-    #  TODO: make decision for 1. rmse of all error values, or 2. rmse of trajectories, and averaging those rmses
+     #  TODO: make decision for 1. rmse of all error values, or 2. rmse of trajectories, and averaging those rmses
     error = []
     for hand_trajectory in start_end_coordinates:
         for i in np.arange(hand_trajectory["start_index"], hand_trajectory["end_index"]):
@@ -49,7 +51,7 @@ def rmse_hand_trajectory(dataframe: pd.DataFrame, start_end_coordinates: list[di
     return rmse_trajectories
 
 
-def mean_grab_time(dataframe: pd.DataFrame, start_end_coordinates) -> float:
+def mean_grab_time(start_end_coordinates) -> float:
     if not start_end_coordinates:
         return 0
     grab_time = 0
