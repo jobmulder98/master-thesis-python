@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from matplotlib import pyplot as plt
 from dotenv import load_dotenv
 import os
@@ -9,13 +10,59 @@ from preprocessing.ecg_eda.ecg.filtering import (calculate_mean_heart_rate,
                                                  calculate_rmssd,
                                                  interpolate_nan_values)
 from preprocessing.helper_functions.general_helpers import load_pickle
-
 load_dotenv()
+
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
 conditions = np.arange(1, 8)
+
+
 participants = np.arange(1, 22)
+
+
+def heart_rate_boxplot(pickle_filename, participants, conditions):
+    filtered_peaks = load_pickle(pickle_filename)
+    times, peaks = filtered_peaks[0], filtered_peaks[1]
+    heart_rates = {}
+    for condition in conditions:
+        heart_rate = []
+        for participant in participants:
+            hr = calculate_mean_heart_rate(times[condition][participant-1], peaks[condition][participant-1])
+            heart_rate.append(hr)
+        filtered_data = [x for x in heart_rate if x is not None]
+        heart_rates[condition] = filtered_data
+    fig, ax = plt.subplots()
+    ax.set_title("Heart Rate")
+    ax.set_xlabel("Condition")
+    fig.autofmt_xdate(rotation=45)
+    ax.set_ylabel("Heart Rate (beats/min)")
+    ax.boxplot(heart_rates.values())
+    ax.set_xticklabels(condition_names)
+    plt.show()
+    return
+
+
+def heart_rate_variability_boxplot(pickle_filename, participants, conditions):
+    filtered_peaks = load_pickle(pickle_filename)
+    times, peaks = filtered_peaks[0], filtered_peaks[1]
+    heart_rate_variabilities = {}
+    for condition in conditions:
+        heart_rate_variability = []
+        for participant in participants:
+            hrv = calculate_rmssd(peaks[condition][participant-1])
+            heart_rate_variability.append(hrv)
+        filtered_data = [x for x in heart_rate_variability if x is not None]
+        heart_rate_variabilities[condition] = filtered_data
+    fig, ax = plt.subplots()
+    ax.set_title("Heart Rate Variability")
+    ax.set_xlabel("Condition")
+    fig.autofmt_xdate(rotation=45)
+    ax.set_ylabel("Heart Rate Variability (beats/min)")
+    ax.boxplot(heart_rate_variabilities.values())
+    ax.set_xticklabels(condition_names)
+    # plt.show()
+    return
 
 
 def plot_heart_rate_participant(pickle_filename: str, participant: int):
@@ -139,52 +186,8 @@ def plot_average_heart_rate_per_condition(condition: int, pickle_filename: str):
     plt.show()
 
 
-def heart_rate_boxplot(pickle_filename, participants, conditions):
-    filtered_peaks = load_pickle(pickle_filename)
-    times, peaks = filtered_peaks[0], filtered_peaks[1]
-    heart_rates = {}
-    for condition in conditions:
-        heart_rate = []
-        for participant in participants:
-            hr = calculate_mean_heart_rate(times[condition][participant-1], peaks[condition][participant-1])
-            heart_rate.append(hr)
-        filtered_data = [x for x in heart_rate if x is not None]
-        heart_rates[condition] = filtered_data
-    fig, ax = plt.subplots()
-    ax.set_title("Heart Rate")
-    ax.set_xlabel("Condition")
-    fig.autofmt_xdate(rotation=45)
-    ax.set_ylabel("Heart Rate (beats/min)")
-    ax.boxplot(heart_rates.values())
-    ax.set_xticklabels(condition_names)
-    plt.show()
-    return
-
-
-def heart_rate_variability_boxplot(pickle_filename, participants, conditions):
-    filtered_peaks = load_pickle(pickle_filename)
-    times, peaks = filtered_peaks[0], filtered_peaks[1]
-    heart_rate_variabilities = {}
-    for condition in conditions:
-        heart_rate_variability = []
-        for participant in participants:
-            hrv = calculate_rmssd(peaks[condition][participant-1])
-            heart_rate_variability.append(hrv)
-        filtered_data = [x for x in heart_rate_variability if x is not None]
-        heart_rate_variabilities[condition] = filtered_data
-    fig, ax = plt.subplots()
-    ax.set_title("Heart Rate Variability")
-    ax.set_xlabel("Condition")
-    fig.autofmt_xdate(rotation=45)
-    ax.set_ylabel("Heart Rate Variability (beats/min)")
-    ax.boxplot(heart_rate_variabilities.values())
-    ax.set_xticklabels(condition_names)
-    plt.show()
-    return
-
-
 # heart_rate_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
-# heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
+heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
 # plot_average_heart_rate_all("ecg_data_filtered.pickle", outline_condition=[1, 7])
 # plot_heart_rate_variability_all("ecg_data_filtered.pickle", outline_condition=[5, 6, 7])
 # plot_average_heart_rate_per_condition(1, "ecg_data_filtered.pickle")

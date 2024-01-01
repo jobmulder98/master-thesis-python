@@ -11,7 +11,12 @@ import os
 from src.data_analysis.helper_functions.visualization_helpers import increase_opacity_condition
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle, pickle_exists
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.hmd.performance.filtering import count_errors, seconds_per_item, product_lists
+from src.preprocessing.hmd.performance.filtering import (
+    count_errors,
+    seconds_per_item,
+    product_lists,
+    n_back_performance_dataframe,
+)
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -60,10 +65,44 @@ def speed_accuracy_plot():
     ax.set_xticks(conditions)
     ax.set_xticklabels(condition_names)
     ax.set_ylabel("Seconds/Item")
-    ax.legend(handles=legend_elements, title='Errors', loc='upper left')
+    ax.legend(handles=legend_elements, title='Errors', loc='best')
+    mean_std = []
+    for key, value in plotting_dataframe.items():
+        mean_std.append(f"{np.round(np.mean(value), 3)} ({np.round(np.std(value), 3)})")
+    data = pd.DataFrame({"means": mean_std})
+    data.to_excel(f"{DATA_DIRECTORY}/other/dummy.xlsx")
     plt.show()
 
 
-speed_accuracy_plot()
+def n2_back_speed_accuracy_plot():
+    plotting_dataframe = n_back_performance_dataframe()
+    errors = [0, 1, 0, 1, 0, 0, 0, 2, 0, 1, 1, 0, 0, 0, 0, 2, 2, 2, 0, 1, 0, 0]  # hardcoded, should fix later
+    plotting_dataframe["errors"] = errors
+
+    if plotting_dataframe.empty:
+        return "Empty dataframe; no pickle for dataframe found."
+
+    fig, ax = plt.subplots()
+    colors = {0: "grey", 1: "red", 2: "green"}
+    nan_color = "grey"
+    plotting_dataframe["color"] = plotting_dataframe["errors"].apply(lambda x: colors[x] if x in colors else nan_color)
+    legend_elements = [
+        Line2D([0], [0], marker='o', color='w', markerfacecolor=colors[key], markersize=10, label=str(key)) for key in
+        colors]
+    ax.scatter(
+        plotting_dataframe["n_back_correct"],
+        plotting_dataframe["performance"],
+        marker="o",
+        color=plotting_dataframe["color"],
+    )
+    ax.set_title("2-back task accuracy vs. speed for all participants".title())
+    ax.set_xlabel("correct 2-back task answers (max 30)")
+    ax.set_ylabel("speed (seconds/item)")
+    ax.legend(handles=legend_elements, title='Product errors', loc='best')
+    plt.show()
+
+
+# speed_accuracy_plot()
+n2_back_speed_accuracy_plot()
 # plotting_dataframe = load_pickle("performance_dataframe.pickle")
 # print(plotting_dataframe)

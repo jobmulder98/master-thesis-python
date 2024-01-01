@@ -1,13 +1,11 @@
 import numpy as np
 import pandas as pd
-from numpy.linalg import norm
-
 
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.preprocessing.helper_functions.general_helpers import perpendicular_distance_3d
 
 
-def find_start_end_coordinates(dataframe: pd.DataFrame, time_threshold: float) -> list:
+def find_start_end_coordinates(dataframe: pd.DataFrame, time_threshold: float = 0.75) -> list:
     start_end_coordinates = []
     time_counter = 0  # Time counter used in case participant accidentally picks wrong item for short time
 
@@ -15,7 +13,7 @@ def find_start_end_coordinates(dataframe: pd.DataFrame, time_threshold: float) -
     end_indices = dataframe[~dataframe["isGrabbing"] & dataframe["isGrabbing"].shift(1, fill_value=False)].index
 
     if dataframe["isGrabbing"].iloc[-1]:
-        end_indices = end_indices.append(len(dataframe["isGrabbing"]) - 1)
+        end_indices = end_indices.append(pd.Index([len(dataframe["isGrabbing"]) - 1]))
 
     for start_index, end_index in zip(start_indices, end_indices):
         time_counter += dataframe.loc[start_index:end_index, "deltaSeconds"].sum()
@@ -63,7 +61,7 @@ def mean_grab_time(start_end_coordinates) -> float:
 def hand_movement_features(dataframe: pd.DataFrame) -> dict:
     start_end_coordinates = find_start_end_coordinates(dataframe, time_threshold=0.75)
     return {"rmse trajectory item to cart": rmse_hand_trajectory(dataframe, start_end_coordinates),
-            "mean grab time": mean_grab_time(dataframe, start_end_coordinates)}
+            "mean grab time": mean_grab_time(start_end_coordinates)}
 
 
 # df = create_clean_dataframe_hmd(1, 1)

@@ -5,7 +5,7 @@ import os
 import re
 
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.helper_functions.general_helpers import delta_time_seconds
+from src.preprocessing.helper_functions.general_helpers import delta_time_seconds, pickle_exists, load_pickle
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -87,8 +87,20 @@ def count_errors(correct_order, participant_picks, participant, condition):
     return errors
 
 
-def n_back_task_performance(dataframe: pd.DataFrame):
-    pass
+def n_back_performance_dataframe() -> pd.DataFrame:
+    if pickle_exists("performance_dataframe.pickle"):
+        plotting_dataframe = load_pickle("performance_dataframe.pickle")
+    else:
+        return pd.DataFrame()
+
+    plotting_dataframe = plotting_dataframe[plotting_dataframe["condition"] == 7]
+    n_back_dataframe = pd.read_excel(
+        f"{DATA_DIRECTORY}/other/{PERFORMANCE_FILENAME}",
+        sheet_name="correct-n-back-number-transpose"
+    )
+    given_answers = n_back_dataframe["total_correct"].iloc[0:22].tolist()
+    plotting_dataframe["n_back_correct"] = given_answers
+    return plotting_dataframe
 
 
 # participant = 4  # 4, c5, 22, c5

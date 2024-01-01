@@ -4,6 +4,8 @@ import matplotlib.patches as patches
 import numpy as np
 import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
+import os
+from dotenv import load_dotenv
 
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
@@ -12,6 +14,9 @@ from src.preprocessing.hmd.eyes.area_of_interest import replace_destination_with
 
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
+condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
+load_dotenv()
+DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 
 
 def plot_fixation_location_object_tag(participant, condition, object_tags):
@@ -167,7 +172,8 @@ def boxplots_aoi(name_aoi):
     ax.set_xlabel("Condition")
     ax.set_ylabel("Time (s)")
     ax.boxplot(plot_dictionary.values())
-    ax.set_xticklabels(plot_dictionary.keys())
+    ax.set_xticklabels(condition_names)
+    fig.autofmt_xdate(rotation=30)
     plt.show()
     return plot_dictionary
 
@@ -289,11 +295,11 @@ def lineplot_aoi_over_time(names_aoi, window_size: int = 10):
 # barplot_other_object_over_time(3, ["notAssigned", "NPC"], 10)
 # plot_fixation_location_object_tag(16, 3, "NPC")
 # barplot_names_of_npc(3)
-# boxplots_aoi("main_shelf")
+boxplots_aoi("list")
 # boxplots_aoi("transition")
 # barplot_total_times_condition(3, "main_shelf")
 # barplot_total_time()
 
-plot_fixation_location_heat_map_object_tag(5, ["NPC", "notAssigned"])
+# plot_fixation_location_heat_map_object_tag(5, ["NPC", "notAssigned"])
 # ray_direction_histogram(4, ["NPC", "notAssigned"])
 # ray_origin_plot(3, ["NPC", "notAssigned"])

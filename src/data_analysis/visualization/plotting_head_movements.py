@@ -182,7 +182,7 @@ def line_plot_acceleration_peaks_over_time(window_size: int = 10):
     plt.show()
 
 
-# box_plot_head_accelerations()
+box_plot_head_accelerations()
 # box_plot_head_acceleration_peaks()
 # average_head_acceleration(6)
 # line_plot_head_movements_condition(20, 4)
