@@ -80,6 +80,19 @@ def plot_fixation_location_heat_map_object_tag(condition, object_tags):
     plt.show()
 
 
+def heat_map_participant_condition(participant, condition):
+    dataframe = create_clean_dataframe_hmd(participant, condition)
+    add_gaze_position_to_dataframe(dataframe)
+    x_coords, y_coords, z_coords = zip(*dataframe["gazePosition"].apply(lambda x: tuple(x)))
+    fig, ax = plt.subplots()
+    hb = ax.hexbin(x_coords, z_coords, gridsize=100, cmap="rainbow", mincnt=1, bins='log')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Z')
+    cb = fig.colorbar(hb)
+    cb.set_label('Log Count')
+    plt.show()
+
+
 def ray_direction_histogram(condition, object_tags):
     if isinstance(object_tags, str):
         object_tags = [object_tags]
@@ -106,6 +119,30 @@ def ray_direction_histogram(condition, object_tags):
     ax.set_xlabel('Degrees')
     ax.set_ylabel('Total rays')
     plt.show()
+
+
+def ray_direction_histogram_participant_condition(participant, condition, ax):
+    dataframe = create_clean_dataframe_hmd(participant, condition)
+    dataframe["rayDirection"] = dataframe["rayDirection"].apply(
+        lambda x: x if not is_zero_array(x) else None)
+    dataframe = dataframe.dropna(subset=["rayDirection"])
+
+    x_coords, y_coords, z_coords = zip(*dataframe["rayDirection"])
+    xz_angle_rad = np.arctan2(z_coords, x_coords)
+    xz_angle_degrees = np.degrees(xz_angle_rad)
+
+    # not -180 but -270, 0 degrees is in direction of main shelf
+    xz_angle_degrees = (xz_angle_degrees + 180) % 360 - 270
+
+    for i in range(len(xz_angle_degrees)):
+        # All values lower than -180 should be a positive angle on other side, -210 degrees equals +150 degrees
+        if xz_angle_degrees[i] < -180:
+            xz_angle_degrees[i] = 180 + (xz_angle_degrees[i] + 180)
+
+    ax.hist(xz_angle_degrees, bins=360, color="skyblue", edgecolor="black", linewidth=0.1)
+    ax.set_title(f"Number of rays in degrees for condition {condition}, participant {participant}".title(), fontsize=9)
+    # ax.set_xlabel('Angle (degrees)')
+    ax.set_ylabel('Total rays')
 
 
 def ray_origin_plot(condition, object_tags):
@@ -291,15 +328,20 @@ def lineplot_aoi_over_time(names_aoi, window_size: int = 10):
     plt.show()
 
 
-# lineplot_aoi_over_time("Invalid", 10)
-# barplot_other_object_over_time(3, ["notAssigned", "NPC"], 10)
-# plot_fixation_location_object_tag(16, 3, "NPC")
-# barplot_names_of_npc(3)
-boxplots_aoi("list")
-# boxplots_aoi("transition")
-# barplot_total_times_condition(3, "main_shelf")
-# barplot_total_time()
+if __name__ == "__main__":
+    # lineplot_aoi_over_time("Invalid", 10)
+    # barplot_other_object_over_time(3, ["notAssigned", "NPC"], 10)
+    # plot_fixation_location_object_tag(16, 3, "NPC")
+    # barplot_names_of_npc(3)
+    # boxplots_aoi("list")
+    # boxplots_aoi("transition")
+    # barplot_total_times_condition(3, "main_shelf")
+    # barplot_total_time()
 
-# plot_fixation_location_heat_map_object_tag(5, ["NPC", "notAssigned"])
-# ray_direction_histogram(4, ["NPC", "notAssigned"])
-# ray_origin_plot(3, ["NPC", "notAssigned"])
+    # plot_fixation_location_heat_map_object_tag(5, ["NPC", "notAssigned"])
+    # ray_direction_histogram(4, ["NPC", "notAssigned"])
+    # ray_origin_plot(3, ["NPC", "notAssigned"])
+
+    # heat_map_participant_condition(4, 3)
+    ray_direction_histogram_participant_condition(4, 3)
+    plt.show()

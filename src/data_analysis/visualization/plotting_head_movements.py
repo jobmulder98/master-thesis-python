@@ -43,7 +43,6 @@ def box_plot_head_accelerations():
     ax.set_ylabel("Mean acceleration (m/s^2)")
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    plt.show()
 
 
 def box_plot_head_acceleration_peaks():
@@ -70,7 +69,6 @@ def box_plot_head_acceleration_peaks():
     ax.set_ylabel("Number of peaks")
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    plt.show()
 
 
 def average_head_acceleration(outline_condition=None):
@@ -107,7 +105,6 @@ def average_head_acceleration(outline_condition=None):
     plt.xlabel("Time (s)")
     plt.ylabel("Average Acceleration")
     plt.legend()
-    plt.show()
 
 
 def line_plot_head_movements_condition(participant, condition):
@@ -117,9 +114,13 @@ def line_plot_head_movements_condition(participant, condition):
     times = dataframe["timeCumulative"].values
     times[np.isnan(times)] = 0
     hm_peaks, _ = scipy.signal.find_peaks(head_movement_acceleration, height=200, distance=30)
+
     plt.plot(times, head_movement_acceleration)
+    plt.title(f"Head acceleration for participant {participant} in condition {condition}".title(),
+              fontsize=9)
+    plt.xlabel("Time (s)")
+    plt.ylabel("Acc ($m/s^2$)")
     plt.scatter(times[hm_peaks], head_movement_acceleration[hm_peaks], color="red", marker=".")
-    plt.show()
 
 
 def line_plot_accelerations_over_time(window_size: int = 10):
@@ -146,7 +147,6 @@ def line_plot_accelerations_over_time(window_size: int = 10):
     plt.ylabel("Mean acceleration (m/s^2)")
     plt.xticks(rotation=45, ha='right')
     plt.legend()
-    plt.show()
 
 
 def line_plot_acceleration_peaks_over_time(window_size: int = 10):
@@ -179,12 +179,13 @@ def line_plot_acceleration_peaks_over_time(window_size: int = 10):
     plt.ylabel("Number of peaks (>200 m/s^2)")
     plt.xticks(rotation=45, ha='right')
     plt.legend()
+
+
+if __name__ == "__main__":
+    # box_plot_head_accelerations()
+    # box_plot_head_acceleration_peaks()
+    # average_head_acceleration(6)
+    line_plot_head_movements_condition(20, 4)
+    # line_plot_accelerations_over_time(10)
+    # line_plot_acceleration_peaks_over_time(10)
     plt.show()
-
-
-box_plot_head_accelerations()
-# box_plot_head_acceleration_peaks()
-# average_head_acceleration(6)
-# line_plot_head_movements_condition(20, 4)
-# line_plot_accelerations_over_time(10)
-# line_plot_acceleration_peaks_over_time(10)
