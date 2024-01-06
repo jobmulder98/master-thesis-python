@@ -15,13 +15,13 @@ fig, ax = plt.subplots()
 plot_dictionary = {}
 
 # feature = "nasa-tlx unweighted"
-feature = "nasa-tlx weighted"
+# feature = "nasa-tlx weighted"
 # feature = "all fixations"
 # feature = "mean fixation time"
 # feature = "total time other object"
 # feature = "fixations other object"
 # feature = "seconds/item first 16"
-# feature = "seconds/item window"
+feature = "seconds/item window"
 # feature = "std dev. seconds/item first 16"
 # feature = "total time other object"
 # feature = "total time main shelf"

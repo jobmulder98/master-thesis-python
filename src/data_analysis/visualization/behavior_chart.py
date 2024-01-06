@@ -134,5 +134,5 @@ def behavior_all_conditions_with_angle_histograms(participant):
 
 
 # behavior_head_movement_chart(4, 7)
-# behavior_all_conditions(11)
-behavior_all_conditions_with_angle_histograms(4)
+# behavior_all_conditions(4)
+behavior_all_conditions_with_angle_histograms(12)
