@@ -53,77 +53,6 @@ def correct_rpeaks(peak_indices):
     return np.cumsum(corrected_peaks_indices)
 
 
-def correct_rpeaks_manually(participant, condition, corrected_rpeaks: npt.NDArray) -> npt.NDArray:
-    if participant == 2 and condition == 7:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 70182))
-        corrected_rpeaks = np.append(corrected_rpeaks, 70462)
-        corrected_rpeaks = np.append(corrected_rpeaks, 71279)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 7 and condition == 7:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 42024))
-        corrected_rpeaks = np.append(corrected_rpeaks, 42262)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 11 and condition == 2:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 10176))
-        corrected_rpeaks = np.append(corrected_rpeaks, 9996)
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 10789))
-        corrected_rpeaks = np.append(corrected_rpeaks, 10698)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 11 and condition == 5:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 5491))
-        corrected_rpeaks = np.append(corrected_rpeaks, 5303)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 15 and condition == 2:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 11942))
-        corrected_rpeaks = np.append(corrected_rpeaks, 11788)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 15 and condition == 4:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 21924))
-        corrected_rpeaks = np.append(corrected_rpeaks, 21722)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 16 and condition == 6:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 16540))
-        corrected_rpeaks = np.append(corrected_rpeaks, 16315)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 21 and condition == 1:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 84158))
-    if participant == 21 and condition == 2:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 108456))
-    if participant == 21 and condition == 5:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 5074))
-        corrected_rpeaks = np.append(corrected_rpeaks, 5003)
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 101358))
-        corrected_rpeaks = np.append(corrected_rpeaks, 101217)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 21 and condition == 6:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 28986))
-        corrected_rpeaks = np.append(corrected_rpeaks, 28850)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 21 and condition == 7:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 51707))
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 80818))
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 81422))
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 109055))
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 109560))
-        corrected_rpeaks = np.append(corrected_rpeaks, 51858)
-        corrected_rpeaks = np.append(corrected_rpeaks, 80656)
-        corrected_rpeaks = np.append(corrected_rpeaks, 109321)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 22 and condition == 2:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 56831))
-    if participant == 22 and condition == 4:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 114480))
-        corrected_rpeaks = np.append(corrected_rpeaks, 114440)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    if participant == 22 and condition == 7:
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 44485))
-        corrected_rpeaks = np.append(corrected_rpeaks, 44339)
-        corrected_rpeaks = np.delete(corrected_rpeaks, np.where(corrected_rpeaks == 45469))
-        corrected_rpeaks = np.append(corrected_rpeaks, 45593)
-        corrected_rpeaks = np.sort(corrected_rpeaks)
-    return corrected_rpeaks
-
-
 def check_for_corrupted_data(participant: int, condition: int, signal: npt.NDArray) -> npt.NDArray:
     if participant == 22 and condition == 6:
         signal = signal[:55000]
@@ -193,7 +122,7 @@ def calculate_rmssd(rpeaks):
 # mask_all = {}
 # filtered_times_of_rpeaks_all = {}
 # filtered_rpeaks_all = {}
-#
+
 # for condition in np.arange(1, 8):
 #     times = []
 #     heart_rate_values = []
@@ -226,6 +155,30 @@ def calculate_rmssd(rpeaks):
 #     mask_all[condition] = masks
 
 
+###### HEART RATE AND VARIABILITY FOR PARTICIPANT 22 #######
+# hr, hrv = [], []
+# for condition in np.arange(1, 8):
+#     participant_no = 22
+#     times = []
+#     heart_rate_values = []
+#     masks = []
+#     start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
+#     df = create_clean_dataframe_ecg_eda(participant_no)
+#     t, _, rpeaks = (obtain_filtered_signal_and_peaks(
+#         dataframe=df,
+#         participant=participant_no,
+#         condition=condition,
+#         start_index=start_index_condition,
+#         end_index=end_index_condition,
+#         plot_biosppy_analysis=False)
+#     )
+#     time_filtered_rpeaks = np.array(t[rpeaks][1:]).astype(np.double)
+#     filtered_rpeaks = np.array(delete_outliers_iqr(rpeaks)).astype(np.double)
+#     hr.append(calculate_mean_heart_rate(time_filtered_rpeaks, filtered_rpeaks))
+#     hrv.append(calculate_rmssd(filtered_rpeaks))
+#
+# print(hr)
+# print(hrv)
 # time_and_rpeaks = [filtered_times_of_rpeaks_all, filtered_rpeaks_all, mask_all]
 # write_pickle("ecg_data_unfiltered", time_and_rpeaks)
 

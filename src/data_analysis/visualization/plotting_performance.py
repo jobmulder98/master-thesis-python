@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
-import scipy
+from scipy import stats
 import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
 import os
@@ -89,12 +89,16 @@ def n2_back_speed_accuracy_plot():
     legend_elements = [
         Line2D([0], [0], marker='o', color='w', markerfacecolor=colors[key], markersize=10, label=str(key)) for key in
         colors]
+
+    a, b = np.polyfit(plotting_dataframe["n_back_correct"], plotting_dataframe["performance"], 1)
+    plt.plot(plotting_dataframe["n_back_correct"], a*plotting_dataframe["n_back_correct"]+b, alpha=0.5)
     ax.scatter(
         plotting_dataframe["n_back_correct"],
         plotting_dataframe["performance"],
         marker="o",
         color=plotting_dataframe["color"],
     )
+    print(stats.pearsonr(plotting_dataframe["n_back_correct"], plotting_dataframe["performance"]))
     ax.set_title("2-back task accuracy vs. speed for all participants".title())
     ax.set_xlabel("correct 2-back task answers (max 30)")
     ax.set_ylabel("speed (seconds/item)")

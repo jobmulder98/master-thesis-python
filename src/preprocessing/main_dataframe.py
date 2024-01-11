@@ -116,4 +116,43 @@ def create_main_dataframe():
     return main_dataframe
 
 
-create_main_dataframe()
+def create_long_df(main_df):
+    reshaped_data = []
+    for index, row in main_df.iterrows():
+        participant = index + 1
+        for condition in range(1, 8):
+            new_row = {
+                "participant": participant,
+                "condition": condition,
+                "aoi_cart": row[f"aoi_cart_{condition}"],
+                "aoi_list": row[f"aoi_list_{condition}"],
+                "aoi_main_shelf": row[f"aoi_main_shelf_{condition}"],
+                "aoi_other_object": row[f"aoi_other_object_{condition}"],
+                "hr": row[f"hr_{condition}"],
+                "hrv": row[f"hrv_{condition}"],
+                "head_acc": row[f"head_acc_{condition}"],
+                "hand_grab_time": row[f"hand_grab_time_{condition}"],
+                "hand_rmse": row[f"hand_rmse_{condition}"],
+                "nasa_tlx": row[f"nasa_tlx_{condition}"],
+                "performance": row[f"performance_{condition}"]
+            }
+            reshaped_data.append(new_row)
+    long_df = pd.DataFrame(reshaped_data)
+    write_pickle("main_dataframe_long.pickle", long_df)
+    return long_df
+
+
+create_long_df(load_pickle("main_dataframe.pickle"))
+# create_main_dataframe()
+# main_df = load_pickle("main_dataframe.pickle")
+# hr = [88.76594915749489, 93.77258926106934, 93.18075279194815, 94.4800091126552, 87.51428432689661, 100.48188646952553, 93.15923186734308]
+# hrv = [31.249984805926665, 18.87869649180453, 17.549852488968305, 34.85042081707069, 45.76094813774598, 8.601102204288063, 41.68494979759276]
+# for i in range(len(hr)):
+#     main_df.at[21, f"hr_{i+1}"] = hr[i]
+#     main_df.at[21, f"hrv_{i + 1}"] = hrv[i]
+# main_df.at[11, "hr_4"] = np.mean(main_df["hr_4"])
+# main_df.at[11, "hrv_4"] = np.mean(main_df["hrv_4"])
+# write_pickle("main_dataframe.pickle", main_df)
+
+
+

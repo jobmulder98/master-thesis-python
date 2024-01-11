@@ -186,11 +186,30 @@ def plot_average_heart_rate_per_condition(condition: int, pickle_filename: str):
     plt.show()
 
 
-# heart_rate_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
-heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
-# plot_average_heart_rate_all("ecg_data_filtered.pickle", outline_condition=[1, 7])
-# plot_heart_rate_variability_all("ecg_data_filtered.pickle", outline_condition=[5, 6, 7])
-# plot_average_heart_rate_per_condition(1, "ecg_data_filtered.pickle")
-# plot_heart_rate_participant("ecg_data_filtered.pickle", 7)
+def plot_heart_rate_participant_condition(participant: int, condition: int, ax=None, plot=True):
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(10, 1))
+        ax.set_title("Heart Rate Over Time")
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("BPM")
+    heart_rate_data = load_pickle("ecg_data_filtered.pickle")
+    times_dict, filtered_peaks_dict = heart_rate_data[0], heart_rate_data[1]
+    times = times_dict[condition][participant-1]
+    filtered_peaks = filtered_peaks_dict[condition][participant-1]
+    filtered_data = [(xi, yi) for xi, yi in zip(times, filtered_peaks) if xi is not None and yi is not None]
+    times, filtered_peaks = zip(*filtered_data)
+    ax.plot(times, filtered_peaks, marker='.', linestyle='-')
+    if plot:
+        plt.show()
 
+
+if __name__ == "__main__":
+    # heart_rate_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
+    # heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
+    # plot_average_heart_rate_all("ecg_data_filtered.pickle", outline_condition=[1, 7])
+    # plot_heart_rate_variability_all("ecg_data_filtered.pickle", outline_condition=[5, 6, 7])
+    # plot_average_heart_rate_per_condition(1, "ecg_data_filtered.pickle")
+    # plot_heart_rate_participant("ecg_data_filtered.pickle", 7)
+    # plot_heart_rate_participant_condition(4, 7)
+    pass
 

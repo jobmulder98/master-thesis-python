@@ -7,6 +7,8 @@ import pandas as pd
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.data_analysis.visualization.plotting_aoi import ray_direction_histogram_participant_condition
 from src.data_analysis.visualization.plotting_head_movements import line_plot_head_movements_condition
+from src.preprocessing.helper_functions.general_helpers import load_pickle, write_pickle
+from src.data_analysis.visualization.plotting_ecg import plot_heart_rate_participant_condition
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -35,6 +37,17 @@ def handle_invalid_tags(df):
     return df
 
 
+def remove_time_interval_shorter_than(data: dict, threshold: float = 0.3, tag: str = None):
+    if tag:
+        # Only for one item of the dictionary
+        data[tag] = [x for x in data[tag] if not x[1] - x[0] < threshold]
+    else:
+        # For the whole dictionary:
+        for key, value in data.items():
+            data[key] = [x for x in data[key] if not x[1] - x[0] < threshold]
+    return data
+
+
 def add_grabbing_time_intervals(dataframe, time_interval_dict):
     start_indices = dataframe[dataframe["isGrabbing"] & ~dataframe["isGrabbing"].shift(1, fill_value=False)].index
     end_indices = dataframe[~dataframe["isGrabbing"] & dataframe["isGrabbing"].shift(1, fill_value=False)].index
@@ -49,19 +62,6 @@ def add_grabbing_time_intervals(dataframe, time_interval_dict):
                                                dataframe["timeCumulative"].iloc[end_index])
 
     return time_interval_dict
-
-
-def plot_behavior_chart(time_interval_dict, participant, condition, ax):
-    tag_colors = {"MainShelf": "blue", "otherObject": "red", "Cart": "green", "List": "orange", "isGrabbing": "cyan"}
-
-    for i, (key, intervals) in enumerate(time_interval_dict.items()):
-        for interval in intervals:
-            bar_height = 0.3
-            ax.barh(key, width=interval[1] - interval[0], left=interval[0], color=tag_colors.get(key, "gray"),
-                    height=bar_height)
-
-    ax.set_title(f"Behavior chart condition {condition_names[condition-1]}, participant {participant}".title(),
-                 fontsize=9)
 
 
 def behavior_dict(participant, condition):
@@ -88,8 +88,33 @@ def behavior_dict(participant, condition):
         time_interval_dict = add_time_interval(time_interval_dict, current_tag, start_time, time)
 
     add_grabbing_time_intervals(dataframe, time_interval_dict)
+    remove_time_interval_shorter_than(time_interval_dict, 0.4, "List")
+    remove_time_interval_shorter_than(time_interval_dict, 1, "isGrabbing")
 
     return time_interval_dict
+
+
+def save_behavior_dicts():
+    all_dicts = {}
+    for condidion in conditions:
+        behavior_dicts = []
+        for participant in participants:
+            behavior_dicts.append(behavior_dict(participant, condidion))
+        all_dicts[condidion] = behavior_dicts
+    write_pickle("behavior_dicts.pickle", all_dicts)
+
+
+def plot_behavior_chart(time_interval_dict, participant, condition, ax):
+    tag_colors = {"MainShelf": "blue", "otherObject": "red", "Cart": "green", "List": "orange", "isGrabbing": "cyan"}
+
+    for i, (key, intervals) in enumerate(time_interval_dict.items()):
+        for interval in intervals:
+            bar_height = 0.3
+            ax.barh(key, width=interval[1] - interval[0], left=interval[0], color=tag_colors.get(key, "gray"),
+                    height=bar_height)
+
+    ax.set_title(f"Behavior chart condition {condition_names[condition-1]}, participant {participant}".title(),
+                 fontsize=9)
 
 
 def behavior_head_movement_chart(participant, condition):
@@ -133,6 +158,26 @@ def behavior_all_conditions_with_angle_histograms(participant):
     plt.show()
 
 
-# behavior_head_movement_chart(4, 7)
-# behavior_all_conditions(4)
-behavior_all_conditions_with_angle_histograms(12)
+def behavior_all_conditions_ecg(participant):
+    conditions = [1, 3, 7]
+    fig, axes = plt.subplots(len(conditions)*2, 1, figsize=(8, len(conditions)*2), sharex=True,
+                             gridspec_kw={'height_ratios': np.ones(len(conditions) * 2)})
+
+    plt.subplots_adjust(hspace=0.2)
+
+    for i, condition in enumerate(conditions):
+        time_interval_dict = behavior_dict(participant, condition)
+        plot_behavior_chart(time_interval_dict, participant, condition, ax=axes[i*2])
+        plot_heart_rate_participant_condition(participant, condition, ax=axes[i*2+1], plot=False)
+
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == "__main__":
+    # behavior_head_movement_chart(4, 7)
+    # behavior_all_conditions(4)
+    behavior_all_conditions_with_angle_histograms(12)
+    # save_behavior_dicts()
+    # behavior_all_conditions_ecg(4)
+    pass
