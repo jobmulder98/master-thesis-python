@@ -81,8 +81,9 @@ def ratio_frequency_list_items():
                 frequency_items = dataframe["numberOfItemsInCart"].iloc[-1]
                 ratios.append(frequency_list / frequency_items)
             plot_dictionary[condition] = ratios
+        write_pickle("ratio_frequency_list_items.pickle", plot_dictionary)
     else:
-        plot_dictionary = load_pickle("ratio_frequency_list_items")
+        plot_dictionary = load_pickle("ratio_frequency_list_items.pickle")
     fig, ax = plt.subplots()
     plot_title = f"Ratios frequency list:items".title()
     ax.set_title(plot_title)
@@ -122,6 +123,6 @@ def ratio_time_list_items():
 
 
 if __name__ == "__main__":
-    ratio_frequency_list_items()
+    box_plot_percentage_list_isgrabbing()
+    # ratio_frequency_list_items()
     # ratio_time_list_items()
-    # box_plot_percentage_list_isgrabbing()

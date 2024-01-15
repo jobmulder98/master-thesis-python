@@ -15,11 +15,12 @@ conditions = np.arange(1, 8)
 participants = np.arange(1, 23)
 
 main_dataframe = load_pickle("main_dataframe.pickle")
+main_dataframe_long = load_pickle("main_dataframe_long.pickle")
 column_names = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
-                "hand_grab_time", "hand_rmse", "nasa_tlx", "performance"]
+                "hand_grab_time", "hand_rmse", "nasa_tlx", "performance", "condition"]
 
 
-def correlation_matrix():
+def correlation_matrix_means():
     means = []
     mean_dict = {}
     column_name_idx = 0
@@ -40,5 +41,20 @@ def correlation_matrix():
     plt.show()
 
 
+def correlation_matrix():
+    measures_dataframe = main_dataframe_long[column_names]
+
+    # sns.pairplot(measures_dataframe, hue="condition", markers=["o", "s", "D", "^", "v", "p", "*"])
+    # plt.suptitle("Pair Plot of Measures by Condition")
+    # plt.show()
+
+    matrix = measures_dataframe.corr().round(2)
+    mask = np.triu(np.ones_like(matrix, dtype=bool))
+    sns.heatmap(matrix, annot=True, vmin=-1, vmax=1, center=0, cmap="vlag", mask=mask)
+    plt.xticks(rotation=30)
+    plt.show()
+
+
 if __name__ == "__main__":
+    # correlation_matrix_means()
     correlation_matrix()

@@ -204,7 +204,7 @@ def boxplots_aoi(name_aoi):
             aoi_values.append(aoi_dictionary[condition][participant-1][name_aoi])
         plot_dictionary[condition] = aoi_values
     fig, ax = plt.subplots()
-    plot_title = f"Total time looking at {name_aoi} for each condition".replace("_", " ").title()
+    plot_title = f"Total time looking at {name_aoi}".replace("_", " ").title()
     ax.set_title(plot_title)
     ax.set_xlabel("Condition")
     ax.set_ylabel("Time (s)")
@@ -212,7 +212,7 @@ def boxplots_aoi(name_aoi):
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)
     plt.show()
-    return plot_dictionary
+    return
 
 
 def barplot_total_times_condition(condition, name_aoi):
@@ -343,5 +343,6 @@ if __name__ == "__main__":
     # ray_origin_plot(3, ["NPC", "notAssigned"])
 
     # heat_map_participant_condition(4, 3)
-    ray_direction_histogram_participant_condition(4, 3)
+    boxplots_aoi("other_object")
     plt.show()
+    pass

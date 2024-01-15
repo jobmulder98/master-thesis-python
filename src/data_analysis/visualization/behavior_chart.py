@@ -114,7 +114,7 @@ def plot_behavior_chart(time_interval_dict, participant, condition, ax):
                     height=bar_height)
 
     ax.set_title(f"Behavior chart condition {condition_names[condition-1]}, participant {participant}".title(),
-                 fontsize=9)
+                 fontsize=11)
 
 
 def behavior_head_movement_chart(participant, condition):
@@ -127,7 +127,7 @@ def behavior_head_movement_chart(participant, condition):
 
 
 def behavior_all_conditions(participant):
-    conditions = [1, 3, 7]
+    conditions = [1, 3, 5, 7]
     fig, axes = plt.subplots(len(conditions), 1, figsize=(8, len(conditions)*2), sharex=True,
                              gridspec_kw={'height_ratios': np.ones(len(conditions))})
 
@@ -159,7 +159,7 @@ def behavior_all_conditions_with_angle_histograms(participant):
 
 
 def behavior_all_conditions_ecg(participant):
-    conditions = [1, 3, 7]
+    conditions = [1, 3, 5, 7]
     fig, axes = plt.subplots(len(conditions)*2, 1, figsize=(8, len(conditions)*2), sharex=True,
                              gridspec_kw={'height_ratios': np.ones(len(conditions) * 2)})
 
@@ -176,8 +176,8 @@ def behavior_all_conditions_ecg(participant):
 
 if __name__ == "__main__":
     # behavior_head_movement_chart(4, 7)
-    # behavior_all_conditions(4)
-    behavior_all_conditions_with_angle_histograms(12)
+    behavior_all_conditions(4)
+    # behavior_all_conditions_with_angle_histograms(12)
     # save_behavior_dicts()
     # behavior_all_conditions_ecg(4)
     pass

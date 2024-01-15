@@ -45,15 +45,25 @@ def plot_scatter_measures(main_dataframe, measure):
     plt.show()
 
 
+def skewness(data):
+    return stats.skew(data, axis=0, bias=True)
+
+
+def kurtosis(data):
+    return stats.kurtosis(data, axis=0, fisher=False, bias=True)
+
+
 if __name__ == "__main__":
     """
-    Measure names = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
-        "hand_grab_time", "hand_rmse", "nasa_tlx", "performance"].
+    measures analysis 1 = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
+        "hand_grab_time", "hand_rmse", "nasa_tlx", "performance"]
+        
+    measures analysis 2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
     """
-    main_dataframe = load_pickle("main_dataframe.pickle")
-    # plot_scatter_measures(main_dataframe, "aoi_other_object")
-    plot_distribution(main_dataframe["performance_4"].values)
-    # for column in main_dataframe.columns:
-    #     data = main_dataframe[column].values
-        # print(f"The data of {column} is normally distributed: {is_normal_kstest(data)}")
+    main_dataframe = load_pickle("main_dataframe_2.pickle")
+
+    # plot_distribution(main_dataframe["performance_3"].values)
+    for column in main_dataframe.columns:
+        dataset = main_dataframe[column].values
+        print(f"The mean of {column} is {np.mean(dataset)}, std. dev. is {np.std(dataset)}")
 

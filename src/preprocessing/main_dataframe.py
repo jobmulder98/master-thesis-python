@@ -90,7 +90,25 @@ def performance_data():
     return pd.DataFrame(performance_dict)
 
 
-def create_main_dataframe():
+def behavior_data():
+    overlap_grab_list = load_pickle("percentage_list_isgrabbing.pickle")
+    overlap_grab_list = {'overlap_grab_list_' + str(key): value for key, value in overlap_grab_list.items()}
+    overlap_grab_list_df = pd.DataFrame(overlap_grab_list)
+
+    ratio_frequency_list_items = load_pickle("ratio_frequency_list_items.pickle")
+    ratio_frequency_list_items = {'ratio_frequency_list_items_' + str(key): value for key, value in ratio_frequency_list_items.items()}
+    ratio_frequency_list_items_df = pd.DataFrame(ratio_frequency_list_items)
+
+    ratio_time_list_items = load_pickle("ratio_time_list_items.pickle")
+    ratio_time_list_items = {'ratio_time_list_items_' + str(key): value for key, value in ratio_time_list_items.items()}
+    ratio_time_list_items_df = pd.DataFrame(ratio_time_list_items)
+
+    behavior_df = pd.concat([overlap_grab_list_df, ratio_frequency_list_items_df, ratio_time_list_items_df], axis=1)
+    write_pickle("main_dataframe_2.pickle", behavior_df)
+    return behavior_df
+
+
+def create_main_dataframe_1():
     """
     Creates a dataframe with all the mean data.
     Columns exist of the name of the measure, including a condition number.
@@ -142,17 +160,30 @@ def create_long_df(main_df):
     return long_df
 
 
-create_long_df(load_pickle("main_dataframe.pickle"))
-# create_main_dataframe()
-# main_df = load_pickle("main_dataframe.pickle")
-# hr = [88.76594915749489, 93.77258926106934, 93.18075279194815, 94.4800091126552, 87.51428432689661, 100.48188646952553, 93.15923186734308]
-# hrv = [31.249984805926665, 18.87869649180453, 17.549852488968305, 34.85042081707069, 45.76094813774598, 8.601102204288063, 41.68494979759276]
-# for i in range(len(hr)):
-#     main_df.at[21, f"hr_{i+1}"] = hr[i]
-#     main_df.at[21, f"hrv_{i + 1}"] = hrv[i]
-# main_df.at[11, "hr_4"] = np.mean(main_df["hr_4"])
-# main_df.at[11, "hrv_4"] = np.mean(main_df["hrv_4"])
-# write_pickle("main_dataframe.pickle", main_df)
+def create_long_df_2(main_df):
+    reshaped_data = []
+    for index, row in main_df.iterrows():
+        participant = index + 1
+        for condition in range(1, 8):
+            new_row = {
+                "participant": participant,
+                "condition": condition,
+                "overlap_grab_list": row[f"overlap_grab_list_{condition}"],
+                "ratio_frequency_list_items": row[f"ratio_frequency_list_items_{condition}"],
+                "ratio_time_list_items": row[f"ratio_time_list_items_{condition}"]
+            }
+            reshaped_data.append(new_row)
+    long_df = pd.DataFrame(reshaped_data)
+    write_pickle("main_dataframe_long_2.pickle", long_df)
+    return long_df
 
+
+# main_df = load_pickle("main_dataframe.pickle")
+# main_df.at[5, "aoi_other_object_4"] = np.mean(main_df["aoi_other_object_4"])
+# # print(main_df["aoi_other_object_4"])
+# write_pickle("main_dataframe.pickle", main_df)
+behavior_data()
+create_long_df_2(load_pickle("main_dataframe_2.pickle"))
+# create_long_df(load_pickle("main_dataframe.pickle"))
 
 
