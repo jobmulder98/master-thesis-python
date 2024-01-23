@@ -176,7 +176,7 @@ def behavior_all_conditions_ecg(participant):
 
 if __name__ == "__main__":
     # behavior_head_movement_chart(4, 7)
-    behavior_all_conditions(4)
+    behavior_all_conditions(12)
     # behavior_all_conditions_with_angle_histograms(12)
     # save_behavior_dicts()
     # behavior_all_conditions_ecg(4)

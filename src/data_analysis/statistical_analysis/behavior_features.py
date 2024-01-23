@@ -59,7 +59,7 @@ def box_plot_percentage_list_isgrabbing():
             percentages.append(overlap_dictionary[condition][participant - 1])
         plot_dictionary[condition] = percentages
     fig, ax = plt.subplots()
-    plot_title = f"Percentages".title()
+    plot_title = f"Percentage looking at List while Grabbing".title()
     ax.set_title(plot_title)
     ax.set_xlabel("Condition")
     ax.set_ylabel("Percentage (%)")
@@ -126,3 +126,4 @@ if __name__ == "__main__":
     box_plot_percentage_list_isgrabbing()
     # ratio_frequency_list_items()
     # ratio_time_list_items()
+    pass

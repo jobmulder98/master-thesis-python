@@ -13,6 +13,7 @@ from src.preprocessing.hmd.movements.hand_movements import (
     find_start_end_coordinates,
     rmse_hand_trajectory,
     mean_grab_time,
+    mean_jerk,
 )
 
 load_dotenv()
@@ -53,6 +54,34 @@ def box_plot_hand_movements_rmse():
     return
 
 
+def box_plot_jerk():
+    if pickle_exists("box_plot_jerk.pickle"):
+        jerk = load_pickle("box_plot_jerk.pickle")
+    else:
+        jerk = dict()
+        for condition in conditions:
+            jerk_condition = []
+            for participant in participants:
+                dataframe = create_clean_dataframe_hmd(participant, condition)
+                start_end_coordinates = find_start_end_coordinates(dataframe)
+                _mean_jerk = mean_jerk(dataframe, start_end_coordinates)
+                jerk_condition.append(_mean_jerk)
+            jerk[condition] = jerk_condition
+        write_pickle("box_plot_jerk.pickle", jerk)
+    fig, ax = plt.subplots()
+    data = pd.DataFrame(jerk)
+
+    ax.set_title(f"Mean Jerk of grabbing trajectories".title())
+    ax.set_xlabel("Condition")
+    ax.set_xticklabels(condition_names)
+    fig.autofmt_xdate(rotation=30)
+    ax.set_ylabel("Jerk ($m/s^3$)")
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
+    plt.show()
+    return
+
+
 def box_plot_hand_movements_grab_time():
     if pickle_exists("box_plot_hand_movements_grab_time.pickle"):
         hand_movement_mean_grab_time = load_pickle("box_plot_hand_movements_grab_time.pickle")
@@ -82,3 +111,4 @@ def box_plot_hand_movements_grab_time():
 
 # box_plot_hand_movements_rmse()
 # box_plot_hand_movements_grab_time()
+box_plot_jerk()

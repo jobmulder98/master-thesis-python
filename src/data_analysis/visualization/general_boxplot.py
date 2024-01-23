@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
 import os
+import seaborn as sns
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -15,13 +16,13 @@ fig, ax = plt.subplots()
 plot_dictionary = {}
 
 # feature = "nasa-tlx unweighted"
-feature = "nasa-tlx weighted"
+# feature = "nasa-tlx weighted"
 # feature = "all fixations"
 # feature = "mean fixation time"
 # feature = "total time other object"
 # feature = "fixations other object"
 # feature = "seconds/item first 16"
-# feature = "seconds/item window"
+feature = "seconds/item window"
 # feature = "std dev. seconds/item first 16"
 # feature = "total time other object"
 # feature = "total time main shelf"
@@ -42,14 +43,12 @@ if feature == "nasa-tlx weighted":
     ax.set_title("Weighted NASA-TLX")
 else:
     ax.set_title(f"{feature.title()} for all conditions")
+
+data = pd.DataFrame(plot_dictionary)
 ax.set_xlabel("Condition")
 ax.set_ylabel("Weighted NASA-TLX Score")
-ax.boxplot(plot_dictionary.values())
 ax.set_xticklabels(condition_names)
 fig.autofmt_xdate(rotation=30)
-# mean_std = []
-# for key, value in plot_dictionary.items():
-#     mean_std.append(f"{np.round(np.mean(value), 3)} ({np.round(np.std(value), 3)})")
-# data = pd.DataFrame({"means": mean_std})
-# data.to_excel(f"{DATA_DIRECTORY}/other/dummy.xlsx")
+sns.boxplot(data=data, ax=ax, palette="Set2")
+sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
 plt.show()

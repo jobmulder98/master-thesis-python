@@ -12,7 +12,7 @@ import os
 from src.data_analysis.helper_functions.visualization_helpers import increase_opacity_condition
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle, pickle_exists
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.hmd.movements.filtering_head_movements import filter_head_movement_data
+from src.preprocessing.hmd.movements.filtering_movements import filter_head_movement_data
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -41,6 +41,38 @@ def box_plot_head_accelerations():
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)
     ax.set_ylabel("Mean acceleration (m/s^2)")
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
+
+
+def box_plot_idle_time(threshold=100):
+    """
+    Box plot of the total time in which accelerations are below a threshold
+    in order to see how much people are in "Idle" state.
+
+    Column of filtered head movements used: headMovementAccelerationFiltered
+    """
+    if pickle_exists(f"box_plot_idle_time_{threshold}.pickle"):
+        head_movement_idle = load_pickle(f"box_plot_idle_time_{threshold}.pickle")
+    else:
+        head_movement_idle = {}
+        for condition in conditions:
+            idle_time_condition = []
+            for participant in participants:
+                dataframe = create_clean_dataframe_hmd(participant, condition)
+                dataframe = filter_head_movement_data(dataframe)
+                mask = dataframe["headMovementAccelerationFiltered"] < threshold
+                total_time = np.sum(dataframe.loc[mask, "deltaSeconds"])
+                idle_time_condition.append(total_time)
+            head_movement_idle[condition] = idle_time_condition
+        write_pickle(f"box_plot_idle_time_{threshold}.pickle", head_movement_idle)
+    fig, ax = plt.subplots()
+    data = pd.DataFrame(head_movement_idle)
+    ax.set_title(f"Total time idle head movement".title())
+    ax.set_xlabel("Condition")
+    ax.set_xticklabels(condition_names)
+    fig.autofmt_xdate(rotation=30)
+    ax.set_ylabel("Time (s)")
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
 
@@ -184,8 +216,10 @@ def line_plot_acceleration_peaks_over_time(window_size: int = 10):
 if __name__ == "__main__":
     # box_plot_head_accelerations()
     # box_plot_head_acceleration_peaks()
+    box_plot_idle_time(threshold=75)
     # average_head_acceleration(6)
-    line_plot_head_movements_condition(20, 4)
+    # line_plot_head_movements_condition(20, 4)
     # line_plot_accelerations_over_time(10)
     # line_plot_acceleration_peaks_over_time(10)
     plt.show()
+    pass

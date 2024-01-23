@@ -15,9 +15,14 @@ from src.preprocessing.helper_functions.general_helpers import moving_average, b
 conditions = np.arange(1, 8)
 
 
+def time_derivative(dataframe: pd.DataFrame, x_columnname: str, x_dot_columnname: str):
+    dataframe[x_dot_columnname] = dataframe[x_columnname].diff() / dataframe["deltaSeconds"]
+    return dataframe
+
+
 def filter_head_movement_data(dataframe: pd.DataFrame):
-    dataframe["hmdAngularVelocity"] = dataframe["hmdEuler"].diff() / dataframe["deltaSeconds"]
-    dataframe["hmdAngularAcceleration"] = dataframe["hmdAngularVelocity"].diff() / dataframe["deltaSeconds"]
+    dataframe = time_derivative(dataframe, "hmdEuler", "hmdAngularVelocity")
+    dataframe = time_derivative(dataframe, "hmdAngularVelocity", "hmdAngularAcceleration")
 
     dataframe["hmdAngularVelocity"].fillna(0, inplace=True)
     dataframe["hmdAngularAcceleration"].fillna(0, inplace=True)
@@ -42,11 +47,34 @@ def filter_head_movement_data(dataframe: pd.DataFrame):
 
     dataframe["headMovementAcceleration"] = dataframe["headMovementAcceleration"].rolling(20).mean()
 
+    # plt.plot(dataframe["headMovementVelocityFiltered"])
+
     # plt.plot(dataframe["headMovementAcceleration"])
     # plt.plot(dataframe["headMovementAccelerationFiltered"])
+    # plt.axhline(y=100, color="red")
+    # plt.axhline(y=75, color="green")
     # plt.show()
     return dataframe
 
 
-df = create_clean_dataframe_hmd(12, 5)
+def filter_hand_movement_data(dataframe: pd.DataFrame):
+    dataframe = time_derivative(dataframe, "rightControllerPosition", "rightControllerVelocity")
+    dataframe = time_derivative(dataframe, "rightControllerVelocity", "rightControllerAcceleration")
+    dataframe = time_derivative(dataframe, "rightControllerAcceleration", "rightControllerJerk")
+
+    dataframe.fillna(0, inplace=True)
+
+    dataframe["rightControllerVelocityVectorize"] = dataframe["rightControllerVelocity"].apply(
+        lambda x: np.linalg.norm(x)
+    )
+    dataframe["rightControllerAccelerationVectorize"] = dataframe["rightControllerAcceleration"].apply(
+        lambda x: np.linalg.norm(x)
+    )
+    dataframe["rightControllerJerkVectorize"] = dataframe["rightControllerJerk"].apply(
+        lambda x: np.linalg.norm(x)
+    )
+    return dataframe
+
+
+df = create_clean_dataframe_hmd(14, 7)
 filter_head_movement_data(df)

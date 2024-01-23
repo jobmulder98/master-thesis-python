@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 import os
 import scipy.stats as stats
@@ -50,7 +51,54 @@ def skewness(data):
 
 
 def kurtosis(data):
-    return stats.kurtosis(data, axis=0, fisher=False, bias=True)
+    return stats.kurtosis(data, axis=0, fisher=True, bias=True)
+
+
+def all_values_to_latex(dataframe):
+    measures, column_names_all, means, mins, maxes, stds, skewnesses, kurtosises, units_all = (
+        [], [], [], [], [], [], [], [], []
+    )
+
+    measure_names = ["AOI Cart", "AOI List", "AOI Main Shelf", "AOI Other Object", "Heart Rate",
+                     "Heart Rate Variability",
+                     "Head Acc.", "Mean Grab Time", "RMSE Hand Trajectory", "NASA-TLX", "Performance"]
+    condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+                       "Mental High"]
+    units = ["$seconds$", "$seconds$", "$seconds$", "$seconds$", "$bpm$", "$bpm$", "$m/s^2$", "$seconds$", "$meters$",
+             "$-$", "$seconds/item$"]
+
+    measure_counter = 0
+    for i, column in enumerate(dataframe.columns):
+        if i % 7 == 0 and i != 0:
+            measure_counter += 1
+
+        dataset = dataframe[column].values
+
+        measures.append(measure_names[measure_counter])
+        column_names_all.append(condition_names[i % 7])
+        means.append(np.mean(dataset).round(3))
+        mins.append(np.min(dataset).round(3))
+        maxes.append(np.max(dataset).round(3))
+        stds.append(np.std(dataset).round(3))
+        skewnesses.append(skewness(dataset).round(3))
+        kurtosises.append(kurtosis(dataset).round(3))
+        units_all.append(units[measure_counter])
+
+    latex_dictionary = {
+        "Condition": column_names_all,
+        "Mean": means,
+        "SD": stds,
+        "Min.": mins,
+        "Max.": maxes,
+        "Skewness": skewnesses,
+        "Kurtosis": kurtosises,
+        "Unit": units_all,
+    }
+    latex_dataframe = pd.DataFrame(latex_dictionary)
+    latex_dataframe = latex_dataframe.set_index("Condition")
+    print(latex_dataframe.to_latex(float_format="%.3f"))
+
+    return
 
 
 if __name__ == "__main__":
@@ -60,10 +108,14 @@ if __name__ == "__main__":
         
     measures analysis 2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
     """
-    main_dataframe = load_pickle("main_dataframe_2.pickle")
+    main_dataframe = load_pickle("main_dataframe.pickle")
 
+    rmse_values = main_dataframe["hand_rmse_1"].values
+    rmse_values[9] = np.mean(rmse_values)
+
+    print(np.mean(rmse_values), np.std(rmse_values), np.min(rmse_values), np.max(rmse_values), skewness(rmse_values), kurtosis(rmse_values))
+
+    # all_values_to_latex(main_dataframe)
     # plot_distribution(main_dataframe["performance_3"].values)
-    for column in main_dataframe.columns:
-        dataset = main_dataframe[column].values
-        print(f"The mean of {column} is {np.mean(dataset)}, std. dev. is {np.std(dataset)}")
+
 

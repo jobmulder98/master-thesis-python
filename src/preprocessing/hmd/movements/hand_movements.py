@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from preprocessing.hmd.movements.filtering_movements import filter_hand_movement_data
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.preprocessing.helper_functions.general_helpers import perpendicular_distance_3d
 
@@ -49,6 +50,22 @@ def rmse_hand_trajectory(dataframe: pd.DataFrame, start_end_coordinates: list[di
     return rmse_trajectories
 
 
+def mean_jerk(dataframe: pd.DataFrame, start_end_coordinates: list[dict]) -> float:
+    jerk_all_trajectories = []
+    dataframe = filter_hand_movement_data(dataframe)
+
+    for hand_trajectory in start_end_coordinates:
+        jerk_current_trajectory = 0
+        start_index = hand_trajectory["start_index"]
+        end_index = hand_trajectory["end_index"]
+
+        for index in range(start_index, end_index):
+            x, y, z = dataframe["rightControllerJerk"].iloc[index]
+            jerk_current_trajectory += (x ** 2 + y ** 2 + z ** 2)
+        jerk_all_trajectories.append(0.5 * jerk_current_trajectory)
+    return np.mean(jerk_all_trajectories)
+
+
 def mean_grab_time(start_end_coordinates) -> float:
     if not start_end_coordinates:
         return 0
@@ -64,5 +81,7 @@ def hand_movement_features(dataframe: pd.DataFrame) -> dict:
             "mean grab time": mean_grab_time(start_end_coordinates)}
 
 
-# df = create_clean_dataframe_hmd(1, 1)
-# print(hand_movement_features(df))
+# for i in range(1, 8):
+#     df = create_clean_dataframe_hmd(8, i)
+#     start_end_coor = find_start_end_coordinates(df)
+#     print(mean_jerk(df, start_end_coor))

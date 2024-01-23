@@ -38,13 +38,13 @@ def linear_mixed_model(formula, dataframe, groups):
     return lmm_result
 
 
-def pairwise_tukey_test(data: dict):
+def pairwise_tukey_test(data: dict, groups):
     value_list = []
     key_list = []
     for key, values in data.items():
         value_list.extend(values)
         key_list.extend([key] * len(values))
-    tukey = pairwise_tukeyhsd(value_list, key_list, alpha=0.05)
+    tukey = pairwise_tukeyhsd(value_list, groups, alpha=0.05)
     return tukey
 
 
@@ -58,50 +58,36 @@ def post_hoc_test(feature_1: list, feature_2: list):
 
 
 if __name__ == '__main__':
-    """
-    measures1 = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
-        "hand_grab_time", "hand_rmse", "nasa_tlx", "performance"]
-        
-    measures2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
-    """
-
     measures1 = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
                  "hand_grab_time", "hand_rmse", "nasa_tlx", "performance"]
+    measures2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
 
     main_dataframe = load_pickle("main_dataframe.pickle")
     main_dataframe_long = load_pickle("main_dataframe_long.pickle")
+    measure = "performance"
 
-    # measure = "hrv"
+        # main_dataframe_long["condition"] = main_dataframe_long["condition"].astype("category")
+    main_dataframe_long_reduced = main_dataframe_long[main_dataframe_long["condition"].isin([1, i])]
+    lmm = linear_mixed_model(f"{measure} ~ condition + order",
+                             main_dataframe_long,
+                             main_dataframe_long["participant"]
+                             )
+    print(lmm.summary())
 
-    # Repeated Measures ANOVA Test
-    for measure in measures1:
-        rm_anova_result = repeated_measures_anova(main_dataframe_long, measure)
-        # print("Repeated Measures ANOVA Summary:")
-        # print(rm_anova_result.summary())
-        p_value = rm_anova_result.anova_table["Pr > F"]["condition"]
-        print(f"\n ANOVA {measure.capitalize()} P-VALUE: {p_value}")
-
-        if p_value < 0.05:
-            # posthoc = pg.pairwise_tukey(data=main_dataframe_long, dv=measure, between="condition")
-            # print(posthoc)
-            pvalues = ""
-            for i in range(2, 8):
-                condition_1_data = main_dataframe_long[main_dataframe_long['condition'] == 1][measure]
-                condition_i_data = main_dataframe_long[main_dataframe_long['condition'] == i][measure]
-                statistic, p_value = scipy.stats.ttest_ind(condition_1_data, condition_i_data)
-                pvalues += f"{p_value.round(3)} & "
-            print(pvalues)
-
-
-    # Friedman Test
+    #####   Repeated Measures ANOVA Test   #####
     # for measure in measures1:
-    #     groups = [main_dataframe_long[measure][main_dataframe_long['condition'] == condition] for condition in
-    #               main_dataframe_long['condition'].unique()]
-    #     _, p_value_friedman = stats.friedmanchisquare(*groups)
-    #     print(f"\nFriedman Test Result for {measure}:")
-    #     print(f"P-value: {p_value_friedman}")
+    # rm_anova_result = repeated_measures_anova(main_dataframe_long, measure)
+    # print("Repeated Measures ANOVA Summary:")
+    # print(rm_anova_result.summary())
+    # p_value = rm_anova_result.anova_table["Pr > F"]["condition"]
+    # print(f"\n ANOVA {measure.capitalize()} P-VALUE: {p_value}")
 
-
+    # if p_value < 0.05:
+    #     for i in range(2, 8):
+    #         condition_1_data = main_dataframe_long[main_dataframe_long['condition'] == 1][measure]
+    #         condition_i_data = main_dataframe_long[main_dataframe_long['condition'] == i][measure]
+    #         statistic, p_value = scipy.stats.ttest_ind(condition_1_data, condition_i_data)
+    #         print(f"p-value for post hoc test: {p_value}")
     pass
 
 

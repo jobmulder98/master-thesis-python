@@ -6,6 +6,7 @@ import pandas as pd
 from mpl_toolkits.mplot3d import Axes3D
 import os
 from dotenv import load_dotenv
+import seaborn as sns
 
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
@@ -203,14 +204,16 @@ def boxplots_aoi(name_aoi):
         for participant in participants:
             aoi_values.append(aoi_dictionary[condition][participant-1][name_aoi])
         plot_dictionary[condition] = aoi_values
+    data = pd.DataFrame(plot_dictionary)
     fig, ax = plt.subplots()
     plot_title = f"Total time looking at {name_aoi}".replace("_", " ").title()
     ax.set_title(plot_title)
     ax.set_xlabel("Condition")
     ax.set_ylabel("Time (s)")
-    ax.boxplot(plot_dictionary.values())
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
     plt.show()
     return
 

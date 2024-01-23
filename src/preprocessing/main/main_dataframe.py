@@ -11,10 +11,11 @@ from preprocessing.nasa_tlx.features import nasa_tlx_weighted
 from src.data_analysis.helper_functions.visualization_helpers import increase_opacity_condition
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle, pickle_exists
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.hmd.movements.filtering_head_movements import filter_head_movement_data
+from src.preprocessing.hmd.movements.filtering_movements import filter_head_movement_data
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
+
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
 condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
@@ -108,6 +109,14 @@ def behavior_data():
     return behavior_df
 
 
+def condition_order_number(participant, condition):
+    filename = os.path.join(DATA_DIRECTORY, "nasa_tlx", "participants-conditions.xlsx")
+    condition_orders = pd.read_excel(filename, sheet_name="order-conditions-T", index_col=0)
+    n_in_order = np.where(condition_orders[f"p{participant}"] == condition)[0][0] + 1
+    # print(f"participant {participant}, condition {condition}: {n_in_order}th in the order")
+    return n_in_order
+
+
 def create_main_dataframe_1():
     """
     Creates a dataframe with all the mean data.
@@ -142,6 +151,7 @@ def create_long_df(main_df):
             new_row = {
                 "participant": participant,
                 "condition": condition,
+                "order": condition_order_number(participant, condition),
                 "aoi_cart": row[f"aoi_cart_{condition}"],
                 "aoi_list": row[f"aoi_list_{condition}"],
                 "aoi_main_shelf": row[f"aoi_main_shelf_{condition}"],
@@ -168,6 +178,7 @@ def create_long_df_2(main_df):
             new_row = {
                 "participant": participant,
                 "condition": condition,
+                "order": condition_order_number(participant, condition),
                 "overlap_grab_list": row[f"overlap_grab_list_{condition}"],
                 "ratio_frequency_list_items": row[f"ratio_frequency_list_items_{condition}"],
                 "ratio_time_list_items": row[f"ratio_time_list_items_{condition}"]
@@ -178,12 +189,15 @@ def create_long_df_2(main_df):
     return long_df
 
 
+# condition_order_number(6, 2)
 # main_df = load_pickle("main_dataframe.pickle")
 # main_df.at[5, "aoi_other_object_4"] = np.mean(main_df["aoi_other_object_4"])
 # # print(main_df["aoi_other_object_4"])
 # write_pickle("main_dataframe.pickle", main_df)
-behavior_data()
-create_long_df_2(load_pickle("main_dataframe_2.pickle"))
-# create_long_df(load_pickle("main_dataframe.pickle"))
+# behavior_data()
+# create_long_df_2(load_pickle("main_dataframe_2.pickle"))
+long_df = create_long_df(load_pickle("main_dataframe.pickle"))
+print(long_df)
+
 
 
