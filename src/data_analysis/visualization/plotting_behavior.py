@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
+import seaborn as sns
 
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.data_analysis.visualization.plotting_aoi import ray_direction_histogram_participant_condition
@@ -12,8 +13,9 @@ from src.data_analysis.visualization.plotting_ecg import plot_heart_rate_partici
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
-condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
                    "Mental High"]
+hex_colors = ['#66c2a5', '#fc8d62', '#8da0cb', '#e78ac3', '#a6d854', '#ffd92f', '#e5c494', '#b3b3b3']
 conditions = np.arange(1, 8)
 participants = np.arange(1, 23)
 
@@ -106,11 +108,14 @@ def save_behavior_dicts():
 
 def plot_behavior_chart(time_interval_dict, participant, condition, ax):
     tag_colors = {"MainShelf": "blue", "otherObject": "red", "Cart": "green", "List": "orange", "isGrabbing": "cyan"}
-
-    for i, (key, intervals) in enumerate(time_interval_dict.items()):
+    key_order = ["otherObject", "MainShelf", "Cart", "List", "isGrabbing"]
+    ax.set_yticks(range(len(key_order)))
+    ax.set_yticklabels(key_order)
+    for i, key in enumerate(key_order):
+        intervals = time_interval_dict.get(key, [])
         for interval in intervals:
             bar_height = 0.3
-            ax.barh(key, width=interval[1] - interval[0], left=interval[0], color=tag_colors.get(key, "gray"),
+            ax.barh(i, width=interval[1] - interval[0], left=interval[0], color=tag_colors.get(key, "gray"),
                     height=bar_height)
 
     ax.set_title(f"Behavior chart condition {condition_names[condition-1]}, participant {participant}".title(),
@@ -128,7 +133,7 @@ def behavior_head_movement_chart(participant, condition):
 
 def behavior_all_conditions(participant):
     conditions = [1, 3, 5, 7]
-    fig, axes = plt.subplots(len(conditions), 1, figsize=(8, len(conditions)*2), sharex=True,
+    fig, axes = plt.subplots(len(conditions), 1, figsize=(12, 8), sharex=True,
                              gridspec_kw={'height_ratios': np.ones(len(conditions))})
 
     for i, condition in enumerate(conditions):
@@ -136,7 +141,8 @@ def behavior_all_conditions(participant):
         plot_behavior_chart(time_interval_dict, participant, condition, ax=axes[i])
 
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f"{DATA_DIRECTORY}/images/p{participant}.png")
+    # plt.show()
 
 
 def behavior_all_conditions_with_angle_histograms(participant):
@@ -176,8 +182,11 @@ def behavior_all_conditions_ecg(participant):
 
 if __name__ == "__main__":
     # behavior_head_movement_chart(4, 7)
-    behavior_all_conditions(12)
+    for participant in participants:
+        behavior_all_conditions(participant)
+    # print(sns.color_palette("set2").as_hex())
     # behavior_all_conditions_with_angle_histograms(12)
     # save_behavior_dicts()
     # behavior_all_conditions_ecg(4)
+    plt.show()
     pass

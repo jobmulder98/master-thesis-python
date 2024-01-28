@@ -15,7 +15,8 @@ load_dotenv()
 
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
-condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+                   "Mental High"]
 conditions = np.arange(1, 8)
 
 
@@ -50,7 +51,7 @@ def heart_rate_boxplot(pickle_filename, participants, conditions):
     ax.set_xticklabels(condition_names)
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    plt.show()
+    # plt.show()
     return
 
 
@@ -75,7 +76,7 @@ def heart_rate_variability_boxplot(pickle_filename, participants, conditions):
     ax.set_xticklabels(condition_names)
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    plt.show()
+    # plt.show()
     return
 
 
@@ -249,7 +250,7 @@ def heart_rate_first_35_seconds_boxplot(pickle_filename):
     ax.set_ylabel("Heart Rate (beats/min)")
     ax.boxplot(heart_rates.values())
     ax.set_xticklabels(condition_names)
-    plt.show()
+    # plt.show()
     return
 
 
@@ -261,7 +262,7 @@ if __name__ == "__main__":
     # plot_average_heart_rate_per_condition(1, "ecg_data_filtered.pickle")
     # plot_heart_rate_participant("ecg_data_filtered.pickle", 7)
     # plot_heart_rate_participant_condition(4, 7)
-    print("")
+    # print("")
     # heart_rate_first_35_seconds_boxplot("ecg_data_filtered.pickle")
     pass
 

@@ -20,7 +20,8 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
-condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+                   "Mental High"]
 
 
 def box_plot_hand_movements_rmse():
@@ -78,7 +79,7 @@ def box_plot_jerk():
     ax.set_ylabel("Jerk ($m/s^3$)")
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    plt.show()
+    # plt.show()
     return
 
 
@@ -105,10 +106,10 @@ def box_plot_hand_movements_grab_time():
     ax.set_ylabel("Time (s)")
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    plt.show()
+    # plt.show()
     return
 
 
 # box_plot_hand_movements_rmse()
 # box_plot_hand_movements_grab_time()
-box_plot_jerk()
+# box_plot_jerk()

@@ -15,6 +15,16 @@ def total_time_other_object(dataframe: pd.DataFrame) -> float:
     return dataframe.loc[condition, "deltaSeconds"].sum()
 
 
+def total_time_not_assigned(dataframe: pd.DataFrame) -> float:
+    condition = dataframe["focusObjectTag"] == "notAssigned"
+    return dataframe.loc[condition, "deltaSeconds"].sum()
+
+
+def total_time_npc(dataframe: pd.DataFrame) -> float:
+    condition = dataframe["focusObjectTag"] == "NPC"
+    return dataframe.loc[condition, "deltaSeconds"].sum()
+
+
 def total_time_invalid(dataframe: pd.DataFrame) -> float:
     return dataframe.loc[dataframe["focusObjectTag"] == "Invalid", "deltaSeconds"].sum()
 
@@ -119,3 +129,18 @@ def create_data_pickle():
     write_pickle("aoi_results.pickle", aoi_results)
 
 # create_data_pickle()
+
+
+# not_assigned = 0
+# npc = 0
+# for participant in range(1, 23):
+#     dataframe = create_clean_dataframe_hmd(participant, 2)
+#     filtered_hmd_dataframe = filter_location_transitions(dataframe, ["notAssigned", "NPC"], 0.1)
+#     filtered_hmd_dataframe = replace_destination_with_character(filtered_hmd_dataframe)
+#     not_assigned += total_time_not_assigned(filtered_hmd_dataframe)
+#     npc += total_time_npc(filtered_hmd_dataframe)
+#
+# print(f"total time not assigned: {not_assigned}")
+# print(f"total time npc: {npc}")
+# print(f"total percentage npc: {npc / (npc + not_assigned) * 100}")
+

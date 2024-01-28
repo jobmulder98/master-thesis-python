@@ -5,6 +5,7 @@ import os
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 
+from preprocessing.main.edit_main_dataframe import edit_main_dataframe_1
 from src.preprocessing.helper_functions.general_helpers import load_pickle
 
 load_dotenv()
@@ -12,8 +13,14 @@ DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 ECG_SAMPLE_RATE = int(os.getenv("ECG_SAMPLE_RATE"))
 conditions = np.arange(1, 8)
 participants = np.arange(1, 23)
-# Measure names = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
-#     "hand_grab_time", "hand_rmse", "nasa_tlx", "performance"].
+measure_names = ["AOI Cart", "AOI List", "AOI Main Shelf", "AOI Other Object", "Heart Rate",
+                     "Heart Rate Variability",
+                     "Head Acc.", "Mean Grab Time", "RMSE Hand Trajectory", "NASA-TLX", "Performance", "Hand Jerk",
+                     "Head Idle"]
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+                   "Mental High"]
+units = ["$seconds$", "$seconds$", "$seconds$", "$seconds$", "$bpm$", "$bpm$", "$m/s^2$", "$seconds$", "$meters$",
+         "$-$", "$seconds/item$", "$m/s^3$", "$seconds$"]
 
 
 def is_normal_shapiro(data):
@@ -28,9 +35,13 @@ def is_normal_kstest(data):
     return p_value >= 0.05
 
 
-def plot_distribution(data):
+def plot_distribution(data, column, plot_title, x_label):
     plt.hist(data, edgecolor="black", bins=10)
-    plt.show()
+    plt.title(plot_title)
+    plt.xlabel(x_label)
+    plt.ylabel("Frequency")
+    plt.savefig(f"{DATA_DIRECTORY}/images/histograms/{column}.png")
+    # plt.show()
 
 
 def plot_scatter_measures(main_dataframe, measure):
@@ -58,14 +69,6 @@ def all_values_to_latex(dataframe):
     measures, column_names_all, means, mins, maxes, stds, skewnesses, kurtosises, units_all = (
         [], [], [], [], [], [], [], [], []
     )
-
-    measure_names = ["AOI Cart", "AOI List", "AOI Main Shelf", "AOI Other Object", "Heart Rate",
-                     "Heart Rate Variability",
-                     "Head Acc.", "Mean Grab Time", "RMSE Hand Trajectory", "NASA-TLX", "Performance"]
-    condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
-                       "Mental High"]
-    units = ["$seconds$", "$seconds$", "$seconds$", "$seconds$", "$bpm$", "$bpm$", "$m/s^2$", "$seconds$", "$meters$",
-             "$-$", "$seconds/item$"]
 
     measure_counter = 0
     for i, column in enumerate(dataframe.columns):
@@ -96,26 +99,34 @@ def all_values_to_latex(dataframe):
     }
     latex_dataframe = pd.DataFrame(latex_dictionary)
     latex_dataframe = latex_dataframe.set_index("Condition")
-    print(latex_dataframe.to_latex(float_format="%.3f"))
+    print(latex_dataframe.to_latex(float_format="%.5g"))
 
     return
+
+
+def histogram_all(dataframe):
+    measure_counter = 0
+    for i, column in enumerate(dataframe.columns):
+        if i % 7 == 0 and i != 0:
+            measure_counter += 1
+        dataset = dataframe[column].values
+        title = f"{measure_names[measure_counter]}, {condition_names[i % 7]}"
+        unit = units[measure_counter]
+        plot_distribution(dataset, column, title, unit)
+        plt.cla()
+        plt.clf()
 
 
 if __name__ == "__main__":
     """
     measures analysis 1 = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
-        "hand_grab_time", "hand_rmse", "nasa_tlx", "performance"]
+        "hand_grab_time", "hand_rmse", "nasa_tlx", "performance", "hand_jerk", "head_idle"]
         
     measures analysis 2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
     """
     main_dataframe = load_pickle("main_dataframe.pickle")
-
-    rmse_values = main_dataframe["hand_rmse_1"].values
-    rmse_values[9] = np.mean(rmse_values)
-
-    print(np.mean(rmse_values), np.std(rmse_values), np.min(rmse_values), np.max(rmse_values), skewness(rmse_values), kurtosis(rmse_values))
+    main_dataframe_columns = main_dataframe.columns
 
     # all_values_to_latex(main_dataframe)
     # plot_distribution(main_dataframe["performance_3"].values)
-
 

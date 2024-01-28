@@ -18,7 +18,8 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
-condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+                   "Mental High"]
 
 
 def box_plot_head_accelerations():
@@ -216,10 +217,10 @@ def line_plot_acceleration_peaks_over_time(window_size: int = 10):
 if __name__ == "__main__":
     # box_plot_head_accelerations()
     # box_plot_head_acceleration_peaks()
-    box_plot_idle_time(threshold=75)
+    # box_plot_idle_time(threshold=75)
     # average_head_acceleration(6)
     # line_plot_head_movements_condition(20, 4)
     # line_plot_accelerations_over_time(10)
     # line_plot_acceleration_peaks_over_time(10)
-    plt.show()
+    # plt.show()
     pass

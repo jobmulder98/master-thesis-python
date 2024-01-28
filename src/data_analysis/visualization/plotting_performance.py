@@ -23,7 +23,7 @@ load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
-condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
                    "Mental High"]
 
 
@@ -55,23 +55,18 @@ def speed_accuracy_plot():
         Line2D([0], [0], marker='o', color='w', markerfacecolor=colors[key], markersize=10, label=str(key)) for key in
         colors]
     ax.scatter(
-        plotting_dataframe["condition"] + np.random.uniform(-0.05, 0.05, len(plotting_dataframe)),
+        plotting_dataframe["condition"] + np.random.uniform(-0.15, 0.15, len(plotting_dataframe)),
         plotting_dataframe["performance"],
         marker="o",
         color=plotting_dataframe["color"],
         alpha=0.75,
     )
-    ax.set_title(f"The seconds/item vs errors for all participants in all condition".title())
-    ax.set_xlabel("Errors")
+    ax.set_title(f"Speed-Accuracy across all conditions".title())
+    ax.set_xlabel("Condition")
     ax.set_xticks(conditions)
     ax.set_xticklabels(condition_names)
-    ax.set_ylabel("Seconds/Item")
+    ax.set_ylabel("Seconds per Item")
     ax.legend(handles=legend_elements, title='Errors', loc='best')
-    mean_std = []
-    for key, value in plotting_dataframe.items():
-        mean_std.append(f"{np.round(np.mean(value), 3)} ({np.round(np.std(value), 3)})")
-    data = pd.DataFrame({"means": mean_std})
-    data.to_excel(f"{DATA_DIRECTORY}/other/dummy.xlsx")
     plt.show()
 
 
@@ -187,7 +182,7 @@ def performance_nasa_tlx_3d_plot():
 
 
 # speed_accuracy_plot()
-n2_back_speed_accuracy_plot()
+# n2_back_speed_accuracy_plot()
 # n2_back_speed_accuracy_plot_participant_type()
 # plotting_dataframe = load_pickle("performance_dataframe.pickle")
 # performance_nasa_tlx_3d_plot()

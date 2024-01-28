@@ -15,7 +15,8 @@ from src.preprocessing.hmd.eyes.area_of_interest import replace_destination_with
 
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
-condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+                   "Mental High"]
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 
@@ -42,7 +43,7 @@ def plot_fixation_location_object_tag(participant, condition, object_tags):
     plt.show()
 
 
-def plot_fixation_location_heat_map_object_tag(condition, object_tags):
+def heat_map_object_tag(condition, object_tags):
     if isinstance(object_tags, str):
         object_tags = [object_tags]
 
@@ -214,7 +215,7 @@ def boxplots_aoi(name_aoi):
     fig.autofmt_xdate(rotation=30)
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    plt.show()
+    # plt.show()
     return
 
 
@@ -238,6 +239,7 @@ def barplot_total_times_condition(condition, name_aoi):
 
 
 def barplot_total_time():
+    sns.set_palette("Set2")
     aoi_dictionary = load_pickle("aoi_results.pickle")
     totals = {}
     for condition, participants in aoi_dictionary.items():
@@ -250,14 +252,15 @@ def barplot_total_time():
     conditions = list(aoi_dictionary.keys())
     values = np.array([[total[key] / sum(total.values()) * 100 for key in categories] for total in totals.values()])
     fig, ax = plt.subplots()
+    ax.tick_params(axis="both", labelsize=14)
     bottom = np.zeros(len(conditions))
     for i, category in enumerate(categories):
-        ax.bar(conditions, values[:, i], label=category, bottom=bottom, width=0.5)
+        ax.bar(condition_names, values[:, i], bottom=bottom, label=category, width=0.5, alpha=0.75)
         bottom += values[:, i]
-    ax.set_xlabel('Conditions')
-    ax.set_ylabel('Percentage of Time Spent')
+    ax.set_xlabel('Conditions', fontsize=14)
+    ax.set_ylabel('Percentage of Time Spent', fontsize=14)
+    fig.autofmt_xdate(rotation=30)
     ax.legend(loc='upper left', bbox_to_anchor=(1, 1))
-    plt.show()
 
 
 def barplot_other_object_over_time(condition: int, names_aoi, window_size: int) -> dict:
@@ -289,7 +292,6 @@ def barplot_other_object_over_time(condition: int, names_aoi, window_size: int) 
     plt.xticks(list(time_window_dict.keys()))
     plt.ylabel("Total time (s)")
     plt.xticks(rotation=45, ha='right')
-    plt.show()
 
 
 def lineplot_aoi_over_time(names_aoi, window_size: int = 10):
@@ -341,11 +343,11 @@ if __name__ == "__main__":
     # barplot_total_times_condition(3, "main_shelf")
     # barplot_total_time()
 
-    # plot_fixation_location_heat_map_object_tag(5, ["NPC", "notAssigned"])
+    # heat_map_object_tag(1, ["NPC", "notAssigned"])
     # ray_direction_histogram(4, ["NPC", "notAssigned"])
     # ray_origin_plot(3, ["NPC", "notAssigned"])
 
     # heat_map_participant_condition(4, 3)
-    boxplots_aoi("other_object")
-    plt.show()
+    # boxplots_aoi("other_object")
+    # plt.show()
     pass

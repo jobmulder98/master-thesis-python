@@ -117,6 +117,12 @@ def condition_order_number(participant, condition):
     return n_in_order
 
 
+def participant_order(participant):
+    filename = os.path.join(DATA_DIRECTORY, "nasa_tlx", "participants-conditions.xlsx")
+    condition_orders = pd.read_excel(filename, sheet_name="order-conditions-T", index_col=0)
+    return condition_orders[f"p{participant}"].values
+
+
 def create_main_dataframe_1():
     """
     Creates a dataframe with all the mean data.
@@ -159,8 +165,10 @@ def create_long_df(main_df):
                 "hr": row[f"hr_{condition}"],
                 "hrv": row[f"hrv_{condition}"],
                 "head_acc": row[f"head_acc_{condition}"],
+                "head_idle": row[f"head_idle_{condition}"],
                 "hand_grab_time": row[f"hand_grab_time_{condition}"],
                 "hand_rmse": row[f"hand_rmse_{condition}"],
+                "hand_jerk": row[f"hand_jerk_{condition}"],
                 "nasa_tlx": row[f"nasa_tlx_{condition}"],
                 "performance": row[f"performance_{condition}"]
             }
@@ -196,8 +204,8 @@ def create_long_df_2(main_df):
 # write_pickle("main_dataframe.pickle", main_df)
 # behavior_data()
 # create_long_df_2(load_pickle("main_dataframe_2.pickle"))
-long_df = create_long_df(load_pickle("main_dataframe.pickle"))
-print(long_df)
+# long_df = create_long_df(load_pickle("main_dataframe.pickle"))
+# print(long_df)
 
 
 

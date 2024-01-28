@@ -19,7 +19,7 @@ participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
 condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
 measures1 = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
-                 "hand_grab_time", "hand_rmse", "nasa_tlx", "performance"]
+                 "hand_grab_time", "hand_rmse", "nasa_tlx", "performance", "hand_jerk", "head_idle"]
 measures2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
 
 
@@ -29,8 +29,9 @@ CODE IS TEMPORARILY HARDCODED IN ORDER TO UPDATE MAIN DATAFRAME
 """
 
 
-def edit_main_dataframe_1():
-    main_dataframe = load_pickle("main_dataframe.pickle")
+def edit_main_dataframe_1(main_dataframe):
+    main_dataframe = main_dataframe[main_dataframe.columns.drop(list(main_dataframe.filter(regex="jerk")))]
+    main_dataframe = main_dataframe[main_dataframe.columns.drop(list(main_dataframe.filter(regex="idle")))]
 
     hand_movement_jerk = load_pickle("box_plot_jerk.pickle")
     hand_movement_jerk = {'hand_jerk_' + str(key): value for key, value in
@@ -43,8 +44,11 @@ def edit_main_dataframe_1():
     head_movement_idle_df = pd.DataFrame(head_movement_idle)
 
     main_dataframe = pd.concat([main_dataframe, hand_movement_jerk_df, head_movement_idle_df], axis=1)
-    main_dataframe = main_dataframe[main_dataframe.columns.drop(list(main_dataframe.filter(regex='TODO')))]
-    print(main_dataframe)
+    # main_dataframe = main_dataframe[main_dataframe.columns.drop(list(main_dataframe.filter(regex='TODO')))]
+    # write_pickle("main_dataframe.pickle", main_dataframe)
+    return main_dataframe
 
 
-edit_main_dataframe_1()
+# df = load_pickle("main_dataframe.pickle")
+# print(df)
+# print(edit_main_dataframe_1(df))

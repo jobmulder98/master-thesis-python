@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 import pandas as pd
+import seaborn as sns
 
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.data_analysis.visualization.behavior_chart import behavior_dict, add_grabbing_time_intervals
+from src.data_analysis.visualization.plotting_behavior import behavior_dict, add_grabbing_time_intervals
 from src.preprocessing.helper_functions.general_helpers import write_pickle, load_pickle, pickle_exists
 
 load_dotenv()
@@ -58,15 +59,16 @@ def box_plot_percentage_list_isgrabbing():
         for participant in participants:
             percentages.append(overlap_dictionary[condition][participant - 1])
         plot_dictionary[condition] = percentages
+    data = pd.DataFrame(plot_dictionary)
     fig, ax = plt.subplots()
     plot_title = f"Percentage looking at List while Grabbing".title()
     ax.set_title(plot_title)
     ax.set_xlabel("Condition")
     ax.set_ylabel("Percentage (%)")
-    ax.boxplot(plot_dictionary.values())
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)
-    plt.show()
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
 
 
 def ratio_frequency_list_items():
@@ -84,15 +86,16 @@ def ratio_frequency_list_items():
         write_pickle("ratio_frequency_list_items.pickle", plot_dictionary)
     else:
         plot_dictionary = load_pickle("ratio_frequency_list_items.pickle")
+    data = pd.DataFrame(plot_dictionary)
     fig, ax = plt.subplots()
     plot_title = f"Ratios frequency list:items".title()
     ax.set_title(plot_title)
     ax.set_xlabel("Condition")
     ax.set_ylabel("Ratio (-)")
-    ax.boxplot(plot_dictionary.values())
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)
-    plt.show()
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
 
 
 def ratio_time_list_items():
@@ -110,20 +113,21 @@ def ratio_time_list_items():
         write_pickle("ratio_time_list_items.pickle", plot_dictionary)
     else:
         plot_dictionary = load_pickle("ratio_time_list_items.pickle")
+    data = pd.DataFrame(plot_dictionary)
     fig, ax = plt.subplots()
     plot_title = f"Ratios time list / items".title()
     ax.set_title(plot_title)
     ax.set_xlabel("Condition")
-    # df = pd.DataFrame(plot_dictionary)
     ax.set_ylabel("Seconds / item")
-    ax.boxplot(plot_dictionary.values())
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)
-    plt.show()
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
 
 
 if __name__ == "__main__":
-    box_plot_percentage_list_isgrabbing()
+    # box_plot_percentage_list_isgrabbing()
     # ratio_frequency_list_items()
     # ratio_time_list_items()
     pass
+
