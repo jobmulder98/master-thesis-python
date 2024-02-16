@@ -56,8 +56,8 @@ def box_plot_hand_movements_rmse():
 
 
 def box_plot_jerk():
-    if pickle_exists("box_plot_jerk.pickle"):
-        jerk = load_pickle("box_plot_jerk.pickle")
+    if pickle_exists("box_plot_jerk_2.pickle"):
+        jerk = load_pickle("box_plot_jerk_2.pickle")
     else:
         jerk = dict()
         for condition in conditions:
@@ -68,7 +68,7 @@ def box_plot_jerk():
                 _mean_jerk = mean_jerk(dataframe, start_end_coordinates)
                 jerk_condition.append(_mean_jerk)
             jerk[condition] = jerk_condition
-        write_pickle("box_plot_jerk.pickle", jerk)
+        write_pickle("box_plot_jerk_2.pickle", jerk)
     fig, ax = plt.subplots()
     data = pd.DataFrame(jerk)
 
@@ -79,7 +79,7 @@ def box_plot_jerk():
     ax.set_ylabel("Jerk ($m/s^3$)")
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    # plt.show()
+    plt.show()
     return
 
 
@@ -112,4 +112,4 @@ def box_plot_hand_movements_grab_time():
 
 # box_plot_hand_movements_rmse()
 # box_plot_hand_movements_grab_time()
-# box_plot_jerk()
+box_plot_jerk()

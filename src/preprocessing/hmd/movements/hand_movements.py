@@ -55,14 +55,11 @@ def mean_jerk(dataframe: pd.DataFrame, start_end_coordinates: list[dict]) -> flo
     dataframe = filter_hand_movement_data(dataframe)
 
     for hand_trajectory in start_end_coordinates:
-        jerk_current_trajectory = 0
         start_index = hand_trajectory["start_index"]
         end_index = hand_trajectory["end_index"]
+        jerk_current_trajectory = np.abs(dataframe["rightControllerJerk"].iloc[start_index:end_index])
+        jerk_all_trajectories.append(np.mean(jerk_current_trajectory))
 
-        for index in range(start_index, end_index):
-            x, y, z = dataframe["rightControllerJerk"].iloc[index]
-            jerk_current_trajectory += (x ** 2 + y ** 2 + z ** 2)
-        jerk_all_trajectories.append(0.5 * jerk_current_trajectory)
     return np.mean(jerk_all_trajectories)
 
 

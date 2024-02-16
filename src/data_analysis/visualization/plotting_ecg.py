@@ -67,6 +67,13 @@ def heart_rate_variability_boxplot(pickle_filename, participants, conditions):
         mean_heart_rate_variability = np.mean([x for x in heart_rate_variability if x is not None])
         filtered_data = [x if x is not None else mean_heart_rate_variability for x in heart_rate_variability]
         heart_rate_variabilities[condition] = filtered_data
+
+    for i in range(2, 8):
+        ratio = []
+        for j in range(len(heart_rate_variabilities[1])):
+            ratio.append((heart_rate_variabilities[i][j] - heart_rate_variabilities[1][j]) / heart_rate_variabilities[1][j] * 100)
+        print(f"the mean heart rate increase of condition {i} = {np.mean(ratio)}, with std {np.std(ratio)}")
+
     data = pd.DataFrame(heart_rate_variabilities)
     fig, ax = plt.subplots()
     ax.set_title("Heart Rate Variability")
@@ -254,9 +261,46 @@ def heart_rate_first_35_seconds_boxplot(pickle_filename):
     return
 
 
+def heart_rate_variability_first_35_seconds_boxplot(pickle_filename, participants, conditions):
+    filtered_peaks = load_pickle(pickle_filename)
+    times, peaks = filtered_peaks[0], filtered_peaks[1]
+    heart_rate_variabilities = {}
+    for condition in conditions:
+        heart_rate_variability = []
+        for participant in participants:
+            try:
+                times_35s = [time for time in times[condition][participant - 1] if time < 35]
+                peaks_35s = peaks[condition][participant - 1][:len(times_35s)]  # Adjust the slicing here
+                hrv = calculate_rmssd(peaks_35s)
+                heart_rate_variability.append(hrv)
+            except Exception as e:
+                heart_rate_variability.append(None)
+        mean_heart_rate_variability = np.mean([x for x in heart_rate_variability if x is not None])
+        filtered_data = [x if x is not None else mean_heart_rate_variability for x in heart_rate_variability]
+        heart_rate_variabilities[condition] = filtered_data
+
+    for i in range(2, 8):
+        ratio = []
+        for j in range(len(heart_rate_variabilities[1])):
+            ratio.append((heart_rate_variabilities[i][j] - heart_rate_variabilities[1][j]) / heart_rate_variabilities[1][j] * 100)
+        print(f"the mean heart rate increase of condition {i} = {np.mean(ratio)}, with std {np.std(ratio)}")
+
+    data = pd.DataFrame(heart_rate_variabilities)
+    fig, ax = plt.subplots()
+    ax.set_title("Heart Rate Variability")
+    ax.set_xlabel("Condition")
+    fig.autofmt_xdate(rotation=30)
+    ax.set_ylabel("Heart Rate Variability (beats/min)")
+    ax.set_xticklabels(condition_names)
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
+    plt.show()
+    return
+
+
 if __name__ == "__main__":
     # heart_rate_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
-    # heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
+    heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
     # plot_average_heart_rate_all("ecg_data_filtered.pickle", outline_condition=[1, 7])
     # plot_heart_rate_variability_all("ecg_data_filtered.pickle", outline_condition=[5, 6, 7])
     # plot_average_heart_rate_per_condition(1, "ecg_data_filtered.pickle")
@@ -264,5 +308,9 @@ if __name__ == "__main__":
     # plot_heart_rate_participant_condition(4, 7)
     # print("")
     # heart_rate_first_35_seconds_boxplot("ecg_data_filtered.pickle")
+    heart_rate_variability_first_35_seconds_boxplot("ecg_data_filtered.pickle",
+                                                    np.arange(1, 22),
+                                                    np.arange(1, 8)
+                                                    )
     pass
 

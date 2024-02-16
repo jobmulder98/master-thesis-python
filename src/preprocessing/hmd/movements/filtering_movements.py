@@ -10,13 +10,13 @@ from src.preprocessing.ecg_eda.eda.filtering import (
     interpolate_nan_values,
     median_filter,
 )
-from src.preprocessing.hmd.movements.head_movements import head_movement_peaks
 from src.preprocessing.helper_functions.general_helpers import moving_average, butter_lowpass_filter
 conditions = np.arange(1, 8)
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
 
 
 def time_derivative(dataframe: pd.DataFrame, x_columnname: str, x_dot_columnname: str):
-    dataframe[x_dot_columnname] = dataframe[x_columnname].diff() / dataframe["deltaSeconds"]
+    dataframe[x_dot_columnname] = dataframe[x_columnname].diff() / 0.05  #dataframe["deltaSeconds"]
     return dataframe
 
 
@@ -58,23 +58,46 @@ def filter_head_movement_data(dataframe: pd.DataFrame):
 
 
 def filter_hand_movement_data(dataframe: pd.DataFrame):
-    dataframe = time_derivative(dataframe, "rightControllerPosition", "rightControllerVelocity")
-    dataframe = time_derivative(dataframe, "rightControllerVelocity", "rightControllerAcceleration")
-    dataframe = time_derivative(dataframe, "rightControllerAcceleration", "rightControllerJerk")
+    # dataframe = time_derivative(dataframe, "rightControllerPosition", "rightControllerVelocity")
+    # dataframe = time_derivative(dataframe, "rightControllerVelocity", "rightControllerAcceleration")
+    # dataframe = time_derivative(dataframe, "rightControllerAcceleration", "rightControllerJerk")
 
     dataframe.fillna(0, inplace=True)
 
-    dataframe["rightControllerVelocityVectorize"] = dataframe["rightControllerVelocity"].apply(
+    dataframe["rightControllerPositionVectorize"] = dataframe["rightControllerPosition"].apply(
         lambda x: np.linalg.norm(x)
     )
-    dataframe["rightControllerAccelerationVectorize"] = dataframe["rightControllerAcceleration"].apply(
-        lambda x: np.linalg.norm(x)
-    )
-    dataframe["rightControllerJerkVectorize"] = dataframe["rightControllerJerk"].apply(
-        lambda x: np.linalg.norm(x)
-    )
+    dataframe["rightControllerPositionVectorizeFiltered"] = butter_lowpass_filter(dataframe["rightControllerPositionVectorize"], cutoff=20, order=3)
+    dataframe = time_derivative(dataframe, "rightControllerPositionVectorizeFiltered", "rightControllerVelocity")
+    dataframe = time_derivative(dataframe, "rightControllerVelocity", "rightControllerAcceleration")
+    dataframe = time_derivative(dataframe, "rightControllerAcceleration", "rightControllerJerk")
+    # dataframe["rightControllerVelocityVectorize"] = dataframe["rightControllerVelocity"].apply(
+    #     lambda x: np.linalg.norm(x)
+    # )
+    # dataframe["rightControllerAccelerationVectorize"] = dataframe["rightControllerAcceleration"].apply(
+    #     lambda x: np.linalg.norm(x)
+    # )
+    # dataframe["rightControllerJerkVectorize"] = dataframe["rightControllerJerk"].apply(
+    #     lambda x: np.linalg.norm(x)
+    # )
     return dataframe
 
 
-df = create_clean_dataframe_hmd(14, 7)
-filter_head_movement_data(df)
+for i in range(1, 4):
+    df = create_clean_dataframe_hmd(4, i)
+    df = filter_hand_movement_data(df)
+    # position_signal = df["rightControllerPositionVectorize"]
+    # rolling_mean = df["rightControllerPositionVectorize"].rolling(window=20).mean()
+    # signal_unfiltered = df["rightControllerPositionVectorize"]
+    # plt.plot(signal_unfiltered, alpha =0.5)
+    signal = df["rightControllerJerk"]
+    plt.plot(signal, label=condition_names[i - 1], alpha=0.5)
+    # df["rightControllerPositionVectorizeFiltered"].plot(label=condition_names[i - 1], alpha=0.5)
+    # print(f"The mean frame rate in seconds for condition {i} is: {df['deltaSeconds'].mean()}")
+    # print(f"The std. dev. frame rate in seconds for condition {i} is: {df['deltaSeconds'].std()}")
+
+plt.title("Jerk vectorized over time".title())
+plt.xlabel("Timeframe")
+plt.ylabel("Jerk")
+plt.legend()
+plt.show()

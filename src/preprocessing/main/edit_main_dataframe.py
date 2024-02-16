@@ -49,6 +49,13 @@ def edit_main_dataframe_1(main_dataframe):
     return main_dataframe
 
 
-# df = load_pickle("main_dataframe.pickle")
+def add_products_per_minute(main_dataframe):
+    main_dataframe["ratio_time_list_items"] = 60 / main_dataframe["ratio_time_list_items"]
+    print(main_dataframe["ratio_time_list_items"])
+
+
+df = load_pickle("main_dataframe_long_2.pickle")
+print(df)
 # print(df)
-# print(edit_main_dataframe_1(df))
+# edit_main_dataframe_1(df)
+add_products_per_minute(df)

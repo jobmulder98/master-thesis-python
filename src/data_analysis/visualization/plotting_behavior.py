@@ -132,8 +132,9 @@ def behavior_head_movement_chart(participant, condition):
 
 
 def behavior_all_conditions(participant):
-    conditions = [1, 3, 5, 7]
-    fig, axes = plt.subplots(len(conditions), 1, figsize=(12, 8), sharex=True,
+    # conditions = [1, 3, 5, 7]
+    conditions = np.arange(1, 8)
+    fig, axes = plt.subplots(len(conditions), 1, figsize=(12, 16), sharex=True,
                              gridspec_kw={'height_ratios': np.ones(len(conditions))})
 
     for i, condition in enumerate(conditions):
@@ -141,7 +142,7 @@ def behavior_all_conditions(participant):
         plot_behavior_chart(time_interval_dict, participant, condition, ax=axes[i])
 
     plt.tight_layout()
-    plt.savefig(f"{DATA_DIRECTORY}/images/p{participant}.png")
+    plt.savefig(f"{DATA_DIRECTORY}/images/behavior-charts-long/p{participant}.png")
     # plt.show()
 
 
@@ -182,11 +183,12 @@ def behavior_all_conditions_ecg(participant):
 
 if __name__ == "__main__":
     # behavior_head_movement_chart(4, 7)
-    for participant in participants:
-        behavior_all_conditions(participant)
+    # for participant in participants:
+    #     behavior_all_conditions(participant)
+    behavior_all_conditions(4)
     # print(sns.color_palette("set2").as_hex())
     # behavior_all_conditions_with_angle_histograms(12)
     # save_behavior_dicts()
     # behavior_all_conditions_ecg(4)
-    plt.show()
+    # plt.show()
     pass

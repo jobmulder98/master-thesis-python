@@ -8,10 +8,11 @@ import seaborn as sns
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.data_analysis.visualization.plotting_behavior import behavior_dict, add_grabbing_time_intervals
 from src.preprocessing.helper_functions.general_helpers import write_pickle, load_pickle, pickle_exists
+from src.data_analysis.helper_functions.visualization_helpers import save_figure
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
-condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
                    "Mental High"]
 conditions = np.arange(1, 8)
 participants = np.arange(1, 23)
@@ -69,6 +70,7 @@ def box_plot_percentage_list_isgrabbing():
     fig.autofmt_xdate(rotation=30)
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
+    # save_figure(f"boxplots/boxplot-behavior-grab.png")
 
 
 def ratio_frequency_list_items():
@@ -96,6 +98,8 @@ def ratio_frequency_list_items():
     fig.autofmt_xdate(rotation=30)
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
+    # save_figure(f"boxplots/boxplot-behavior-ratio-frequency.png")
+
 
 
 def ratio_time_list_items():
@@ -123,11 +127,14 @@ def ratio_time_list_items():
     fig.autofmt_xdate(rotation=30)
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
+    # save_figure(f"boxplots/boxplot-behavior-ratio-time.png")
+
+
 
 
 if __name__ == "__main__":
-    # box_plot_percentage_list_isgrabbing()
-    # ratio_frequency_list_items()
-    # ratio_time_list_items()
+    box_plot_percentage_list_isgrabbing()
+    ratio_frequency_list_items()
+    ratio_time_list_items()
     pass
 

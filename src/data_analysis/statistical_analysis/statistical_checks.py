@@ -17,10 +17,13 @@ measure_names = ["AOI Cart", "AOI List", "AOI Main Shelf", "AOI Other Object", "
                      "Heart Rate Variability",
                      "Head Acc.", "Mean Grab Time", "RMSE Hand Trajectory", "NASA-TLX", "Performance", "Hand Jerk",
                      "Head Idle"]
+# measure_names = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
 condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low",
                    "Mental High"]
-units = ["$seconds$", "$seconds$", "$seconds$", "$seconds$", "$bpm$", "$bpm$", "$m/s^2$", "$seconds$", "$meters$",
-         "$-$", "$seconds/item$", "$m/s^3$", "$seconds$"]
+# units = ["$seconds$", "$seconds$", "$seconds$", "$seconds$", "$bpm$", "$bpm$", "$m/s^2$", "$seconds$", "$meters$",
+#          "$-$", "$seconds/item$", "$m/s^3$", "$seconds$"]
+units = ["$%$", "$-$", "$seconds/item$"]
+
 
 
 def is_normal_shapiro(data):
@@ -65,6 +68,19 @@ def kurtosis(data):
     return stats.kurtosis(data, axis=0, fisher=True, bias=True)
 
 
+def calculate_cohens_d(long_dataframe, measure_column, baseline_condition=1, comparison_conditions=np.arange(2, 8)):
+    baseline_data = long_dataframe[long_dataframe['condition'] == baseline_condition][measure_column]
+    cohens_ds = []
+    for condition in comparison_conditions:
+        comparison_data = long_dataframe[long_dataframe['condition'] == condition][measure_column]
+        mean_baseline = baseline_data.mean()
+        mean_comparison = np.mean(comparison_data)
+        pooled_std_dev = (baseline_data.std() ** 2 + comparison_data.std() ** 2) / 2
+        cohens_d = (mean_comparison - mean_baseline) / np.sqrt(pooled_std_dev)
+        cohens_ds.append(cohens_d)
+    return cohens_ds
+
+
 def all_values_to_latex(dataframe):
     measures, column_names_all, means, mins, maxes, stds, skewnesses, kurtosises, units_all = (
         [], [], [], [], [], [], [], [], []
@@ -104,6 +120,7 @@ def all_values_to_latex(dataframe):
     return
 
 
+
 def histogram_all(dataframe):
     measure_counter = 0
     for i, column in enumerate(dataframe.columns):
@@ -124,8 +141,15 @@ if __name__ == "__main__":
         
     measures analysis 2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
     """
-    main_dataframe = load_pickle("main_dataframe.pickle")
+    main_dataframe = load_pickle("main_dataframe_2.pickle")
     main_dataframe_columns = main_dataframe.columns
+
+    measures_analysis_1 = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
+         "hand_grab_time", "hand_rmse", "nasa_tlx", "performance", "hand_jerk", "head_idle"]
+    measures_analysis_2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
+
+    long_df = load_pickle("main_dataframe_long.pickle")
+
 
     # all_values_to_latex(main_dataframe)
     # plot_distribution(main_dataframe["performance_3"].values)

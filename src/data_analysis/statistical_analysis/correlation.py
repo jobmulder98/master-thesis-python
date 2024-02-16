@@ -16,8 +16,10 @@ participants = np.arange(1, 23)
 
 main_dataframe = load_pickle("main_dataframe.pickle")
 main_dataframe_long = load_pickle("main_dataframe_long.pickle")
-column_names = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_acc",
-                "hand_grab_time", "hand_rmse", "nasa_tlx", "performance", "condition"]
+main_dataframe_long_2 = load_pickle("main_dataframe_long_2.pickle")
+column_names = ["aoi_cart", "aoi_list", "aoi_main_shelf", "aoi_other_object", "hr", "hrv", "head_idle",
+                "nasa_tlx", "performance"]  #, "hand_jerk"]
+column_names_2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
 
 
 def correlation_matrix_means():
@@ -58,3 +60,4 @@ def correlation_matrix():
 if __name__ == "__main__":
     # correlation_matrix_means()
     correlation_matrix()
+

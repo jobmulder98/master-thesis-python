@@ -18,7 +18,7 @@ DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
 
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)
-condition_names = ["No Stimuli", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
+condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
 
 
 def aoi_data(aoi_name):
@@ -199,13 +199,15 @@ def create_long_df_2(main_df):
 
 # condition_order_number(6, 2)
 # main_df = load_pickle("main_dataframe.pickle")
-# main_df.at[5, "aoi_other_object_4"] = np.mean(main_df["aoi_other_object_4"])
-# # print(main_df["aoi_other_object_4"])
 # write_pickle("main_dataframe.pickle", main_df)
-# behavior_data()
+# main_df_2 = load_pickle("main_dataframe_2.pickle")
+# print(main_df_2)
 # create_long_df_2(load_pickle("main_dataframe_2.pickle"))
 # long_df = create_long_df(load_pickle("main_dataframe.pickle"))
+long_df = load_pickle("main_dataframe_long.pickle")
+print(long_df)
 # print(long_df)
-
-
+# long_df.to_csv(f"{DATA_DIRECTORY}/other/dataframe_1_R.csv")
+# long_df_2 = load_pickle("main_dataframe_long_2.pickle")
+# long_df_2.to_csv(f"{DATA_DIRECTORY}/other/dataframe_2_R.csv")
 

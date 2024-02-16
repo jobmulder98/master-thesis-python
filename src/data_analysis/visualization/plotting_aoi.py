@@ -338,7 +338,7 @@ if __name__ == "__main__":
     # barplot_other_object_over_time(3, ["notAssigned", "NPC"], 10)
     # plot_fixation_location_object_tag(16, 3, "NPC")
     # barplot_names_of_npc(3)
-    # boxplots_aoi("list")
+    boxplots_aoi("other_object")
     # boxplots_aoi("transition")
     # barplot_total_times_condition(3, "main_shelf")
     # barplot_total_time()
@@ -349,5 +349,5 @@ if __name__ == "__main__":
 
     # heat_map_participant_condition(4, 3)
     # boxplots_aoi("other_object")
-    # plt.show()
+    plt.show()
     pass
