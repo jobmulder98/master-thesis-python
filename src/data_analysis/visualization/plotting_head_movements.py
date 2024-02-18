@@ -9,6 +9,7 @@ import seaborn as sns
 from mpl_toolkits.mplot3d import Axes3D
 import os
 
+from preprocessing.hmd.movements.head_movements import head_stillness
 from src.data_analysis.helper_functions.visualization_helpers import increase_opacity_condition
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle, pickle_exists
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
@@ -42,6 +43,29 @@ def box_plot_head_accelerations():
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)
     ax.set_ylabel("Mean acceleration (m/s^2)")
+    sns.boxplot(data=data, ax=ax, palette="Set2")
+    sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
+
+
+def box_plot_head_stillness():
+    if pickle_exists("head_stillness.pickle"):
+        head_accelerations = load_pickle("head_stillness.pickle")
+    else:
+        head_accelerations = {}
+        for condition in conditions:
+            head_stillness_condition = []
+            for participant in participants:
+                head_stillness_condition.append(head_stillness(participant, condition))
+            head_accelerations[condition] = head_stillness_condition
+        write_pickle("head_stillness.pickle", head_accelerations)
+
+    fig, ax = plt.subplots()
+    data = pd.DataFrame(head_accelerations)
+    ax.set_title(f"Head stillness duration across all conditions".title())
+    ax.set_xlabel("Condition")
+    ax.set_xticklabels(condition_names)
+    fig.autofmt_xdate(rotation=30)
+    ax.set_ylabel("Time (s)")
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
 
@@ -222,5 +246,6 @@ if __name__ == "__main__":
     # line_plot_head_movements_condition(20, 4)
     # line_plot_accelerations_over_time(10)
     # line_plot_acceleration_peaks_over_time(10)
-    # plt.show()
+    box_plot_head_stillness()
+    plt.show()
     pass

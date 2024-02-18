@@ -23,12 +23,16 @@ def find_start_end_coordinates(dataframe: pd.DataFrame, time_threshold: float = 
 
         if time_counter >= time_threshold:
             start_coordinate = dataframe.loc[start_index, "rightControllerPosition"]
+            start_time = dataframe.loc[start_index, "timeCumulative"]
+            end_time = dataframe.loc[end_index, "timeCumulative"]
             start_coordinate_idx = start_index
             start_end_coordinates.append({
                 "start_coordinate": start_coordinate,
                 "end_coordinate": end_coordinate,
                 "start_index": start_coordinate_idx,
                 "end_index": end_coordinate_idx,
+                "start_time": start_time,
+                "end_time": end_time,
                 "grab_time": time_counter
             })
         time_counter = 0
@@ -63,6 +67,22 @@ def mean_jerk(dataframe: pd.DataFrame, start_end_coordinates: list[dict]) -> flo
     return np.mean(jerk_all_trajectories)
 
 
+def hand_smoothness(dataframe: pd.DataFrame, start_end_coordinates: list[dict]) -> float:
+    jerk_all_trajectories = []
+    interpolated_times, jerk_signal = filter_hand_movement_data(dataframe)
+    dt = 0.01
+
+    for hand_trajectory in start_end_coordinates:
+        start_time = hand_trajectory["start_time"]
+        end_time = hand_trajectory["end_time"]
+        start_index = int(start_time / dt)
+        end_index = int(end_time / dt)
+        jerk_current_trajectory = np.abs(jerk_signal[start_index:end_index])
+        jerk_all_trajectories.append(np.mean(jerk_current_trajectory))
+
+    return np.mean(jerk_all_trajectories)
+
+
 def mean_grab_time(start_end_coordinates) -> float:
     if not start_end_coordinates:
         return 0
@@ -78,7 +98,8 @@ def hand_movement_features(dataframe: pd.DataFrame) -> dict:
             "mean grab time": mean_grab_time(start_end_coordinates)}
 
 
-# for i in range(1, 8):
+# for i in range(1, 2):
 #     df = create_clean_dataframe_hmd(8, i)
 #     start_end_coor = find_start_end_coordinates(df)
-#     print(mean_jerk(df, start_end_coor))
+#     print(start_end_coor)
+    # print(mean_jerk(df, start_end_coor))

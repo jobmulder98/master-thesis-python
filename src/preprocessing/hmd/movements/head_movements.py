@@ -9,6 +9,21 @@ from src.preprocessing.ecg_eda.eda.filtering import (
     replace_values_above_threshold_to_nan,
     add_margin_around_nan_values,
 )
+from src.preprocessing.hmd.movements.filtering_movements import (
+    filter_head_movement_data,
+    filter_hand_movement_data,
+)
+
+
+def head_stillness(participant, condition, threshold=3):
+    df = create_clean_dataframe_hmd(participant, condition)
+    times, acc = filter_head_movement_data(df)
+    dt = times[1] - times[0]
+    head_stillness_time = 0
+    for i in range(len(acc)):
+        if abs(acc[i]) < threshold:
+            head_stillness_time += dt
+    return head_stillness_time
 
 
 def head_movement_peaks(signal, threshold: float):
@@ -57,10 +72,7 @@ def head_movement_features(dataframe: pd.DataFrame, plot=False) -> dict:
     return features
 
 
-# participant_number = 102
-# condition = 1
-# start_index = 0
-# end_index = -1
-#
-# df = create_clean_dataframe_hmd(16, 7)
-# filter_head_movement_data(df, plot=True)
+# participant_number = 4
+# condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
+# for condition in np.arange(1, 8):
+#     print(f"Total head stillness time for condition {condition_names[condition-1]}: {head_stillness(participant_number, condition)}")

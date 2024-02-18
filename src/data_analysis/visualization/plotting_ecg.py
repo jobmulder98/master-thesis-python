@@ -10,7 +10,7 @@ from data_analysis.helper_functions.visualization_helpers import increase_opacit
 from preprocessing.ecg_eda.ecg.filtering import (calculate_mean_heart_rate,
                                                  calculate_rmssd,
                                                  interpolate_nan_values)
-from preprocessing.helper_functions.general_helpers import load_pickle
+from preprocessing.helper_functions.general_helpers import load_pickle, write_pickle
 load_dotenv()
 
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -135,16 +135,16 @@ def plot_average_heart_rate_all(pickle_filename: str, outline_condition=None):
         plt.plot(common_x,
                  average_y,
                  linestyle='-',
-                 linewidth=2,
+                 linewidth=1.5,
                  alpha=opacity[condition-1],
                  label=condition_names[condition-1])
     # plt.axvspan(0, 5, facecolor="black", alpha=0.3)
     # plt.axvspan(31, 36, facecolor="black", alpha=0.3)
     # plt.axvspan(62, 67, facecolor="black", alpha=0.3)
     # plt.axvspan(93, 98, facecolor="black", alpha=0.3)
-    plt.title('Heart Rate Over Time')
-    plt.xlabel('Time (s)')
-    plt.ylabel('Heart Rate (beats/min)')
+    plt.title('Heart Rate Over Time', fontsize=16)
+    plt.xlabel('Time (s)', fontsize=16)
+    plt.ylabel('Heart Rate (beats/min)', fontsize=16)
     plt.legend()
     plt.grid(True)
     plt.show()
@@ -244,11 +244,14 @@ def heart_rate_first_35_seconds_boxplot(pickle_filename):
         filtered_data = [x if x is not None else mean_heart_rate for x in heart_rate]
         heart_rates[condition] = filtered_data
 
-    for i in range(2, 8):
-        ratio = []
-        for j in range(len(heart_rates[1])):
-            ratio.append((heart_rates[i][j] - heart_rates[1][j]) / heart_rates[1][j] * 100)
-        print(f"the mean heart rate increase of condition {i} = {np.mean(ratio)}, with std {np.std(ratio)}")
+    # for i in range(2, 8):
+    #     ratio = []
+    #     for j in range(len(heart_rates[1])):
+    #         ratio.append((heart_rates[i][j] - heart_rates[1][j]) / heart_rates[1][j] * 100)
+    #     print(f"the mean heart rate increase of condition {i} = {np.mean(ratio)}, with std {np.std(ratio)}")
+
+    print(heart_rates)
+    write_pickle("heart_rate_35.pickle", heart_rates)
 
     fig, ax = plt.subplots()
     ax.set_title("Heart Rate")
@@ -300,17 +303,17 @@ def heart_rate_variability_first_35_seconds_boxplot(pickle_filename, participant
 
 if __name__ == "__main__":
     # heart_rate_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
-    heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
-    # plot_average_heart_rate_all("ecg_data_filtered.pickle", outline_condition=[1, 7])
+    # heart_rate_variability_boxplot("ecg_data_unfiltered.pickle", participants, conditions)
+    # plot_average_heart_rate_all("ecg_data_filtered.pickle")  #, outline_condition=[1, 7])
     # plot_heart_rate_variability_all("ecg_data_filtered.pickle", outline_condition=[5, 6, 7])
     # plot_average_heart_rate_per_condition(1, "ecg_data_filtered.pickle")
     # plot_heart_rate_participant("ecg_data_filtered.pickle", 7)
     # plot_heart_rate_participant_condition(4, 7)
     # print("")
     # heart_rate_first_35_seconds_boxplot("ecg_data_filtered.pickle")
-    heart_rate_variability_first_35_seconds_boxplot("ecg_data_filtered.pickle",
-                                                    np.arange(1, 22),
-                                                    np.arange(1, 8)
-                                                    )
+    # heart_rate_variability_first_35_seconds_boxplot("ecg_data_filtered.pickle",
+    #                                                 np.arange(1, 22),
+    #                                                 np.arange(1, 8)
+    #                                                 )
     pass
 

@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.signal
+from scipy.interpolate import interp1d
+from numpy.typing import NDArray
 
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.preprocessing.ecg_eda.eda.filtering import (
@@ -15,89 +17,90 @@ conditions = np.arange(1, 8)
 condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
 
 
-def time_derivative(dataframe: pd.DataFrame, x_columnname: str, x_dot_columnname: str):
-    dataframe[x_dot_columnname] = dataframe[x_columnname].diff() / 0.05  #dataframe["deltaSeconds"]
+def time_derivative_dataframe_column(dataframe: pd.DataFrame, x_columnname: str, x_dot_columnname: str, dt=0.015):
+    """Compute the derivative for a column in a dataframe"""
+    dataframe[x_dot_columnname] = dataframe[x_columnname].diff() / dt  #dataframe["deltaSeconds"]
     return dataframe
+
+
+def time_derivative_signal(signal: NDArray, dt: float) -> NDArray:
+    """Compute the derivative using numpy's gradient function"""
+    derivative = np.gradient(signal, dt)
+    return derivative
+
+
+def interpolate_equal_frame_rate(time, signal, frame_rate=0.01):
+    """This function interpolate a signal so that the frame rate becomes equal to frame_rate."""
+    interpolator = interp1d(time, signal, kind='linear', fill_value='extrapolate')
+
+    # Generate new time points with equal frame rate
+    total_time = 122
+    common_time = np.arange(0, total_time, frame_rate)
+
+    # Interpolate the signal at the new time points
+    interpolated_signal = interpolator(common_time)
+
+    return common_time, interpolated_signal
 
 
 def filter_head_movement_data(dataframe: pd.DataFrame):
-    dataframe = time_derivative(dataframe, "hmdEuler", "hmdAngularVelocity")
-    dataframe = time_derivative(dataframe, "hmdAngularVelocity", "hmdAngularAcceleration")
+    dataframe.fillna(0, inplace=True)
 
-    dataframe["hmdAngularVelocity"].fillna(0, inplace=True)
-    dataframe["hmdAngularAcceleration"].fillna(0, inplace=True)
+    # Vectorize the angle to obtain one value
+    dataframe["hmdRotationVectorized"] = dataframe["hmdEuler"].apply(
+        lambda x: np.linalg.norm(x)
+    )
 
-    dataframe["hmdAngularVelocityVectorize"] = dataframe["hmdAngularVelocity"].apply(lambda x: np.linalg.norm(x))
-    dataframe["hmdAngularAccelerationVectorize"] = dataframe["hmdAngularAcceleration"].apply(lambda x: np.linalg.norm(x))
+    # Interpolate the signal so frame rate becomes equal
+    times = dataframe["timeCumulative"].values
+    signal = dataframe["hmdRotationVectorized"].values
+    dt = 0.01
+    interpolated_times, interpolated_rotation_signal = interpolate_equal_frame_rate(times, signal, frame_rate=dt)
 
-    head_movement_velocity = dataframe["hmdAngularVelocityVectorize"].values
-    head_movement_velocity = replace_values_above_threshold_to_nan(head_movement_velocity, threshold=20)
-    head_movement_velocity = add_margin_around_nan_values(head_movement_velocity, 500)
-    head_movement_velocity = np.array(interpolate_nan_values(head_movement_velocity.tolist()))
-    head_movement_velocity = butter_lowpass_filter(head_movement_velocity, cutoff=25, order=1)
-    dataframe["headMovementVelocityFiltered"] = head_movement_velocity
+    # Filter the blocky signal
+    interpolated_rotation_signal_filtered = butter_lowpass_filter(
+        interpolated_rotation_signal, cutoff=20, order=3
+    )
 
-    head_movement_acceleration = dataframe["hmdAngularAccelerationVectorize"].values
-    head_movement_acceleration = replace_values_above_threshold_to_nan(head_movement_acceleration, threshold=1000)
-    head_movement_acceleration = add_margin_around_nan_values(head_movement_acceleration, 500)
-    head_movement_acceleration = np.array(interpolate_nan_values(head_movement_acceleration.tolist()))
-    dataframe["headMovementAcceleration"] = head_movement_acceleration
-    head_movement_acceleration = butter_lowpass_filter(head_movement_acceleration, cutoff=25, order=1)
-    dataframe["headMovementAccelerationFiltered"] = head_movement_acceleration
+    # Take time derivatives to obtain velocity and acceleration
+    velocity_signal = time_derivative_signal(interpolated_rotation_signal_filtered, dt)
+    acceleration_signal = time_derivative_signal(velocity_signal, dt)
 
-    dataframe["headMovementAcceleration"] = dataframe["headMovementAcceleration"].rolling(20).mean()
-
-    # plt.plot(dataframe["headMovementVelocityFiltered"])
-
-    # plt.plot(dataframe["headMovementAcceleration"])
-    # plt.plot(dataframe["headMovementAccelerationFiltered"])
-    # plt.axhline(y=100, color="red")
-    # plt.axhline(y=75, color="green")
-    # plt.show()
-    return dataframe
+    return interpolated_times, acceleration_signal
 
 
 def filter_hand_movement_data(dataframe: pd.DataFrame):
-    # dataframe = time_derivative(dataframe, "rightControllerPosition", "rightControllerVelocity")
-    # dataframe = time_derivative(dataframe, "rightControllerVelocity", "rightControllerAcceleration")
-    # dataframe = time_derivative(dataframe, "rightControllerAcceleration", "rightControllerJerk")
-
     dataframe.fillna(0, inplace=True)
-
     dataframe["rightControllerPositionVectorize"] = dataframe["rightControllerPosition"].apply(
         lambda x: np.linalg.norm(x)
     )
-    dataframe["rightControllerPositionVectorizeFiltered"] = butter_lowpass_filter(dataframe["rightControllerPositionVectorize"], cutoff=20, order=3)
-    dataframe = time_derivative(dataframe, "rightControllerPositionVectorizeFiltered", "rightControllerVelocity")
-    dataframe = time_derivative(dataframe, "rightControllerVelocity", "rightControllerAcceleration")
-    dataframe = time_derivative(dataframe, "rightControllerAcceleration", "rightControllerJerk")
-    # dataframe["rightControllerVelocityVectorize"] = dataframe["rightControllerVelocity"].apply(
-    #     lambda x: np.linalg.norm(x)
-    # )
-    # dataframe["rightControllerAccelerationVectorize"] = dataframe["rightControllerAcceleration"].apply(
-    #     lambda x: np.linalg.norm(x)
-    # )
-    # dataframe["rightControllerJerkVectorize"] = dataframe["rightControllerJerk"].apply(
-    #     lambda x: np.linalg.norm(x)
-    # )
-    return dataframe
+
+    # Interpolate the signal so frame rate becomes equal
+    times = dataframe["timeCumulative"].values
+    signal = dataframe["rightControllerPositionVectorize"].values
+    dt = 0.01
+    interpolated_times, interpolated_position_signal = interpolate_equal_frame_rate(times, signal, frame_rate=dt)
+
+    # Filter the blocky signal
+    interpolated_position_signal_filtered = butter_lowpass_filter(
+        interpolated_position_signal, cutoff=20, order=3
+    )
+
+    # Three time derivatives to obtain jerk
+    velocity_signal = time_derivative_signal(interpolated_position_signal_filtered, dt)
+    acceleration_signal = time_derivative_signal(velocity_signal, dt)
+    jerk_signal = time_derivative_signal(acceleration_signal, dt)
+
+    return interpolated_times, jerk_signal
 
 
-for i in range(1, 4):
-    df = create_clean_dataframe_hmd(4, i)
-    df = filter_hand_movement_data(df)
-    # position_signal = df["rightControllerPositionVectorize"]
-    # rolling_mean = df["rightControllerPositionVectorize"].rolling(window=20).mean()
-    # signal_unfiltered = df["rightControllerPositionVectorize"]
-    # plt.plot(signal_unfiltered, alpha =0.5)
-    signal = df["rightControllerJerk"]
-    plt.plot(signal, label=condition_names[i - 1], alpha=0.5)
-    # df["rightControllerPositionVectorizeFiltered"].plot(label=condition_names[i - 1], alpha=0.5)
-    # print(f"The mean frame rate in seconds for condition {i} is: {df['deltaSeconds'].mean()}")
-    # print(f"The std. dev. frame rate in seconds for condition {i} is: {df['deltaSeconds'].std()}")
-
-plt.title("Jerk vectorized over time".title())
-plt.xlabel("Timeframe")
-plt.ylabel("Jerk")
-plt.legend()
-plt.show()
+# for i in range(5, 8):
+#     df = create_clean_dataframe_hmd(4, i)
+#     times, jerk = filter_hand_movement_data(df)
+#     # plt.plot(times, jerk, alpha=0.5, label=condition_names[i-1])
+# #
+# plt.title("Jerk vectorized over time".title())
+# plt.xlabel("Timeframe")
+# plt.ylabel("Jerk")
+# plt.legend()
+# plt.show()

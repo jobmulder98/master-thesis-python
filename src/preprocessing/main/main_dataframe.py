@@ -204,10 +204,9 @@ def create_long_df_2(main_df):
 # print(main_df_2)
 # create_long_df_2(load_pickle("main_dataframe_2.pickle"))
 # long_df = create_long_df(load_pickle("main_dataframe.pickle"))
-long_df = load_pickle("main_dataframe_long.pickle")
-print(long_df)
+# long_df = load_pickle("main_dataframe_long.pickle")
 # print(long_df)
-# long_df.to_csv(f"{DATA_DIRECTORY}/other/dataframe_1_R.csv")
+# print(long_df)
 # long_df_2 = load_pickle("main_dataframe_long_2.pickle")
 # long_df_2.to_csv(f"{DATA_DIRECTORY}/other/dataframe_2_R.csv")
 

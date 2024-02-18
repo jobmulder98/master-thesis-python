@@ -54,8 +54,34 @@ def add_products_per_minute(main_dataframe):
     print(main_dataframe["ratio_time_list_items"])
 
 
-df = load_pickle("main_dataframe_long_2.pickle")
-print(df)
-# print(df)
-# edit_main_dataframe_1(df)
-add_products_per_minute(df)
+def add_data_to_main_dataframe(pickle_name: str, measure_name: str, write_to_pickle=False, write_to_csv=False):
+    measure_data = load_pickle(pickle_name)
+    print(measure_data)
+    df = load_pickle("main_dataframe_long.pickle")
+
+    df[measure_name] = 0
+
+    for key, value in measure_data.items():
+        for idx, participant_value in enumerate(value):
+            condition = (df["condition"] == key) & (df["participant"] == idx+1)
+            df.loc[condition, measure_name] = participant_value
+
+    if write_to_pickle:
+        write_pickle("main_dataframe_long.pickle", df)
+
+    long_df = load_pickle("main_dataframe_long.pickle")
+
+    if write_to_csv:
+        long_df.to_csv("dataframe_1_R.csv")
+    return
+
+
+if __name__ == "__main__":
+    add_data_to_main_dataframe(
+        "box_plot_hand_smoothness.pickle",
+        "hand_smoothness",
+        write_to_pickle=True,
+        write_to_csv=True
+    )
+    pass
+
