@@ -197,16 +197,8 @@ def create_long_df_2(main_df):
     return long_df
 
 
-# condition_order_number(6, 2)
-# main_df = load_pickle("main_dataframe.pickle")
-# write_pickle("main_dataframe.pickle", main_df)
-# main_df_2 = load_pickle("main_dataframe_2.pickle")
-# print(main_df_2)
-# create_long_df_2(load_pickle("main_dataframe_2.pickle"))
-# long_df = create_long_df(load_pickle("main_dataframe.pickle"))
-# long_df = load_pickle("main_dataframe_long.pickle")
-# print(long_df)
-# print(long_df)
+long_df = load_pickle("main_dataframe_long.pickle")
+print(long_df)
 # long_df_2 = load_pickle("main_dataframe_long_2.pickle")
 # long_df_2.to_csv(f"{DATA_DIRECTORY}/other/dataframe_2_R.csv")
 

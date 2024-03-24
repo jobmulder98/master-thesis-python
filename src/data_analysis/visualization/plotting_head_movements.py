@@ -61,7 +61,7 @@ def box_plot_head_stillness():
 
     fig, ax = plt.subplots()
     data = pd.DataFrame(head_accelerations)
-    ax.set_title(f"Head stillness duration across all conditions".title())
+    ax.set_title(f"Head Stillness Duration".title())
     ax.set_xlabel("Condition")
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)

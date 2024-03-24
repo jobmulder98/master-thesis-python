@@ -5,7 +5,7 @@ import os
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 
-from preprocessing.main.edit_main_dataframe import edit_main_dataframe_1
+from preprocessing.main.edit_main_dataframe import edit_main_dataframe_1, transform_long_column_to_separate_columns
 from src.preprocessing.helper_functions.general_helpers import load_pickle
 
 load_dotenv()
@@ -149,8 +149,7 @@ if __name__ == "__main__":
     measures_analysis_2 = ["overlap_grab_list", "ratio_frequency_list_items", "ratio_time_list_items"]
 
     long_df = load_pickle("main_dataframe_long.pickle")
-
-
-    # all_values_to_latex(main_dataframe)
+    performance_df = transform_long_column_to_separate_columns(long_df, "performance")
+    all_values_to_latex(performance_df)
     # plot_distribution(main_dataframe["performance_3"].values)
 

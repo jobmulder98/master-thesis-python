@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from preprocessing.hmd.movements.filtering_movements import filter_hand_movement_data
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
@@ -41,7 +42,11 @@ def find_start_end_coordinates(dataframe: pd.DataFrame, time_threshold: float = 
 
 
 def rmse_hand_trajectory(dataframe: pd.DataFrame, start_end_coordinates: list[dict]) -> float:
-     #  TODO: make decision for 1. rmse of all error values, or 2. rmse of trajectories, and averaging those rmses
+    """
+    Calculates the root mean squared error compared to a staight line
+
+    Note: old function, not used in thesis
+    """
     error = []
     for hand_trajectory in start_end_coordinates:
         for i in np.arange(hand_trajectory["start_index"], hand_trajectory["end_index"]):
@@ -84,6 +89,11 @@ def hand_smoothness(dataframe: pd.DataFrame, start_end_coordinates: list[dict]) 
 
 
 def mean_grab_time(start_end_coordinates) -> float:
+    """
+        Computes the mean time an object is grabbed over an entire condition.
+
+        Note: old function, not used in thesis
+    """
     if not start_end_coordinates:
         return 0
     grab_time = 0
@@ -103,3 +113,10 @@ def hand_movement_features(dataframe: pd.DataFrame) -> dict:
 #     start_end_coor = find_start_end_coordinates(df)
 #     print(start_end_coor)
     # print(mean_jerk(df, start_end_coor))
+# df = create_clean_dataframe_hmd(2, 1)
+# interpolated_times, jerk_signal = filter_hand_movement_data(df)
+# plt.plot(interpolated_times, jerk_signal)
+# plt.title("Filtered jerk signal for Participant 1, Baseline".title(), fontsize=16)
+# plt.xlabel("Time (s)", fontsize=16)
+# plt.ylabel("Jerk ($m/s^3$)", fontsize=16)
+# plt.show()

@@ -54,7 +54,19 @@ def add_products_per_minute(main_dataframe):
     print(main_dataframe["ratio_time_list_items"])
 
 
-def add_data_to_main_dataframe(pickle_name: str, measure_name: str, write_to_pickle=False, write_to_csv=False):
+def transform_long_column_to_separate_columns(main_dataframe_long, column_name):
+    separated_column = {}
+    for condition in conditions:
+        condition_data = []
+        for participant in participants:
+            c = (main_dataframe_long["participant"] == participant) & (main_dataframe_long["condition"] == condition)
+            value_to_append = main_dataframe_long[column_name].loc[c].squeeze()
+            condition_data.append(value_to_append)
+        separated_column[f"{column_name}_{condition}"] = condition_data
+    return pd.DataFrame(separated_column)
+
+
+def add_data_to_main_dataframe_long(pickle_name: str, measure_name: str, write_to_pickle=False, write_to_csv=False):
     measure_data = load_pickle(pickle_name)
     print(measure_data)
     df = load_pickle("main_dataframe_long.pickle")
@@ -77,11 +89,15 @@ def add_data_to_main_dataframe(pickle_name: str, measure_name: str, write_to_pic
 
 
 if __name__ == "__main__":
-    add_data_to_main_dataframe(
-        "box_plot_hand_smoothness.pickle",
-        "hand_smoothness",
-        write_to_pickle=True,
-        write_to_csv=True
-    )
+    # add_data_to_main_dataframe(
+    #     "box_plot_hand_smoothness.pickle",
+    #     "hand_smoothness",
+    #     write_to_pickle=False,
+    #     write_to_csv=False
+    # )
+    long_df = load_pickle("main_dataframe_long.pickle")
+    head_df = transform_long_column_to_separate_columns(long_df, "head_stillness")
+    hand_df = transform_long_column_to_separate_columns(long_df, "hand_smoothness")
+    print(head_df)
     pass
 

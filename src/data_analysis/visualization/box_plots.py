@@ -10,8 +10,9 @@ from src.preprocessing.helper_functions.general_helpers import load_pickle, writ
 from src.data_analysis.visualization.plotting_aoi import boxplots_aoi
 from src.data_analysis.visualization.plotting_ecg import heart_rate_boxplot, heart_rate_variability_boxplot
 from src.data_analysis.visualization.plotting_general import box_plot_general
-from src.data_analysis.visualization.plotting_head_movements import box_plot_idle_time
-from src.data_analysis.visualization.plotting_hand_movements import box_plot_hand_movements_grab_time, box_plot_jerk
+from src.data_analysis.visualization.plotting_head_movements import box_plot_idle_time, box_plot_head_stillness
+from src.data_analysis.visualization.plotting_hand_movements import box_plot_hand_movements_grab_time, box_plot_jerk, \
+    box_plot_hand_smoothness
 from src.data_analysis.visualization.plotting_hand_movements import box_plot_hand_movements_grab_time, box_plot_jerk
 from src.data_analysis.statistical_analysis.behavior_features import (
     box_plot_percentage_list_isgrabbing, ratio_time_list_items, ratio_frequency_list_items
@@ -62,7 +63,9 @@ def save_all_box_plots():
     # aois = ["list", "cart", "main_shelf", "other_object"]
     # for aoi in aois:
     #     boxplots_aoi(aoi)
-    #     save_figure(f"boxplot-aoi-{aoi}.png")
+    #     save_figure(f"boxplots/boxplot-aoi-{aoi}.png")
+
+    boxplots_aoi("other_object")
     #
     # box_plot_hand_movements_grab_time()
     # save_figure("boxplot-hand-grab-time.png")
@@ -72,7 +75,7 @@ def save_all_box_plots():
     #
     # box_plot_general("nasa-tlx weighted")
     # save_figure("boxplot-nasa-tlx.png")
-    #
+
     # box_plot_general("seconds/item window")
     # save_figure("boxplot-performance.png")
     #
@@ -84,15 +87,23 @@ def save_all_box_plots():
     #
     # box_plot_idle_time()
     # save_figure("boxplot-head-idle.png")
-
-    ratio_frequency_list_items()
-    save_figure("boxplot-behavior-ratio-frequency.png")
-
-    ratio_time_list_items()
-    save_figure("boxplot-behavior-ratio-time.png")
-
-    box_plot_percentage_list_isgrabbing()
-    save_figure("boxplot-behavior-grab.png")
+    #
+    # box_plot_hand_smoothness()
+    # save_figure("boxplots/boxplot-hand-smoothness.png")
+    #
+    # box_plot_head_stillness()
+    # save_figure("boxplots/boxplot-head-stillness.png")
+    #
+    # ratio_frequency_list_items()
+    # save_figure("boxplot-behavior-ratio-frequency.png")
+    #
+    # ratio_time_list_items()
+    # save_figure("boxplot-behavior-ratio-time.png")
+    #
+    # box_plot_percentage_list_isgrabbing()
+    # save_figure("boxplot-behavior-grab.png")
+    #
+    pass
 
 
 save_all_box_plots()

@@ -100,7 +100,7 @@ def box_plot_hand_smoothness():
     fig, ax = plt.subplots()
     data = pd.DataFrame(smoothness)
 
-    ax.set_title(f"Smoothness of grabbing trajectories".title())
+    ax.set_title(f"Hand Movement Smoothness".title())
     ax.set_xlabel("Condition")
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)

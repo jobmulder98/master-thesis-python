@@ -207,15 +207,22 @@ def boxplots_aoi(name_aoi):
         plot_dictionary[condition] = aoi_values
     data = pd.DataFrame(plot_dictionary)
     fig, ax = plt.subplots()
-    plot_title = f"Total time looking at {name_aoi}".replace("_", " ").title()
-    ax.set_title(plot_title)
+    titles = {
+        "list": f"Total Gaze Duration at the shopping list".title(),
+        "cart": f"Total Gaze Duration at the cart".title(),
+        "main_shelf": f"Total Gaze Duration at the main shelf".title(),
+        "other_object": f"Total Gaze Duration at other objects".title(),
+        "invalid": f"Total Duration eye tracking was invalid".title(),
+        "transition": f"Total Gaze Duration of transitions".title(),
+    }
+    ax.set_title(titles[name_aoi])
     ax.set_xlabel("Condition")
     ax.set_ylabel("Time (s)")
     ax.set_xticklabels(condition_names)
     fig.autofmt_xdate(rotation=30)
     sns.boxplot(data=data, ax=ax, palette="Set2")
     sns.stripplot(data=data, ax=ax, color="black", alpha=0.3, jitter=True)
-    # plt.show()
+    plt.show()
     return
 
 

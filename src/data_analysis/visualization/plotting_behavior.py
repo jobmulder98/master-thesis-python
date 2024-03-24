@@ -108,7 +108,7 @@ def save_behavior_dicts():
 
 def plot_behavior_chart(time_interval_dict, participant, condition, ax):
     tag_colors = {"MainShelf": "blue", "otherObject": "red", "Cart": "green", "List": "orange", "isGrabbing": "cyan"}
-    key_order = ["otherObject", "MainShelf", "List", "Cart", "isGrabbing"]
+    key_order = ["otherObject", "Cart", "isGrabbing", "MainShelf", "List"]
     ax.set_yticks(range(len(key_order)))
     ax.set_yticklabels(key_order)
     for i, key in enumerate(key_order):
@@ -142,6 +142,7 @@ def behavior_all_conditions(participant):
         plot_behavior_chart(time_interval_dict, participant, condition, ax=axes[i])
 
     plt.tight_layout()
+    plt.savefig(f"{DATA_DIRECTORY}/images/p{participant}.png")
     plt.savefig(f"{DATA_DIRECTORY}/images/behavior-charts-1234567/p{participant}.png")
     # plt.show()
 

@@ -18,6 +18,8 @@ from src.preprocessing.hmd.movements.filtering_movements import (
 def head_stillness(participant, condition, threshold=3):
     df = create_clean_dataframe_hmd(participant, condition)
     times, acc = filter_head_movement_data(df)
+    plt.plot(times, acc)
+    plt.show()
     dt = times[1] - times[0]
     head_stillness_time = 0
     for i in range(len(acc)):
@@ -72,7 +74,8 @@ def head_movement_features(dataframe: pd.DataFrame, plot=False) -> dict:
     return features
 
 
-# participant_number = 4
+# participant_number = 1
+# head_stillness(participant_number, 1)
 # condition_names = ["Baseline", "Visual Low", "Visual High", "Auditory Low", "Auditory High", "Mental Low", "Mental High"]
 # for condition in np.arange(1, 8):
 #     print(f"Total head stillness time for condition {condition_names[condition-1]}: {head_stillness(participant_number, condition)}")
