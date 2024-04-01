@@ -11,11 +11,8 @@ import matplotlib.pyplot as plt
 
 from preprocessing.ecg_eda.ecg.filtering import (
     correct_rpeaks,
-    correct_rpeaks_manually,
-    check_for_corrupted_data,
     obtain_filtered_signal_and_peaks,
 )
-from preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
 
 # Suppress specific warning
 warnings.filterwarnings("ignore", category=UserWarning,
@@ -50,7 +47,6 @@ def ecg_features(dataframe: pd.DataFrame,
                                                                   start_index,
                                                                   end_index)
     corrected_peaks = correct_rpeaks(rpeaks)
-    corrected_peaks = correct_rpeaks_manually(participant, condition, corrected_peaks)
     corrected_peaks = np.unique(corrected_peaks)
     # print(corrected_peaks)
 
@@ -88,24 +84,4 @@ def ecg_features(dataframe: pd.DataFrame,
     plt.clf()  # avoid error: Failed to allocate bitmap
     return features
 
-
-# participants = np.arange(1, 23)
-# with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
-#     synchronized_times = pickle.load(handle)
-#
-# for participant_no in participants:
-#     for condition in np.arange(7, 8):
-#         start_index_condition, end_index_condition = synchronized_times[participant_no][condition]
-#         df = create_clean_dataframe_ecg_eda(participant_no)
-#         print(ecg_features(
-#             dataframe=df,
-#             participant=participant_no,
-#             condition=condition,
-#             start_index=start_index_condition,
-#             end_index=end_index_condition,
-#             plot_corrected_peaks=False,
-#             plot_biosppy_analysis=False,
-#             plot_hrv_analysis=False,
-#             plot_ecg=False,
-#             plot_tachogram=False, ))
 

@@ -108,15 +108,3 @@ def hand_movement_features(dataframe: pd.DataFrame) -> dict:
             "mean grab time": mean_grab_time(start_end_coordinates)}
 
 
-# for i in range(1, 2):
-#     df = create_clean_dataframe_hmd(8, i)
-#     start_end_coor = find_start_end_coordinates(df)
-#     print(start_end_coor)
-    # print(mean_jerk(df, start_end_coor))
-# df = create_clean_dataframe_hmd(2, 1)
-# interpolated_times, jerk_signal = filter_hand_movement_data(df)
-# plt.plot(interpolated_times, jerk_signal)
-# plt.title("Filtered jerk signal for Participant 1, Baseline".title(), fontsize=16)
-# plt.xlabel("Time (s)", fontsize=16)
-# plt.ylabel("Jerk ($m/s^3$)", fontsize=16)
-# plt.show()

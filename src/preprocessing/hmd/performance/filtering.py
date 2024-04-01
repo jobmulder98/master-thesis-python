@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 import os
 import re
 
-from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
 from src.preprocessing.helper_functions.general_helpers import delta_time_seconds, pickle_exists, load_pickle
 
 load_dotenv()
@@ -101,11 +100,3 @@ def n_back_performance_dataframe() -> pd.DataFrame:
     given_answers = n_back_dataframe["total_correct"].iloc[0:22].tolist()
     plotting_dataframe["n_back_correct"] = given_answers
     return plotting_dataframe
-
-
-# participant = 4  # 4, c5, 22, c5
-# condition = 2
-# df = create_clean_dataframe_hmd(participant, condition)
-# cor, par = product_lists(df)
-# errors = count_errors(cor, par, participant, condition)
-# print(f"number of errors is {errors}")

@@ -1,11 +1,8 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from dotenv import load_dotenv
-
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.helper_functions.general_helpers import is_zero_array, write_pickle
+from src.preprocessing.helper_functions.general_helpers import write_pickle
 
 
 def total_time_other_object(dataframe: pd.DataFrame) -> float:
@@ -104,17 +101,14 @@ def replace_character_to_aoi(dataframe: pd.DataFrame) -> pd.DataFrame:
 def create_data_pickle():
     participants = np.arange(1, 23)
     conditions = np.arange(1, 8)
-    # aoi_dataframes = {}
     aoi_results = {}
     for condition in conditions:
-        # dataframes = []
         condition_results = []
         for participant in participants:
             hmd_dataframe = create_clean_dataframe_hmd(participant, condition)
             filtered_hmd_dataframe = filter_location_transitions(hmd_dataframe, ["notAssigned", "NPC"], 0.1)
             filtered_hmd_dataframe = replace_destination_with_character(filtered_hmd_dataframe)
 
-            # dataframes.append(filtered_hmd_dataframe)
             condition_result = {"list": total_time_list(filtered_hmd_dataframe),
                                 "cart": total_time_cart(filtered_hmd_dataframe),
                                 "main_shelf": total_time_main_shelf(filtered_hmd_dataframe),
@@ -123,24 +117,5 @@ def create_data_pickle():
                                 "transition": total_time_transition(filtered_hmd_dataframe),
                                 }
             condition_results.append(condition_result)
-        # aoi_dataframes[condition] = dataframes
         aoi_results[condition] = condition_results
-    # write_pickle("aoi_dataframes.pickle", aoi_dataframes)
     write_pickle("aoi_results.pickle", aoi_results)
-
-# create_data_pickle()
-
-
-# not_assigned = 0
-# npc = 0
-# for participant in range(1, 23):
-#     dataframe = create_clean_dataframe_hmd(participant, 2)
-#     filtered_hmd_dataframe = filter_location_transitions(dataframe, ["notAssigned", "NPC"], 0.1)
-#     filtered_hmd_dataframe = replace_destination_with_character(filtered_hmd_dataframe)
-#     not_assigned += total_time_not_assigned(filtered_hmd_dataframe)
-#     npc += total_time_npc(filtered_hmd_dataframe)
-#
-# print(f"total time not assigned: {not_assigned}")
-# print(f"total time npc: {npc}")
-# print(f"total percentage npc: {npc / (npc + not_assigned) * 100}")
-

@@ -5,7 +5,7 @@ import os
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 
-from preprocessing.main.edit_main_dataframe import edit_main_dataframe_1, transform_long_column_to_separate_columns
+from preprocessing.main.main_dataframe import transform_long_column_to_separate_columns
 from src.preprocessing.helper_functions.general_helpers import load_pickle
 
 load_dotenv()

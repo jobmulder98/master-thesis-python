@@ -1,15 +1,12 @@
 import numpy as np
 from dotenv import load_dotenv
 import os
-import pickle
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
 import neurokit2 as nk
 from scipy.ndimage import median_filter
 
 from src.preprocessing.ecg_eda.clean_raw_data import create_clean_dataframe_ecg_eda
-from src.preprocessing.helper_functions.general_helpers import (format_time,
-                                                                interpolate_nan_values,
+from src.preprocessing.helper_functions.general_helpers import (interpolate_nan_values,
                                                                 write_pickle,
                                                                 load_pickle)
 
@@ -104,38 +101,5 @@ def compute_normalized_means_medians():
         normalized_means_medians[participant] = {"means_norm": means_normalized, "medians_norm": medians_normalized}
     write_pickle("eda_normalized_means_medians.pickle", normalized_means_medians)
     return
-
-
-# compute_normalized_means_medians()
-# data = load_pickle("eda_normalized_means_medians.pickle")
-# print(data)
-
-# filtered_data = {}
-#
-# fig, ax = plt.subplots()
-
-# for condition in [1]:
-#     for participant in participants:
-#         start_index, end_index = synchronized_times[participant][condition]
-#         df = create_clean_dataframe_ecg_eda(participant).iloc[start_index:end_index]
-#         eda_signal = np.abs(df["Sensor-C:SC/GSR"].values)
-#         selected_values = eda_signal[::32]
-#         filtered_eda_signal, tonic_signal, phasic_signal = filter_eda_data(selected_values,
-#                                                                            1000,
-#                                                                            1000,
-#                                                                            200
-#                                                                            )
-#         mean_value = np.mean(filtered_eda_signal)
-#         standard_deviation = np.std(filtered_eda_signal)
-#         normalized_data = [((x - mean_value) / standard_deviation) for x in filtered_eda_signal]
-#         filtered_data[participant] = [eda_signal, filtered_eda_signal, tonic_signal, phasic_signal]
-#         plt.plot(normalized_data, label=f"participant {participant}")
-#
-# # write_pickle("eda_signal_filtered_normalized.pickle", filtered_data)
-# ax.set_title("Skin Conductance (EDA)")
-# ax.set_xlabel("Time (mm:ss)")
-# ax.set_ylabel("Skin Conductance (micro-Siemens")
-# plt.legend()
-# plt.show()
 
 

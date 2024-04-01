@@ -10,8 +10,8 @@ import seaborn as sns
 
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle
 from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.hmd.eyes.fixations import add_gaze_position_to_dataframe
-from src.preprocessing.hmd.eyes.area_of_interest import replace_destination_with_character, filter_location_transitions
+from src.preprocessing.hmd.area_of_interest.fixations import add_gaze_position_to_dataframe
+from src.preprocessing.hmd.area_of_interest.filtering import replace_destination_with_character, filter_location_transitions
 
 participants = np.arange(1, 23)
 conditions = np.arange(1, 8)

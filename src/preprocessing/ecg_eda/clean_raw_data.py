@@ -1,24 +1,10 @@
-import numpy as np
 import pandas as pd
-import dateutil.parser as dparser
-import matplotlib.pyplot as plt
-import linecache
 import os
 from biosppy.signals import ecg
-from typing import Union
-
-from datetime import datetime
 from dotenv import load_dotenv
 
-from src.preprocessing.helper_functions.dataframe_helpers import (
-    convert_column_to_datetime,
-    convert_column_to_float,
-)
-from src.preprocessing.helper_functions.general_helpers import (
-    delta_time_seconds,
-    text_file_name,
-    csv_file_name,
-)
+from src.preprocessing.helper_functions.dataframe_helpers import convert_column_to_float
+from src.preprocessing.helper_functions.general_helpers import text_file_name
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -66,9 +52,6 @@ def create_clean_dataframe_ecg_eda(participant_no: int) -> pd.DataFrame:
     #  Convert to float and filter ecg signal and replace in dataframe
     if "Sensor-B:EEG" in dataframe.columns:
         convert_column_to_float(dataframe, "Sensor-B:EEG")
-        # raw_ecg_signal = dataframe["Sensor-B:EEG"]
-        # filtered_ecg_signal = filter_ecg_signal(raw_ecg_signal)
-        # dataframe["Sensor-B:EEG-Filtered"] = filtered_ecg_signal
 
     # Convert to float and filter eda signal and replace in dataframe
     if "Sensor-C:SC/GSR" in dataframe.columns:
@@ -80,10 +63,3 @@ def create_clean_dataframe_ecg_eda(participant_no: int) -> pd.DataFrame:
 
 def filter_ecg_signal(ecg_signal):
     return ecg.ecg(ecg_signal, sampling_rate=ECG_SAMPLE_RATE, show=False)[1]
-
-
-
-# df = create_clean_dataframe_ecg_eda(13)
-# print(df.head(5))
-# plt.plot(df["Sensor-B:EEG"].iloc[0:10200])
-# plt.show()

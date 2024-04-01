@@ -1,17 +1,11 @@
 from dotenv import load_dotenv
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy
-import seaborn as sns
 import os
 
 from preprocessing.ecg_eda.ecg.filtering import calculate_mean_heart_rate, calculate_rmssd
 from preprocessing.nasa_tlx.features import nasa_tlx_weighted
-from src.data_analysis.helper_functions.visualization_helpers import increase_opacity_condition
 from src.preprocessing.helper_functions.general_helpers import is_zero_array, load_pickle, write_pickle, pickle_exists
-from src.preprocessing.hmd.clean_raw_data import create_clean_dataframe_hmd
-from src.preprocessing.hmd.movements.filtering_movements import filter_head_movement_data
 
 load_dotenv()
 DATA_DIRECTORY = os.getenv("DATA_DIRECTORY")
@@ -113,7 +107,6 @@ def condition_order_number(participant, condition):
     filename = os.path.join(DATA_DIRECTORY, "nasa_tlx", "participants-conditions.xlsx")
     condition_orders = pd.read_excel(filename, sheet_name="order-conditions-T", index_col=0)
     n_in_order = np.where(condition_orders[f"p{participant}"] == condition)[0][0] + 1
-    # print(f"participant {participant}, condition {condition}: {n_in_order}th in the order")
     return n_in_order
 
 
@@ -197,8 +190,17 @@ def create_long_df_2(main_df):
     return long_df
 
 
+def transform_long_column_to_separate_columns(main_dataframe_long, column_name):
+    separated_column = {}
+    for condition in conditions:
+        condition_data = []
+        for participant in participants:
+            c = (main_dataframe_long["participant"] == participant) & (main_dataframe_long["condition"] == condition)
+            value_to_append = main_dataframe_long[column_name].loc[c].squeeze()
+            condition_data.append(value_to_append)
+        separated_column[f"{column_name}_{condition}"] = condition_data
+    return pd.DataFrame(separated_column)
+
+
 long_df = load_pickle("main_dataframe_long.pickle")
 print(long_df)
-# long_df_2 = load_pickle("main_dataframe_long_2.pickle")
-# long_df_2.to_csv(f"{DATA_DIRECTORY}/other/dataframe_2_R.csv")
-

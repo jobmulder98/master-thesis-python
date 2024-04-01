@@ -73,19 +73,3 @@ def plot_filtered_signals(eda_signal, filtered_signal):
     ax.xaxis.set_major_formatter(FuncFormatter(format_time))
     plt.show()
     return None
-
-
-# participant = 15
-# with open(f"{DATA_DIRECTORY}\pickles\synchronized_times.pickle", "rb") as handle:
-#     synchronized_times = pickle.load(handle)
-# condition = 1
-# start_index_condition, end_index_condition = synchronized_times[participant][condition]
-# df = create_clean_dataframe_ecg_eda(participant)  #.iloc[start_index_condition:end_index_condition]
-# eda_signal = np.abs(df["Sensor-C:SC/GSR"].values)
-# filtered_signal =filter_eda_signal(eda_signal, plot_filtered_signals=True)[start_index_condition:end_index_condition]
-
-
-#  TODO: Kan niet gebruikt worden: [1, 2, 6 (signaal blijft rond de 1 hangen?), 8, 9, 21 (einde is noise), 22 (einde is noise)]
-#  TODO: Kan wel gebruikt worden: [3, 4, 5, 7, 10 (lage pieken), 11 (lage pieken) , 12 (lage pieken), 13, 14,
-#   15 (negatief signaal), 16, 17, 18 (lage pieken), 20]
-#  TODO: Twijfel of gebruikt kan worden: [19 (hele hoge skin conductance (rond de 600) ]

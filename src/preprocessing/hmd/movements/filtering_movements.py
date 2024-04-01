@@ -93,14 +93,3 @@ def filter_hand_movement_data(dataframe: pd.DataFrame):
 
     return interpolated_times, jerk_signal
 
-
-# for i in range(5, 8):
-#     df = create_clean_dataframe_hmd(4, i)
-#     times, jerk = filter_hand_movement_data(df)
-#     # plt.plot(times, jerk, alpha=0.5, label=condition_names[i-1])
-# #
-# plt.title("Jerk vectorized over time".title())
-# plt.xlabel("Timeframe")
-# plt.ylabel("Jerk")
-# plt.legend()
-# plt.show()
