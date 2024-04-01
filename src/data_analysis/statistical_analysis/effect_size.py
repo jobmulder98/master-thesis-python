@@ -27,7 +27,3 @@ def cohens_dz(group1, group2):
     mean_diff = np.mean(group1 - group2)
     std_diff = np.std(group1 - group2)
     return mean_diff / std_diff
-
-
-def calculate_effect_size():
-    pass

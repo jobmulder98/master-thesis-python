@@ -31,39 +31,64 @@ def aoi_data(aoi_name):
 
 
 def heart_rate_data():
-    participants_hr = np.arange(1, 22)
-    filtered_peaks = load_pickle("ecg_data_unfiltered.pickle")
-    times, peaks = filtered_peaks[0], filtered_peaks[1]
-    heart_rates, heart_rate_variabilities = {}, {}
+    participants_hr = np.arange(1, 22)  # Array of participant numbers from 1 to 21
+    filtered_peaks = load_pickle("ecg_data_unfiltered.pickle")  # Load filtered ECG data from a pickle file
+    times, peaks = filtered_peaks[0], filtered_peaks[1]  # Extract times and peaks from the filtered data
+    heart_rates, heart_rate_variabilities = {}, {}  # Initialize dictionaries to store heart rates and variabilities
+
+    # Iterate over different conditions
     for condition in conditions:
-        heart_rate, heart_rate_variability = [], []
+        heart_rate, heart_rate_variability = [], []  # Initialize lists to store heart rates and variabilities for each condition
+
+        # Iterate over each participant
         for participant in participants_hr:
-            hr = calculate_mean_heart_rate(times[condition][participant-1], peaks[condition][participant-1])
+            # Calculate mean heart rate for the participant's data in the current condition
+            hr = calculate_mean_heart_rate(times[condition][participant - 1], peaks[condition][participant - 1])
+            # Calculate root mean square of successive differences (RMSSD) for heart rate variability
             hrv = calculate_rmssd(peaks[condition][participant - 1])
-            heart_rate.append(hr)
-            heart_rate_variability.append(hrv)
+            heart_rate.append(hr)  # Append calculated heart rate to the list
+            heart_rate_variability.append(hrv)  # Append calculated heart rate variability to the list
+
+        # Store heart rates and variabilities for the current condition in dictionaries
         heart_rates[f"hr_{condition}"] = heart_rate
         heart_rate_variabilities[f"hrv_{condition}"] = heart_rate_variability
+
+    # Convert dictionaries to Pandas DataFrames
     hr, hrv = pd.DataFrame(heart_rates), pd.DataFrame(heart_rate_variabilities)
+
+    # Concatenate heart rate and variability DataFrames along columns
     hr_df = pd.concat([hr, hrv], axis=1, join="outer")
-    return hr_df
+
+    return hr_df  # Return the concatenated DataFrame containing heart rates and variabilities
 
 
 def movement_data():
+    # Load head accelerations data from a pickle file
     head_accelerations = load_pickle("head_acceleration_mean_results.pickle")
+    # Rename keys in the dictionary to include 'head_acc_' prefix
     head_accelerations = {'head_acc_' + str(key): value for key, value in head_accelerations.items()}
+    # Convert the dictionary to a Pandas DataFrame
     head_accelerations_df = pd.DataFrame(head_accelerations)
 
+    # Load hand movement mean grab time data from a pickle file
     hand_movement_mean_grab_time = load_pickle("box_plot_hand_movements_grab_time.pickle")
-    hand_movement_mean_grab_time = {'hand_grab_time_' + str(key): value for key, value in hand_movement_mean_grab_time.items()}
+    # Rename keys in the dictionary to include 'hand_grab_time_' prefix
+    hand_movement_mean_grab_time = {'hand_grab_time_' + str(key): value for key, value in
+                                    hand_movement_mean_grab_time.items()}
+    # Convert the dictionary to a Pandas DataFrame
     hand_movement_mean_grab_time_df = pd.DataFrame(hand_movement_mean_grab_time)
 
+    # Load hand movement root mean square error (RMSE) data from a pickle file
     hand_movement_rmse = load_pickle("box_plot_hand_movements_rmse.pickle")
+    # Rename keys in the dictionary to include 'hand_rmse_' prefix
     hand_movement_rmse = {'hand_rmse_' + str(key): value for key, value in hand_movement_rmse.items()}
+    # Convert the dictionary to a Pandas DataFrame
     hand_movement_rmse_df = pd.DataFrame(hand_movement_rmse)
 
+    # Concatenate all the DataFrames along columns
     movement_df = pd.concat([head_accelerations_df, hand_movement_mean_grab_time_df, hand_movement_rmse_df], axis=1)
-    return movement_df
+
+    return movement_df  # Return the concatenated DataFrame containing movement data
 
 
 def nasa_tlx_data():
@@ -143,32 +168,41 @@ def create_main_dataframe_1():
 
 
 def create_long_df(main_df):
-    reshaped_data = []
+    reshaped_data = []  # Initialize an empty list to store reshaped data
+
+    # Iterate over each row in the main DataFrame
     for index, row in main_df.iterrows():
-        participant = index + 1
+        participant = index + 1  # Participant number is the index plus one
+        # Iterate over each condition (1 to 7)
         for condition in range(1, 8):
+            # Create a new dictionary representing a row in the long format DataFrame
             new_row = {
                 "participant": participant,
                 "condition": condition,
-                "order": condition_order_number(participant, condition),
-                "aoi_cart": row[f"aoi_cart_{condition}"],
-                "aoi_list": row[f"aoi_list_{condition}"],
-                "aoi_main_shelf": row[f"aoi_main_shelf_{condition}"],
-                "aoi_other_object": row[f"aoi_other_object_{condition}"],
-                "hr": row[f"hr_{condition}"],
-                "hrv": row[f"hrv_{condition}"],
-                "head_acc": row[f"head_acc_{condition}"],
-                "head_idle": row[f"head_idle_{condition}"],
-                "hand_grab_time": row[f"hand_grab_time_{condition}"],
-                "hand_rmse": row[f"hand_rmse_{condition}"],
-                "hand_jerk": row[f"hand_jerk_{condition}"],
-                "nasa_tlx": row[f"nasa_tlx_{condition}"],
-                "performance": row[f"performance_{condition}"]
+                "order": condition_order_number(participant, condition),  # Calculate the order of the condition
+                "aoi_cart": row[f"aoi_cart_{condition}"],  # Area of interest for the cart
+                "aoi_list": row[f"aoi_list_{condition}"],  # Area of interest for the list
+                "aoi_main_shelf": row[f"aoi_main_shelf_{condition}"],  # Area of interest for the main shelf
+                "aoi_other_object": row[f"aoi_other_object_{condition}"],  # Area of interest for other objects
+                "hr": row[f"hr_{condition}"],  # Heart rate for the condition
+                "hrv": row[f"hrv_{condition}"],  # Heart rate variability for the condition
+                "head_acc": row[f"head_acc_{condition}"],  # Head acceleration for the condition
+                "head_idle": row[f"head_idle_{condition}"],  # Head idle time for the condition
+                "hand_grab_time": row[f"hand_grab_time_{condition}"],  # Hand grab time for the condition
+                "hand_rmse": row[f"hand_rmse_{condition}"],  # Hand root mean square error for the condition
+                "hand_jerk": row[f"hand_jerk_{condition}"],  # Hand jerk for the condition
+                "nasa_tlx": row[f"nasa_tlx_{condition}"],  # NASA Task Load Index for the condition
+                "performance": row[f"performance_{condition}"]  # Performance score for the condition
             }
-            reshaped_data.append(new_row)
+            reshaped_data.append(new_row)  # Append the new row to the list of reshaped data
+
+    # Convert the list of reshaped data to a Pandas DataFrame
     long_df = pd.DataFrame(reshaped_data)
+
+    # Write the long format DataFrame to a pickle file
     write_pickle("main_dataframe_long.pickle", long_df)
-    return long_df
+
+    return long_df  # Return the long format DataFrame
 
 
 def create_long_df_2(main_df):
@@ -202,5 +236,5 @@ def transform_long_column_to_separate_columns(main_dataframe_long, column_name):
     return pd.DataFrame(separated_column)
 
 
-long_df = load_pickle("main_dataframe_long.pickle")
-print(long_df)
+# long_df = load_pickle("main_dataframe_long.pickle")
+# print(long_df)

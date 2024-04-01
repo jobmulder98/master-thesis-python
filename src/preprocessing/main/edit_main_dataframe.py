@@ -44,14 +44,7 @@ def edit_main_dataframe_1(main_dataframe):
     head_movement_idle_df = pd.DataFrame(head_movement_idle)
 
     main_dataframe = pd.concat([main_dataframe, hand_movement_jerk_df, head_movement_idle_df], axis=1)
-    # main_dataframe = main_dataframe[main_dataframe.columns.drop(list(main_dataframe.filter(regex='TODO')))]
-    # write_pickle("main_dataframe.pickle", main_dataframe)
     return main_dataframe
-
-
-def add_products_per_minute(main_dataframe):
-    main_dataframe["ratio_time_list_items"] = 60 / main_dataframe["ratio_time_list_items"]
-    print(main_dataframe["ratio_time_list_items"])
 
 
 def transform_long_column_to_separate_columns(main_dataframe_long, column_name):
@@ -89,15 +82,9 @@ def add_data_to_main_dataframe_long(pickle_name: str, measure_name: str, write_t
 
 
 if __name__ == "__main__":
-    # add_data_to_main_dataframe(
-    #     "box_plot_hand_smoothness.pickle",
-    #     "hand_smoothness",
-    #     write_to_pickle=False,
-    #     write_to_csv=False
-    # )
-    long_df = load_pickle("main_dataframe_long.pickle")
-    head_df = transform_long_column_to_separate_columns(long_df, "head_stillness")
-    hand_df = transform_long_column_to_separate_columns(long_df, "hand_smoothness")
-    print(head_df)
+    # long_df = load_pickle("main_dataframe_long.pickle")
+    # head_df = transform_long_column_to_separate_columns(long_df, "head_stillness")
+    # hand_df = transform_long_column_to_separate_columns(long_df, "hand_smoothness")
+    # print(head_df)
     pass
 

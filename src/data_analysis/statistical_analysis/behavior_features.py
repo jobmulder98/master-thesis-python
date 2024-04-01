@@ -101,7 +101,6 @@ def ratio_frequency_list_items():
     # save_figure(f"boxplots/boxplot-behavior-ratio-frequency.png")
 
 
-
 def ratio_time_list_items():
     if not pickle_exists("ratio_time_list_items.pickle"):
         behavior_dictionaries = load_pickle("behavior_dicts.pickle")
@@ -133,8 +132,8 @@ def ratio_time_list_items():
 
 
 if __name__ == "__main__":
-    box_plot_percentage_list_isgrabbing()
-    ratio_frequency_list_items()
-    ratio_time_list_items()
+    # box_plot_percentage_list_isgrabbing()
+    # ratio_frequency_list_items()
+    # ratio_time_list_items()
     pass
 
